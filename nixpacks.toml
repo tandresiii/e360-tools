@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "caddy"]
+nixPkgs = ["caddy"]
 
 [start]
-cmd = "caddy file-server --root /app --listen :${PORT:-3000}"
+cmd = "caddy file-server --root . --listen :3000"
