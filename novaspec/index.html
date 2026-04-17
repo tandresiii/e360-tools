@@ -1,0 +1,2205 @@
+<!-- NovaSpec Tech Cabling Sheet Generator -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaSpec — Tech Cabling Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#0d1117;--surface2:#141824;--border:#1e2435;
+  --accent:#00c8f0;--accent2:#0077aa;--text:#e8eaf0;--muted:#666b7a;
+  --gold:#c8a830;--green:#28a428;--orange:#e08c20;--red:#d44040;
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;position:sticky;top:0;height:100vh}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-track{background:var(--surface)}.sidebar::-webkit-scrollbar-thumb{background:var(--border)}
+.sidebar-header{background:var(--surface);border-bottom:3px solid var(--accent);padding:18px 22px;position:sticky;top:0;z-index:10}
+.sidebar-logo{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:3px;color:#fff}
+.sidebar-logo span{color:var(--accent)}
+.sidebar-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.sidebar-body{padding:18px 22px}
+.section-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:6px;margin:18px 0 12px}
+.section-label:first-child{margin-top:0}
+.form-group{margin-bottom:10px}
+.form-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;display:block}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:4px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+select option{background:var(--surface2)}
+textarea{resize:vertical;min-height:54px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--accent);color:#0a0e1a}.btn-primary:hover{background:#00e0ff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-gold{background:var(--gold);color:#1a1200}.btn-gold:hover{background:#e0bc40}
+.btn-block{width:100%;margin-bottom:8px}
+.btn-sm{padding:6px 12px;font-size:11px}
+.btn-xs{padding:4px 8px;font-size:10px}
+
+/* SUMMARY CARDS */
+.layout-summary-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.lsc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.lsc-title{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent)}
+.lsc-body{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);line-height:1.7}
+.lsc-body strong{color:var(--text)}
+.lsc-empty{font-size:11px;color:var(--muted);font-style:italic;font-family:'Barlow Condensed',sans-serif}
+
+/* STATUS BAR */
+.status-bar{display:flex;flex-wrap:wrap;gap:14px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-top:8px}
+.status-item .si-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif}
+.status-item .si-val{font-size:18px;font-weight:700;font-family:'Barlow Condensed',sans-serif;color:var(--text)}
+.si-val.warn{color:var(--orange)}.si-val.over{color:var(--red)}.si-val.ok{color:var(--green)}
+
+/* PREVIEW */
+.preview-pane{background:#888;padding:28px;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:20px}
+.preview-pane::-webkit-scrollbar{width:4px}.preview-pane::-webkit-scrollbar-track{background:#777}.preview-pane::-webkit-scrollbar-thumb{background:#555}
+.preview-actions{display:flex;gap:10px;align-self:flex-start;width:100%;max-width:960px}
+
+/* SPEC SHEET */
+.spec-sheet{background:#fff;color:#111;width:960px;border-radius:4px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);font-family:'Barlow',sans-serif}
+.ss-header{background:#0a0e1a;color:#fff;padding:12px 28px;display:flex;justify-content:space-between;align-items:flex-start}
+.ss-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;letter-spacing:2px}
+.ss-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;margin-top:1px}
+.ss-meta{text-align:right;font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.6);line-height:1.6}
+.ss-meta strong{color:#fff}
+.ss-infobar{background:#0d1117;border-bottom:3px solid #00c8f0;padding:8px 28px;display:flex;gap:26px;flex-wrap:wrap}
+.ic{font-family:'Barlow Condensed',sans-serif}.ic .ic-l{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px}.ic .ic-v{font-size:15px;font-weight:700;color:#e8eaf0}.ic .ic-v em{color:#00c8f0;font-style:normal}
+.ss-body{padding:0 0 10px}
+.ss-diagram{padding:10px 28px 6px;border-bottom:1px solid #e4e7ef}
+.ss-diagram-frame{line-height:0}
+.ss-diagram-frame svg{display:block;max-width:100%}
+.ss-diag-title{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:4px}
+/* Port map */
+.port-map-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.pm-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;padding:5px 3px;border-radius:4px;border:2px solid;position:relative}
+.pm-chip .pc-n{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;line-height:1}
+.pm-chip .pc-lbl{font-size:7px;text-transform:uppercase;letter-spacing:.5px;text-align:center;line-height:1.2;margin-top:2px;max-width:48px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-chip .pc-load{font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:700;margin-top:2px}
+/* Assignment table */
+.ss-table-wrap{padding:0 28px}
+.ss-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+.ss-table thead tr{background:#0a0e1a;color:#fff}
+.ss-table th{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:9px 10px;text-align:left}
+.ss-table th.r{text-align:right}
+.ss-table tbody tr{border-bottom:1px solid #e4e7ef}
+.ss-table tbody tr:nth-child(even){background:#f7f8fb}
+.ss-table td{padding:8px 10px;vertical-align:middle}
+.ss-table td.r{text-align:right}
+.td-port{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;width:38px}
+.td-zone{font-weight:600;font-size:14px}
+.td-run{font-size:12px;color:#555;font-style:italic}
+.td-load{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700}
+.td-load.ok{color:#1a8a1a}.td-load.warn{color:#b86c00}.td-load.over{color:#cc2020}
+.ss-table .total-row{background:#0a0e1a !important;color:#fff;border-top:2px solid #00c8f0}
+.ss-table .total-row td{padding:9px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700}
+.ss-table .total-row td.big{font-size:15px}
+.color-swatch{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
+.ss-notes{padding:14px 28px 8px;border-top:1px solid #e4e7ef;margin-top:8px}
+.ss-notes-title{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:6px}
+.ss-notes-body{font-size:12px;color:#444;line-height:1.6;white-space:pre-wrap}
+.ss-footer{background:#0a0e1a;padding:10px 28px;display:flex;justify-content:space-between}
+.ss-footer span{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1px}
+.ss-page2-header{background:#0a0e1a;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #00c8f0}
+.ss-page2-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:2px;color:#fff}
+.ss-page2-meta{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);width:100vw;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-header{background:var(--surface2);border-bottom:2px solid var(--accent);padding:14px 22px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff;flex:1}
+.modal-close{background:none;border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{border-color:var(--accent);color:var(--accent)}
+.modal-body{display:grid;grid-template-columns:360px 1fr;flex:1;overflow:hidden}
+.modal-panel{padding:18px;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.modal-panel::-webkit-scrollbar{width:4px}.modal-panel::-webkit-scrollbar-track{background:var(--surface)}.modal-panel::-webkit-scrollbar-thumb{background:var(--border)}
+.modal-diagram{padding:18px;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#070c14}
+.modal-footer{background:var(--surface2);border-top:1px solid var(--border);padding:12px 22px;display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+
+/* SECTION CARDS */
+.cx-section-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:8px;transition:border-color .15s,background .15s}
+.cx-section-card.cx-card-hover{border-color:var(--accent);background:#0e1f2a}
+.cx-sec-group rect{transition:stroke .1s,stroke-width .1s}
+.cx-sec-group.cx-sec-hover rect{stroke:#fff;stroke-width:2}
+.cxs-header{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.cxs-order-btns{display:flex;flex-direction:column;gap:2px}
+.cxs-order-btns button{background:var(--surface);border:1px solid var(--border);color:var(--muted);width:20px;height:18px;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;border-radius:2px;padding:0}
+.cxs-order-btns button:hover{border-color:var(--accent);color:var(--accent)}
+.cxs-number{background:var(--accent);color:#000;width:22px;height:22px;border-radius:50%;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cxs-name-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.cxs-delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;border-radius:2px}
+.cxs-delete-btn:hover{color:#ff4444}
+.cxs-info-row{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px;margin-top:6px}
+.cx-add-btn{background:transparent;border:1px dashed var(--border);color:var(--muted);padding:8px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;width:100%;transition:all .15s;margin-top:2px}
+.cx-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cx-unit-toggle{display:flex;gap:4px;align-items:center}
+.cx-unit-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.cx-unit-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* PORT ASSIGNMENT ENTRIES */
+.port-entry{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;position:relative;transition:border-color .15s}
+.fiber-box-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid #f97316;border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.fiber-box-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.fiber-box-icon{width:22px;height:22px;background:#f97316;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#000;flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.fiber-port-checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.port-entry.active-port{border-color:var(--accent)}
+.port-entry-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.port-num-badge{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:900;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#000}
+.port-name-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.port-delete-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 4px;border-radius:2px}
+.port-delete-btn:hover{color:#ff4444}
+.pick-btn{padding:4px 8px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:all .15s}
+.pick-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pick-btn.picking{background:var(--accent);color:#000;border-color:var(--accent);animation:pulse 1s infinite}
+.pick-btn.set{border-color:#444;color:#aaa}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.port-dims{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px;margin-top:6px}
+
+/* coverage warning */
+#port-coverage-warning{font-size:11px;color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-top:4px;min-height:14px}
+
+/* PRINT */
+@media print{
+  @page{size:landscape;margin:8mm}
+
+  /* Hide non-print UI */
+  .sidebar,.preview-actions,.no-print,.modal-overlay{display:none!important}
+
+  /* Layout reset */
+  .app{display:block}
+  .preview-pane{display:block;background:#fff;padding:0;overflow:visible}
+  #sheetWrap{display:block;overflow:visible}
+  .spec-sheet{width:100%;max-width:100%;box-shadow:none;border-radius:0;overflow:visible}
+
+  /* Pages */
+  .ss-page{page-break-after:always;width:100%;box-sizing:border-box;overflow:visible}
+  .ss-page:last-child{page-break-after:avoid}
+
+  /* Force background colors */
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
+
+  /* Infobar — grid for predictable wrapping across print drivers */
+  .ss-infobar{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:4px 20px}
+
+  /* Diagram */
+  .ss-diagram{padding:4px 28px 2px}
+  .ss-diagram-frame{overflow:hidden}
+  .ss-diagram-frame svg{width:100%;height:auto}
+
+  .ss-body{padding:0;overflow:visible}
+
+  /* Table */
+  .ss-table{page-break-inside:auto}
+  .ss-table tr{page-break-inside:avoid;page-break-after:auto}
+  .ss-table thead{display:table-header-group}
+  .ss-table .total-row{page-break-before:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">NOVA<span>SPEC</span></div>
+    <div class="sidebar-sub">Tech Cabling Sheet Generator</div>
+  </div>
+  <div class="sidebar-body">
+
+    <!-- PROJECT INFO -->
+    <div class="section-label">Project Info</div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Job / Show Name</label><input type="text" id="jobName" placeholder="Show Name" oninput="render()"></div>
+      <div class="form-group"><label class="form-label">Venue</label><input type="text" id="venue" placeholder="Stadium / Arena" oninput="render()"></div>
+    </div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Show Date</label><input type="text" id="showDate" placeholder="MM/DD/YYYY" oninput="render()"></div>
+      <div class="form-group"><label class="form-label">Lead Tech</label><input type="text" id="techName" placeholder="Name" oninput="render()"></div>
+    </div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Sheet Rev</label><input type="text" id="revision" placeholder="v1" oninput="render()"></div>
+      <div class="form-group"><label class="form-label">Cabinet Type</label>
+        <select id="cabType" onchange="onCabChange()">
+          <option value="p10">P10 — 160×90px</option>
+          <option value="p391">P3.91 — 128×128px</option>
+          <option value="p12">P12 — 128×72px</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PROCESSOR -->
+    <div class="section-label">Processor</div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Model</label><input type="text" id="procModel" placeholder="e.g. VX1000, MCTRL4K" oninput="render()"></div>
+      <div class="form-group"><label class="form-label">Max Px / Port</label><input type="number" id="maxPixels" value="650000" oninput="render()"></div>
+    </div>
+
+    <!-- CABINET LAYOUT -->
+    <div class="section-label">Cabinet Layout</div>
+    <div class="layout-summary-card">
+      <div class="lsc-header">
+        <span class="lsc-title">Sections</span>
+        <button class="btn btn-outline btn-xs" onclick="openLayoutModal()">Edit Layout</button>
+      </div>
+      <div id="layout-summary-body"><span class="lsc-empty">No sections defined yet</span></div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px">
+      <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px">Compass °N</label>
+      <input type="range" id="compassSidebar" min="0" max="359" value="0" step="1"
+        oninput="compassBearing=parseInt(this.value);document.getElementById('compassDeg').value=this.value;document.getElementById('compassSidebarVal').textContent=this.value+'°';renderCxDiagram();render()"
+        style="flex:1;accent-color:var(--accent)">
+      <span id="compassSidebarVal" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:right">0°</span>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:8px;padding:2px 0">
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="connectorToggle" checked onchange="showConnectors=this.checked;render()" style="width:auto;margin:0;accent-color:var(--accent)">
+        <span class="form-label" style="margin:0;color:var(--muted);font-size:11px">Show fiber connector lines</span>
+      </label>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:8px;padding:2px 0">
+      <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px;font-size:11px">Field Style</label>
+      <select id="fieldTypeSelect" onchange="fieldType=this.value;document.getElementById('fieldColorRow').style.display=fieldType==='custom'?'flex':'none';renderCxDiagram();render()" style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:11px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:3px;padding:2px 4px">
+        <option value="soccer">⚽ Soccer / Football</option>
+        <option value="volleyball">🏐 Volleyball Court</option>
+        <option value="custom">🎨 Custom Color</option>
+      </select>
+    </div>
+    <div id="fieldColorRow" class="form-group" style="display:none;align-items:center;gap:8px;padding:2px 0">
+      <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px;font-size:11px">Field Color</label>
+      <input type="color" id="fieldColorPicker" value="#3a6b2a" oninput="fieldColor=this.value;renderCxDiagram();render()" style="flex:1;height:26px;border:1px solid var(--border);border-radius:3px;background:none;cursor:pointer">
+    </div>
+    <div id="status-bar" class="status-bar" style="display:none">
+      <div class="status-item"><div class="si-label">Sections</div><div class="si-val" id="sb-secs">—</div></div>
+      <div class="status-item"><div class="si-label">Total Cabs</div><div class="si-val" id="sb-cabs">—</div></div>
+      <div class="status-item"><div class="si-label">Total Pixels</div><div class="si-val" id="sb-px">—</div></div>
+    </div>
+
+    <!-- PORT ASSIGNMENTS -->
+    <div class="section-label">Port Assignments</div>
+    <div class="layout-summary-card">
+      <div class="lsc-header">
+        <span class="lsc-title">Ports</span>
+        <button class="btn btn-outline btn-xs" onclick="openPortModal()">Assign Ports</button>
+      </div>
+      <div id="port-summary-body"><span class="lsc-empty">Open layout first, then assign ports</span></div>
+    </div>
+
+    <!-- FIBER BOXES -->
+    <div class="section-label">Fiber Converters</div>
+    <div id="fiberBoxList"></div>
+    <button class="btn btn-outline btn-sm btn-block" onclick="addFiberBox()" style="margin-bottom:4px">+ Add Fiber Box</button>
+
+    <!-- NOTES -->
+    <div class="section-label">Tech Notes</div>
+    <div class="form-group"><textarea id="techNotes" rows="3" placeholder="e.g. All fiber. Chain direction always stage-left to stage-right unless marked." oninput="render()"></textarea></div>
+
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" onclick="resetAll()" style="flex:1">Reset All</button>
+      <button class="btn btn-primary btn-sm" onclick="window.print()" style="flex:1">🖨 Print</button>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button class="btn btn-outline btn-sm" onclick="saveSheet()" style="flex:1;border-color:var(--gold);color:var(--gold)">💾 Save</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('loadInput').click()" style="flex:1;border-color:var(--gold);color:var(--gold)">📂 Load</button>
+      <input type="file" id="loadInput" accept=".nsf,.json" style="display:none" onchange="loadSheet(event)">
+    </div>
+    <div style="margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('e360Input').click()" style="width:100%;border-color:#7c6ef7;color:#7c6ef7">⬇ Import from Client Spec (.e360)</button>
+      <input type="file" id="e360Input" accept=".e360,.json" style="display:none" onchange="importE360(event)">
+    </div>
+
+  </div>
+</aside>
+
+<!-- ══ PREVIEW ══ -->
+<main class="preview-pane" id="previewPane">
+  <div class="preview-actions no-print">
+    <button class="btn btn-primary" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="copyText()">📋 Copy Summary</button>
+  </div>
+  <div id="sheetWrap"></div>
+</main>
+
+</div><!-- .app -->
+
+<!-- ══ LAYOUT EDITOR MODAL ══ -->
+<div class="modal-overlay" id="layoutModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Cabinet Layout Editor</div>
+      <div class="cx-unit-toggle">
+        <span style="font-size:10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-right:4px">Units:</span>
+        <button class="cx-unit-btn active" id="unitBtn_ft" onclick="setCxUnit('ft')">FT</button>
+        <button class="cx-unit-btn" id="unitBtn_yd" onclick="setCxUnit('yd')">YD</button>
+        <button class="cx-unit-btn" id="unitBtn_m" onclick="setCxUnit('m')">M</button>
+      </div>
+      <button class="modal-close" onclick="closeLayoutModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- LEFT: section list -->
+      <div class="modal-panel">
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:4px">Define sections of cabinets positioned around the field/stage. Each section is a continuous run. Sections are numbered sequentially top-to-bottom.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:4px">
+          <div><label class="form-label">Field Length (ft)</label><input type="number" id="fieldLength" value="360" min="50" max="1200" step="1" oninput="renderCxDiagram()"></div>
+          <div><label class="form-label">Field Width (ft)</label><input type="number" id="fieldWidth" value="160" min="30" max="800" step="1" oninput="renderCxDiagram()"></div>
+          <div><label class="form-label">Compass (°N)</label><input type="number" id="compassDeg" value="0" min="0" max="359" step="1" oninput="compassBearing=parseInt(this.value)||0;document.getElementById('compassSidebar').value=this.value;document.getElementById('compassSidebarVal').textContent=(parseInt(this.value)||0)+'°';renderCxDiagram();render()"></div>
+        </div>
+        <div id="cx-section-list"></div>
+        <button class="cx-add-btn" onclick="addCxSection()">+ Add Section</button>
+        <div id="cx-section-summary" style="font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;margin-top:6px;padding-top:8px;border-top:1px solid var(--border)"></div>
+      </div>
+      <!-- RIGHT: diagram -->
+      <div class="modal-diagram">
+        <div style="font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-family:'Barlow Condensed',sans-serif">Live Layout Preview</div>
+        <div id="cx-diagram-area"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeLayoutModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyLayout()">Apply Layout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PORT ASSIGNMENT MODAL ══ -->
+<div class="modal-overlay" id="portModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Port Assignment</div>
+      <div id="port-modal-meta" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--muted)"></div>
+      <button id="reverseToggleBtn" class="btn btn-outline btn-xs" onclick="toggleReverse()" style="margin-left:auto">← CAB #1 LEFT</button>
+      <button class="modal-close" onclick="closePortModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- LEFT: port entries -->
+      <div class="modal-panel">
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">Assign each processor output port to a range of cabinets. Click "Set Start / End" then click a cabinet on the diagram, or type cabinet numbers directly.</div>
+        <div id="port-entries"></div>
+        <button class="cx-add-btn" id="port-add-btn" onclick="addPort()">+ Add Port</button>
+        <div id="port-coverage-warning"></div>
+      </div>
+      <!-- RIGHT: interactive diagram -->
+      <div class="modal-diagram" style="overflow:auto">
+        <div style="font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-family:'Barlow Condensed',sans-serif">Click cabinets to assign ports — hover to see number</div>
+        <div id="port-diagram"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closePortModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyPorts()">Apply Assignments</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CABINET DATA
+// ════════════════════════════════════════════════════════════════
+const CAB = {
+  p10:  { name:'P10',   mm:'1600×900mm', pxW:160, pxH:90,  lenFt:5.25 },
+  p391: { name:'P3.91', mm:'500×500mm',  pxW:128, pxH:128, lenFt:1.64 },
+  p12:  { name:'P12',   mm:'1600×900mm', pxW:128, pxH:72,  lenFt:5.25 },
+};
+const PORT_COLORS = [
+  '#00c8f0','#f0a500','#22c55e','#e05858','#a855f7','#f97316','#14b8a6','#ec4899',
+  '#84cc16','#6366f1','#fb923c','#38bdf8','#f43f5e','#a3e635','#818cf8','#fbbf24',
+  '#34d399','#f87171','#c084fc','#67e8f9','#fcd34d','#6ee7b7','#fca5a5','#a5b4fc'
+];
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let complexSections = [];
+let complexUnit = 'ft';
+let compassBearing = 0;
+let fieldType = 'soccer';
+let fieldColor = '#3a6b2a';
+let _fiberBoxTopY = null;    // computed each render, used by getFiberBoxFixedPos
+let _fiberBoxBotY = null;
+let ports = []; // { portNum, backupPort, label, color, first, last, run }
+let fiberBoxes = []; // { name, cabNum, portIdxs[] }
+let pickMode = null;
+let reverseNumbering = false;
+let showConnectors = true;
+
+function getCab()    { return CAB[document.getElementById('cabType').value] || CAB.p10; }
+function getSectionCab(sec) { return (sec && sec.cabOverride && CAB[sec.cabOverride]) ? CAB[sec.cabOverride] : getCab(); }
+function getSectionLenFt(sec) { return getSectionCab(sec).lenFt; }
+function getMaxPx()  { return parseInt(document.getElementById('maxPixels')?.value) || 650000; }
+function cabLenFt()  { return getCab().lenFt; }
+
+function getFieldL() { return parseFloat(document.getElementById('fieldLength')?.value)||360; }
+function getFieldW() { return parseFloat(document.getElementById('fieldWidth')?.value)||160; }
+
+function complexToFt(v) {
+  v = parseFloat(v)||0;
+  if (complexUnit==='yd') return v*3;
+  if (complexUnit==='m')  return v*3.28084;
+  return v;
+}
+function unitLabel() { return complexUnit==='yd'?'yd':complexUnit==='m'?'m':'ft'; }
+
+function cxPathTotal() { return complexSections.reduce((s,sec)=>{ const n=parseInt(sec.count)||0; return s+(sec.doubleStacked?n*2:n); },0); }
+function getSectionStartCab(idx) {
+  let s=1; for(let i=0;i<idx;i++){ const n=parseInt(complexSections[i].count)||0; s+=(complexSections[i].doubleStacked?n*2:n); } return s;
+}
+
+// ════════════════════════════════════════════════════════════════
+// LAYOUT MODAL
+// ════════════════════════════════════════════════════════════════
+function openLayoutModal() {
+  document.getElementById('layoutModal').classList.add('open');
+  renderCxSections(); renderCxDiagram();
+}
+function closeLayoutModal() { document.getElementById('layoutModal').classList.remove('open'); }
+function applyLayout() {
+  closeLayoutModal();
+  updateLayoutSummary();
+  // Reset port assignments if section count changed
+  render();
+}
+
+function setCxUnit(u) {
+  complexUnit = u;
+  ['ft','yd','m'].forEach(x => {
+    const b = document.getElementById('unitBtn_'+x);
+    if(b) b.classList.toggle('active', x===u);
+  });
+  renderCxSections(); renderCxDiagram();
+}
+
+function addCxSection() {
+  const idx = complexSections.length;
+  complexSections.push({ name:'Section '+(idx+1), side:'south', count:20, offset:0, fieldDist:10, direction:'fwd', doubleStacked:false, stackFlow:'snake', cabOverride:null });
+  renderCxSections(); renderCxDiagram();
+}
+function removeCxSection(idx) {
+  complexSections.splice(idx,1);
+  renderCxSections(); renderCxDiagram();
+}
+function moveCxSection(idx,dir) {
+  const ni=idx+dir;
+  if(ni<0||ni>=complexSections.length) return;
+  [complexSections[idx],complexSections[ni]]=[complexSections[ni],complexSections[idx]];
+  renderCxSections(); renderCxDiagram();
+}
+function updateCxSection(idx,field,val) {
+  if(!complexSections[idx]) return;
+  if(field==='count') complexSections[idx].count=Math.max(1,parseInt(val)||1);
+  else if(field==='offset') complexSections[idx].offset=parseFloat(val)||0;
+  else if(field==='fieldDist') complexSections[idx].fieldDist=Math.max(0,parseFloat(val)||10);
+  else if(field==='doubleStacked') complexSections[idx].doubleStacked=!!val;
+  else if(field==='cabOverride') complexSections[idx].cabOverride = val || null;
+  else complexSections[idx][field]=val;
+  renderCxSections(); renderCxDiagram();
+}
+function hoverCxSection(i) {
+  document.querySelectorAll('.cx-sec-hover').forEach(el=>el.classList.remove('cx-sec-hover'));
+  document.querySelectorAll('.cx-card-hover').forEach(el=>el.classList.remove('cx-card-hover'));
+  const g=document.getElementById('svgSec_'+i); if(g) g.classList.add('cx-sec-hover');
+  const c=document.getElementById('cxs_'+i); if(c) c.classList.add('cx-card-hover');
+}
+function unhoverCxSection() {
+  document.querySelectorAll('.cx-sec-hover').forEach(el=>el.classList.remove('cx-sec-hover'));
+  document.querySelectorAll('.cx-card-hover').forEach(el=>el.classList.remove('cx-card-hover'));
+}
+
+function renderCxSections() {
+  const container = document.getElementById('cx-section-list');
+  if(!container) return;
+  container.innerHTML = complexSections.map((sec,i) => {
+    const cab = getSectionCab(sec);
+    const n = parseInt(sec.count)||0;
+    const stacks = sec.doubleStacked ? 2 : 1;
+    const startCab = getSectionStartCab(i);
+    const totalN = n * stacks;
+    const endCab = startCab + totalN - 1;
+    const pxW = n*cab.pxW;
+    const sideOpts = ['south','north','east','west'].map(s=>`<option value="${s}"${sec.side===s?' selected':''}>${
+      s==='south'?'South':s==='north'?'North':s==='east'?'East':'West'
+    }</option>`).join('');
+    const isH = sec.side==='south'||sec.side==='north';
+    const fwdLabel = isH ? 'W→E' : 'S→N';
+    const revLabel = isH ? 'E→W' : 'N→S';
+    const offLabel = isH ? 'Offset from W corner' : 'Offset from S corner';
+    return `<div class="cx-section-card" id="cxs_${i}" onmouseenter="hoverCxSection(${i})" onmouseleave="unhoverCxSection()">
+      <div class="cxs-header">
+        <div class="cxs-order-btns">
+          <button onclick="moveCxSection(${i},-1)" ${i===0?'disabled':''}>▲</button>
+          <button onclick="moveCxSection(${i},1)"  ${i===complexSections.length-1?'disabled':''}>▼</button>
+        </div>
+        <div class="cxs-number">${i+1}</div>
+        <input class="cxs-name-input" value="${esc(sec.name)}" onchange="updateCxSection(${i},'name',this.value)">
+        <button class="cxs-delete-btn" onclick="removeCxSection(${i})">✕</button>
+      </div>
+      <div class="two-col" style="margin-bottom:6px">
+        <div class="form-group" style="margin:0"><label class="form-label">Side</label><select onchange="updateCxSection(${i},'side',this.value)">${sideOpts}</select></div>
+        <div class="form-group" style="margin:0"><label class="form-label">Cabinets</label><input type="number" min="1" value="${sec.count}" onchange="updateCxSection(${i},'count',this.value)"></div>
+      </div>
+      <div class="two-col" style="margin-bottom:4px">
+        <div class="form-group" style="margin:0"><label class="form-label">${offLabel} (${unitLabel()})</label><input type="number" step="0.5" value="${sec.offset}" onchange="updateCxSection(${i},'offset',this.value)"></div>
+        <div class="form-group" style="margin:0"><label class="form-label">Dist from edge (${unitLabel()})</label><input type="number" min="0" step="0.5" value="${sec.fieldDist!==undefined?sec.fieldDist:10}" onchange="updateCxSection(${i},'fieldDist',this.value)"></div>
+      </div>
+      <div class="form-group" style="margin:0 0 4px">
+        <label class="form-label">Cab #1 Direction</label>
+        <select onchange="updateCxSection(${i},'direction',this.value)">
+          <option value="fwd"${sec.direction==='fwd'?' selected':''}>${fwdLabel} (cab 1 at start)</option>
+          <option value="rev"${sec.direction==='rev'?' selected':''}>${revLabel} (cab 1 at end)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0 0 4px">
+        <label class="form-label">Cabinet Override</label>
+        <select onchange="updateCxSection(${i},'cabOverride',this.value)" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;background:var(--surface2);color:${sec.cabOverride?'var(--accent)':'var(--muted)'};border:1px solid ${sec.cabOverride?'var(--accent)':'var(--border)'};border-radius:3px;padding:3px 5px">
+          <option value="">— Default (${getCab().name})</option>
+          ${Object.entries(CAB).map(([k,c])=>`<option value="${k}"${sec.cabOverride===k?' selected':''}>${c.name} · ${c.mm} · ${c.pxW}×${c.pxH}px</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${sec.doubleStacked?'var(--accent)':'var(--muted)'}">
+          <input type="checkbox" ${sec.doubleStacked?'checked':''} onchange="updateCxSection(${i},'doubleStacked',this.checked)" style="width:auto;margin:0;accent-color:var(--accent)">
+          Double Stacked ${sec.doubleStacked?`<span style="background:var(--accent);color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:2px">×2</span>`:''}
+        </label>
+        ${sec.doubleStacked?`<select onchange="updateCxSection(${i},'stackFlow',this.value)" style="flex:1;font-size:10px;font-family:'Barlow Condensed',sans-serif;padding:2px 4px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:3px">
+          <option value="snake"${(sec.stackFlow||'snake')==='snake'?' selected':''}>Snake (row 2 reverses)</option>
+          <option value="parallel"${sec.stackFlow==='parallel'?' selected':''}>Parallel (row 2 same dir)</option>
+        </select>`:''}
+      </div>
+      <div class="cxs-info-row">Cabs #${startCab}–#${endCab} · ${totalN} total${sec.doubleStacked?` (${n}×2)`:''} · ${pxW}×${cab.pxH}px${sec.cabOverride?` · <span style="color:var(--accent);font-weight:800">${cab.name}</span>`:''}</div>
+    </div>`;
+  }).join('');
+  const total = cxPathTotal();
+  const sumEl = document.getElementById('cx-section-summary');
+  if(sumEl) sumEl.innerHTML = `<strong style="color:var(--text)">${complexSections.length} sections · ${total} cabinets total</strong>`;
+}
+
+// ── LAYOUT DIAGRAM ──────────────────────────────────────────────
+function computeCxScenePadding() {
+  const fL=getFieldL(), fW=getFieldW(), PAD=6;
+  let eL=10,eR=10,eT=10,eB=10;
+  for(const sec of complexSections) {
+    const n=parseInt(sec.count)||0; if(!n) continue;
+    const cf = getSectionLenFt(sec);
+    const stripFt = cf * 0.35;
+    const fd=complexToFt(sec.fieldDist!==undefined?sec.fieldDist:10);
+    const off=complexToFt(sec.offset||0);
+    const len=n*cf;
+    const extraDepth = sec.doubleStacked ? stripFt : 0;
+    if(sec.side==='south'){ eB=Math.max(eB,fd+PAD+extraDepth); eL=Math.max(eL,-off+PAD); eR=Math.max(eR,off+len-fL+PAD); }
+    else if(sec.side==='north'){ eT=Math.max(eT,fd+PAD+extraDepth); eL=Math.max(eL,-off+PAD); eR=Math.max(eR,off+len-fL+PAD); }
+    else if(sec.side==='east'){ eR=Math.max(eR,fd+PAD+extraDepth); eB=Math.max(eB,-off+PAD); eT=Math.max(eT,off+len-fW+PAD); }
+    else if(sec.side==='west'){ eL=Math.max(eL,fd+PAD+extraDepth); eB=Math.max(eB,-off+PAD); eT=Math.max(eT,off+len-fW+PAD); }
+  }
+
+  // If any fiber box is in a top corner, reserve extra space above for approach rails
+  // FB_TOP_MARGIN px box position + FB_BOX_H + 10 rails × 8px = ~190px needed above cabinets
+  // We add this as a minimum eT/eB in feet using a rough 1ft≈5px estimate (corrected at render time)
+  // Actually we just set a generous minimum in the result directly
+  const hasTopBox = fiberBoxes.some(b => b.cabNum && ((b.cornerPos??0) >= 2));
+  const hasBottomBox = fiberBoxes.some(b => b.cabNum && ((b.cornerPos??0) < 2));
+
+  return {
+    eL: Math.max(eL,10),
+    eR: Math.max(eR,10),
+    eT: Math.max(eT,10, hasTopBox ? 60 : 10),
+    eB: Math.max(eB,10, hasBottomBox ? 60 : 10)
+  };
+}
+
+// Fiber boxes are now rendered at fixed SVG corners — no scene padding needed for them
+
+// Compute the Y position for top/bottom fiber boxes based on actual cabinet strip positions
+function computeFiberBoxYPositions(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip) {
+  let northStripTopY = fieldY;    // default: field top
+  let southStripBotY = fieldY + fieldH; // default: field bottom
+  for(const sec of complexSections) {
+    const n=parseInt(sec.count)||0; if(!n) continue;
+    const secCabLen=getSectionLenFt(sec)*sc;
+    const secStrip=Math.max(7,Math.min(secCabLen*0.35,16));
+    const pos=computeCxSectionSvg(sec,sc,fieldX,fieldY,fieldW,fieldH,secCabLen,secStrip);
+    if(!pos) continue;
+    if(sec.side==='north'){
+      const topY = (pos.cy||0) - secStrip*(sec.doubleStacked?2:1)/2;
+      northStripTopY = Math.min(northStripTopY, topY);
+    }
+    if(sec.side==='south'){
+      const botY = (pos.cy||0) + secStrip*(sec.doubleStacked?2:1)/2;
+      southStripBotY = Math.max(southStripBotY, botY);
+    }
+  }
+  const topBoxY    = northStripTopY - FB_RAIL_SPACE - FB_BOX_H - 4;
+  const bottomBoxY = southStripBotY + FB_RAIL_SPACE + 4;
+  return { topBoxY, bottomBoxY };
+}
+
+function computeCxSectionSvg(sec, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip) {
+  const fd=complexToFt(sec.fieldDist!==undefined?sec.fieldDist:10);
+  const off=complexToFt(sec.offset||0);
+  const n=parseInt(sec.count)||0;
+  if(sec.side==='south') return { orientation:'H', cy:fieldY+fieldH+fd*sc, startX:fieldX+off*sc, n, strip };
+  if(sec.side==='north') return { orientation:'H', cy:fieldY-fd*sc,        startX:fieldX+off*sc, n, strip };
+  if(sec.side==='east')  return { orientation:'V', cx:fieldX+fieldW+fd*sc, startY:fieldY+fieldH-off*sc, n, strip };
+  if(sec.side==='west')  return { orientation:'V', cx:fieldX-fd*sc,        startY:fieldY+fieldH-off*sc, n, strip };
+  return null;
+}
+
+function portColorForCab(cabNum) {
+  for(const p of ports) {
+    const lo=Math.min(p.first,p.last), hi=Math.max(p.first,p.last);
+    if(cabNum>=lo && cabNum<=hi) return p.color;
+  }
+  return null;
+}
+
+function drawField(fX, fY, fW, fH, type, color) {
+  let s = '';
+  if(type === 'volleyball') {
+    // Sandy court base
+    s += `<rect x="${fX.toFixed(1)}" y="${fY.toFixed(1)}" width="${fW.toFixed(1)}" height="${fH.toFixed(1)}" fill="#c8a060" rx="1"/>`;
+    const lw = '0.8', lc = 'rgba(255,255,255,0.85)';
+    // Net (center line — thick)
+    s += `<line x1="${(fX+fW/2).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="1.8"/>`;
+    // Attack lines at 3m from net (≈30% of half-court each side)
+    const att = fW * 0.167; // 3m out of ~18m total width
+    s += `<line x1="${(fX+fW/2-att).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2-att).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="${lw}" stroke-dasharray="3,2"/>`;
+    s += `<line x1="${(fX+fW/2+att).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2+att).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="${lw}" stroke-dasharray="3,2"/>`;
+    // Court boundary (inner lines lighter to show free zone separation)
+    s += `<rect x="${fX.toFixed(1)}" y="${fY.toFixed(1)}" width="${fW.toFixed(1)}" height="${fH.toFixed(1)}" fill="none" stroke="${lc}" stroke-width="${lw}" rx="1"/>`;
+  } else if(type === 'custom') {
+    s += `<rect x="${fX.toFixed(1)}" y="${fY.toFixed(1)}" width="${fW.toFixed(1)}" height="${fH.toFixed(1)}" fill="${color||'#3a6b2a'}" rx="1"/>`;
+    // Subtle center cross so it doesn't look completely blank
+    s += `<line x1="${(fX+fW/2).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="rgba(255,255,255,.15)" stroke-width="0.8"/>`;
+    s += `<line x1="${fX.toFixed(1)}" y1="${(fY+fH/2).toFixed(1)}" x2="${(fX+fW).toFixed(1)}" y2="${(fY+fH/2).toFixed(1)}" stroke="rgba(255,255,255,.15)" stroke-width="0.8"/>`;
+  } else {
+    // Soccer / default
+    s += `<rect x="${fX.toFixed(1)}" y="${fY.toFixed(1)}" width="${fW.toFixed(1)}" height="${fH.toFixed(1)}" fill="#2d5a1b" rx="1"/>`;
+    s += `<line x1="${(fX+fW/2).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="rgba(255,255,255,.2)" stroke-width="0.8"/>`;
+    s += `<circle cx="${(fX+fW/2).toFixed(1)}" cy="${(fY+fH/2).toFixed(1)}" r="${(Math.min(fW,fH)*0.13).toFixed(1)}" stroke="rgba(255,255,255,.2)" stroke-width="0.8" fill="none"/>`;
+  }
+  return s;
+}
+
+function buildFieldDiagram(svgW, svgH, interactive) {
+  svgW=svgW||700; svgH=svgH||430;
+  const fL=getFieldL(), fW=getFieldW(), cf=cabLenFt(), labelPad=40;
+  let pad=computeCxScenePadding();
+  let sc=Math.min((svgW-labelPad*2)/(fL+pad.eL+pad.eR), (svgH-labelPad*2)/(fW+pad.eT+pad.eB));
+  const {eL,eR,eT,eB}=pad;
+  const fieldX=(svgW-fL*sc)/2+(eL-eR)/2*sc;
+  const fieldY=(svgH-fW*sc)/2+(eT-eB)/2*sc;
+  const fieldW=fL*sc, fieldH=fW*sc;
+  const cabLen=cf*sc;
+  const strip=Math.max(7,Math.min(cabLen*0.35,16));
+  // Cache fiber box positions based on actual cabinet strip locations
+  const fbPos = computeFiberBoxYPositions(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+  _fiberBoxTopY = fbPos.topBoxY;
+  _fiberBoxBotY = fbPos.bottomBoxY;
+  const totalCabs=cxPathTotal();
+  const SIDE_COLORS={south:'#c8a830',north:'#c8a830',east:'#5588bb',west:'#5588bb'};
+
+  let svg=`<svg width="${svgW}" height="${svgH+20}" viewBox="0 -20 ${svgW} ${svgH+20}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif${interactive?' cursor:crosshair':''}"${interactive?' id="port-svg"':''}>`;
+  // Field
+  svg+=drawField(fieldX, fieldY, fieldW, fieldH, fieldType, fieldColor);
+
+  let labelsSvg='';
+  for(let si=0;si<complexSections.length;si++) {
+    const sec=complexSections[si];
+    const n=parseInt(sec.count)||0; if(!n) continue;
+    const stacks=sec.doubleStacked?2:1;
+    const secCabLen=getSectionLenFt(sec)*sc;
+    const secStrip=Math.max(7,Math.min(secCabLen*0.35,16));
+    const pos=computeCxSectionSvg(sec,sc,fieldX,fieldY,fieldW,fieldH,secCabLen,secStrip);
+    if(!pos) continue;
+    const defaultColor=SIDE_COLORS[sec.side]||'#c8a830';
+    const startCab=getSectionStartCab(si);
+    let secSvg='';
+    for(let row=0;row<stacks;row++){
+      for(let colIdx=0;colIdx<n;colIdx++){
+        const snake=(sec.stackFlow||'snake')==='snake';
+        const rowDir=(row===1&&snake)?(sec.direction==='rev'?'fwd':'rev'):sec.direction;
+        const physIdx=rowDir==='rev'?n-1-colIdx:colIdx;
+        const cabNum=startCab+row*n+colIdx;
+        // cabNum for labeling end-of-section: first/last of full section range
+        const displayIdx=row*n+colIdx; // 0-indexed within full section
+        const color = portColorForCab(cabNum) || defaultColor;
+        if(pos.orientation==='H') {
+          const x=pos.startX+physIdx*secCabLen;
+          const y=sec.side==='south'?pos.cy-secStrip/2+row*secStrip:pos.cy-secStrip/2-row*secStrip;
+          if(interactive) {
+            secSvg+=`<rect x="${(x+.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen-.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" rx=".3" opacity=".95" data-cab="${cabNum}" onclick="onCabClick(${cabNum})" onmouseenter="showCabTT(event,${cabNum})" onmouseleave="hideCabTT()"/>`;
+          } else {
+            secSvg+=`<rect x="${(x+.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen-.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" rx=".3" opacity=".95"/>`;
+          }
+          if(displayIdx===0||displayIdx===n*stacks-1){
+            const cx2=x+secCabLen/2;
+            const labelY=sec.side==='south'?pos.cy+secStrip*stacks/2+11:pos.cy-secStrip*stacks/2-4;
+            const isEnd=(startCab===1||startCab+n*stacks-1===totalCabs);
+            labelsSvg+=`<text x="${cx2.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#444'}" font-weight="${isEnd?'800':'600'}">${cabNum}</text>`;
+          }
+        } else {
+          const y=pos.startY-(physIdx+1)*secCabLen;
+          const x=sec.side==='east'?pos.cx-secStrip/2+row*secStrip:pos.cx-secStrip/2-row*secStrip;
+          if(interactive) {
+            secSvg+=`<rect x="${x.toFixed(1)}" y="${(y+.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen-.6).toFixed(1)}" fill="${color}" rx=".3" opacity=".95" data-cab="${cabNum}" onclick="onCabClick(${cabNum})" onmouseenter="showCabTT(event,${cabNum})" onmouseleave="hideCabTT()"/>`;
+          } else {
+            secSvg+=`<rect x="${x.toFixed(1)}" y="${(y+.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen-.6).toFixed(1)}" fill="${color}" rx=".3" opacity=".95"/>`;
+          }
+          if(displayIdx===0||displayIdx===n*stacks-1){
+            const cy2=y+secCabLen/2;
+            const tx=sec.side==='east'?pos.cx+secStrip*stacks/2+10:pos.cx-secStrip*stacks/2-10;
+            const anchor=sec.side==='east'?'start':'end';
+            const isEnd=(startCab===1||startCab+n*stacks-1===totalCabs);
+            labelsSvg+=`<text x="${tx.toFixed(1)}" y="${(cy2+3).toFixed(1)}" text-anchor="${anchor}" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#444'}" font-weight="${isEnd?'800':'600'}">${cabNum}</text>`;
+          }
+        }
+      }
+    }
+    // Section label
+    const secCab=getSectionCab(sec);
+    const pxW=n*secCab.pxW;
+    const spanFt=(n*getSectionLenFt(sec)).toFixed(1);
+    const stackLabel=sec.doubleStacked?` ×2`:'';
+    const cabLabel=sec.cabOverride?` · ${secCab.name}`:'';
+    if(pos.orientation==='H'){
+      const midX=pos.startX+(n*secCabLen)/2;
+      const lY=sec.side==='south'?pos.cy+secStrip*stacks/2+12:pos.cy-secStrip*stacks/2-4;
+      labelsSvg+=`<text x="${midX.toFixed(1)}" y="${lY.toFixed(1)}" text-anchor="middle" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} · ${spanFt}ft · ${pxW}×${secCab.pxH}px${cabLabel}</text>`;
+    } else {
+      const midY=pos.startY-(n*secCabLen)/2;
+      const lX=sec.side==='east'?pos.cx+secStrip*stacks/2+28:pos.cx-secStrip*stacks/2-28;
+      const anchor=sec.side==='east'?'start':'end';
+      labelsSvg+=`<text x="${lX.toFixed(1)}" y="${(midY+3).toFixed(1)}" text-anchor="${anchor}" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} · ${spanFt}ft${cabLabel}</text>`;
+    }
+    if(interactive) {
+      svg+=`<g id="svgSec_${si}" class="cx-sec-group" onmouseenter="hoverCxSection(${si})" onmouseleave="unhoverCxSection()">${secSvg}</g>`;
+    } else {
+      svg+=secSvg;
+    }
+  }
+  svg+=labelsSvg;
+  // Fiber boxes + connectors (interactive diagram)
+  if(fiberBoxes.some(b=>b.cabNum)){
+    let fbSvg='';
+    fiberBoxes.forEach((box,bi)=>{ if(box.cabNum) fbSvg+=drawFiberBoxMarker(bi,box,svgW,svgH,sc,fieldX,fieldY,fieldW,fieldH,cabLen,strip); });
+    svg+=drawFiberConnectors(sc,fieldX,fieldY,fieldW,fieldH,cabLen,strip,svgW,svgH,{})+fbSvg;
+  }
+  // Compass
+  const cx2=svgW-20,cy2=svgH-20;
+  svg+=`<g transform="translate(${cx2},${cy2}) rotate(${compassBearing})"><line x1="0" y1="0" x2="0" y2="-12" stroke="#555" stroke-width="1.5" stroke-linecap="round"/><polygon points="0,-14 -3,-7 3,-7" fill="#555"/><text x="0" y="-17" text-anchor="middle" font-size="7" fill="#555" font-weight="800">N</text></g>`;
+  // Tooltip placeholder (interactive only)
+  if(interactive){
+    svg+=`<g id="cab-tooltip-g" style="display:none;pointer-events:none"><rect id="tt-bg" x="0" y="0" width="160" height="30" fill="#000" stroke="#00c8f0" stroke-width="1.5" rx="4"/><text id="tt-text" x="80" y="20" text-anchor="middle" font-size="13" fill="#fff" font-weight="800"></text></g>`;
+  }
+  svg+='</svg>';
+  return svg;
+}
+
+function renderCxDiagram() {
+  const el=document.getElementById('cx-diagram-area'); if(!el) return;
+  if(complexSections.length===0){
+    el.innerHTML='<div style="color:#444;font-size:13px;font-family:\'Barlow Condensed\',sans-serif;text-align:center;padding:60px 20px">Add sections using the panel on the left.</div>';
+    return;
+  }
+  el.innerHTML=buildFieldDiagram(720,600,false);
+}
+
+// ════════════════════════════════════════════════════════════════
+// PORT ASSIGNMENT MODAL
+// ════════════════════════════════════════════════════════════════
+function openPortModal() {
+  if(complexSections.length===0){ alert('Define cabinet sections first (Edit Layout), then assign ports.'); return; }
+  const meta=document.getElementById('port-modal-meta');
+  const cab=getCab(); const total=cxPathTotal();
+  if(meta) meta.textContent=cab.name+' · '+total+' cabinets total';
+  document.getElementById('portModal').classList.add('open');
+  renderPortEntries();
+  renderPortDiagram();
+}
+function closePortModal() { document.getElementById('portModal').classList.remove('open'); }
+function applyPorts() {
+  closePortModal();
+  updatePortSummary();
+  renderFiberBoxes();
+  render();
+}
+
+function addPort() {
+  const idx=ports.length;
+  const total=cxPathTotal();
+  ports.push({ portNum: idx+1, backupPort:'', label:'', color:PORT_COLORS[idx%PORT_COLORS.length], first:1, last:total, run:'' });
+  renderPortEntries(); renderPortDiagram(); renderFiberBoxes();
+}
+function removePort(idx) {
+  // Remove this port from all fiber boxes
+  fiberBoxes.forEach(b=>{ b.portIdxs=b.portIdxs.filter(pi=>pi!==idx).map(pi=>pi>idx?pi-1:pi); });
+  ports.splice(idx,1);
+  if(pickMode&&pickMode.portIdx===idx) pickMode=null;
+  renderPortEntries(); renderPortDiagram(); updatePortWarning();
+}
+function updatePortField(idx,field,val) {
+  if(!ports[idx]) return;
+  if(field==='first'||field==='last'){
+    const n=parseInt(val); if(!isNaN(n)) ports[idx][field]=Math.max(1,Math.min(n,cxPathTotal()));
+  } else if(field==='portNum'){
+    const n=parseInt(val); if(!isNaN(n)&&n>0) ports[idx].portNum=n;
+  } else if(field==='backupPort'){
+    ports[idx].backupPort=val===''?'':parseInt(val)||'';
+  } else { ports[idx][field]=val; }
+  renderPortEntries(); renderPortDiagram(); updatePortWarning();
+}
+
+function startPick(portIdx,field) {
+  if(pickMode&&pickMode.portIdx===portIdx&&pickMode.field===field) pickMode=null;
+  else pickMode={portIdx,field};
+  renderPortEntries();
+  const svg=document.getElementById('port-svg');
+  if(svg) svg.style.cursor=pickMode?'crosshair':'default';
+}
+
+function onCabClick(cabNum) {
+  if(!pickMode) return;
+  const {portIdx,field}=pickMode;
+  ports[portIdx][field]=cabNum;
+  pickMode=field==='first'?{portIdx,field:'last'}:null;
+  renderPortEntries(); renderPortDiagram(); updatePortWarning();
+}
+
+function showCabTT(evt,cabNum) {
+  const svg=document.getElementById('port-svg'); if(!svg) return;
+  const pt=svg.createSVGPoint();
+  pt.x=evt.clientX; pt.y=evt.clientY;
+  const svgP=pt.matrixTransform(svg.getScreenCTM().inverse());
+  const tt=document.getElementById('cab-tooltip-g');
+  const ttBg=document.getElementById('tt-bg');
+  const ttTxt=document.getElementById('tt-text');
+  if(!tt||!ttBg||!ttTxt) return;
+  const port=ports.find(p=>cabNum>=Math.min(p.first,p.last)&&cabNum<=Math.max(p.first,p.last));
+  const label=port?`CAB #${cabNum}  ·  ${port.label}`:`CAB #${cabNum}  ·  unassigned`;
+  const w=Math.max(160,label.length*9+24), h=30;
+  ttBg.setAttribute('width',w); ttBg.setAttribute('height',h);
+  ttBg.setAttribute('x',svgP.x-w/2); ttBg.setAttribute('y',svgP.y-h-10);
+  ttTxt.setAttribute('x',svgP.x); ttTxt.setAttribute('y',svgP.y-h-10+h*.67);
+  ttTxt.textContent=label; tt.style.display='';
+}
+function hideCabTT() { const tt=document.getElementById('cab-tooltip-g'); if(tt) tt.style.display='none'; }
+
+function toggleReverse() {
+  const total=cxPathTotal();
+  ports.forEach(p=>{
+    const nf=total+1-p.last, nl=total+1-p.first;
+    p.first=Math.max(1,Math.min(nf,total)); p.last=Math.max(1,Math.min(nl,total));
+  });
+  reverseNumbering=!reverseNumbering;
+  const btn=document.getElementById('reverseToggleBtn');
+  if(btn){ btn.textContent=reverseNumbering?'→ CAB #1 RIGHT':'← CAB #1 LEFT'; btn.style.borderColor=reverseNumbering?'var(--accent)':'var(--border)'; btn.style.color=reverseNumbering?'var(--accent)':'var(--text)'; }
+  renderPortEntries(); renderPortDiagram();
+}
+
+function renderPortEntries() {
+  const total=cxPathTotal();
+  const container=document.getElementById('port-entries'); if(!container) return;
+  container.innerHTML=ports.map((p,i)=>{
+    const portCab = (p.first ? getSectionCab(complexSections.find((_,si)=>{ const sc=getSectionStartCab(si),sn=(parseInt(complexSections[si].count)||0)*(complexSections[si].doubleStacked?2:1); return p.first>=sc&&p.first<=sc+sn-1; })||null) : null) || getCab();
+    const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
+    const pxW=n*portCab.pxW;
+    const isPStart=pickMode&&pickMode.portIdx===i&&pickMode.field==='first';
+    const isPEnd=pickMode&&pickMode.portIdx===i&&pickMode.field==='last';
+    return `<div class="port-entry${(isPStart||isPEnd)?' active-port':''}" id="pe_${i}">
+      <div class="port-entry-header">
+        <div class="port-num-badge" style="background:${p.color}">${p.portNum||i+1}</div>
+        <input type="number" min="1" max="48" value="${p.portNum||i+1}" onchange="updatePortField(${i},'portNum',this.value)" title="Physical port number on processor" style="width:44px;flex-shrink:0;text-align:center;padding:4px 4px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid var(--border);color:var(--accent);border-radius:3px">
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+          <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;white-space:nowrap">BKP</span>
+          <input type="number" min="1" max="48" value="${p.backupPort||''}" onchange="updatePortField(${i},'backupPort',this.value)" placeholder="—" title="Backup port number" style="width:44px;flex-shrink:0;text-align:center;padding:4px 4px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:3px">
+        </div>
+        <input class="port-name-input" value="${esc(p.label)}" oninput="ports[${i}].label=this.value;render()" placeholder="Zone / Label">
+        <button class="port-delete-btn" onclick="removePort(${i})">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:5px;align-items:start;margin-bottom:6px">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <button class="pick-btn${isPStart?' picking':p.first?' set':''}" onclick="startPick(${i},'first')" style="width:100%">${isPStart?'⊕ Clicking...':'Set Start'}</button>
+          <input type="number" min="1" max="${total}" value="${p.first||''}" onchange="updatePortField(${i},'first',this.value)" style="text-align:center;padding:3px 4px;font-size:13px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid ${isPStart?'var(--accent)':'var(--border)'};color:var(--text);border-radius:3px" placeholder="Start">
+        </div>
+        <span style="color:var(--muted);font-size:13px;padding-top:18px;text-align:center">→</span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <button class="pick-btn${isPEnd?' picking':p.last?' set':''}" onclick="startPick(${i},'last')" style="width:100%">${isPEnd?'⊕ Clicking...':'Set End'}</button>
+          <input type="number" min="1" max="${total}" value="${p.last||''}" onchange="updatePortField(${i},'last',this.value)" style="text-align:center;padding:3px 4px;font-size:13px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid ${isPEnd?'var(--accent)':'var(--border)'};color:var(--text);border-radius:3px" placeholder="End">
+        </div>
+      </div>
+      <div class="form-group" style="margin:0 0 4px">
+        <label class="form-label">Cable Run / Chain Direction</label>
+        <input type="text" value="${esc(p.run||'')}" oninput="ports[${i}].run=this.value;render()" placeholder="e.g. Stage-L → Stage-R">
+      </div>
+      <div class="port-dims">${n} cabs · ${pxW}×${portCab.pxH}px${getMaxPx()?` · ${(n*portCab.pxW*portCab.pxH/getMaxPx()*100).toFixed(1)}% load`:''}</div>
+    </div>`;
+  }).join('');
+  const addBtn=document.getElementById('port-add-btn');
+  if(addBtn) addBtn.style.display=ports.length>=24?'none':'';
+  updatePortWarning();
+}
+
+function renderPortDiagram() {
+  const el=document.getElementById('port-diagram'); if(!el) return;
+  if(complexSections.length===0){ el.innerHTML='<div style="color:#444;font-size:13px;font-family:\'Barlow Condensed\',sans-serif;text-align:center;padding:40px">Define cabinet layout first.</div>'; return; }
+  el.innerHTML=buildFieldDiagram(760,640,true);
+}
+
+function updatePortWarning() {
+  const total=cxPathTotal(), covered=new Array(total+1).fill(false);
+  let overlap=false;
+  for(const p of ports){
+    const lo=Math.min(p.first,p.last),hi=Math.max(p.first,p.last);
+    for(let c=lo;c<=Math.min(hi,total);c++){ if(covered[c]) overlap=true; covered[c]=true; }
+  }
+  const uncovered=covered.slice(1).filter(v=>!v).length;
+  let msg='';
+  if(overlap) msg+='⚠ Overlapping ports. ';
+  if(uncovered) msg+=`⚠ ${uncovered} cabinet${uncovered>1?'s':''} not assigned.`;
+  const el=document.getElementById('port-coverage-warning'); if(el) el.textContent=msg;
+}
+
+// ════════════════════════════════════════════════════════════════
+// SIDEBAR SUMMARIES
+// ════════════════════════════════════════════════════════════════
+function updateLayoutSummary() {
+  const el=document.getElementById('layout-summary-body'); if(!el) return;
+  const sbEl=document.getElementById('status-bar');
+  if(complexSections.length===0){
+    el.innerHTML='<span class="lsc-empty">No sections defined yet</span>';
+    if(sbEl) sbEl.style.display='none';
+    return;
+  }
+  const total=cxPathTotal();
+  const totalPx=complexSections.reduce((sum,s)=>{ const sc=getSectionCab(s); return sum+(parseInt(s.count)||0)*(s.doubleStacked?2:1)*sc.pxW*sc.pxH; },0);
+  el.innerHTML=complexSections.map((s,i)=>`<div><strong>Sec ${i+1}:</strong> ${s.name} — ${s.count} cabs (${s.side})</div>`).join('');
+  if(sbEl){
+    sbEl.style.display='flex';
+    document.getElementById('sb-secs').textContent=complexSections.length;
+    document.getElementById('sb-cabs').textContent=total;
+    document.getElementById('sb-px').textContent=fmtPx(totalPx);
+  }
+}
+
+function updatePortSummary() {
+  const el=document.getElementById('port-summary-body'); if(!el) return;
+  if(ports.length===0){
+    el.innerHTML='<span class="lsc-empty">No ports assigned yet</span>'; return;
+  }
+  el.innerHTML=ports.map((p,i)=>{
+    const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
+    const portCab2 = (p.first ? getSectionCab(complexSections.find((_,si)=>{ const s=getSectionStartCab(si),sn=(parseInt(complexSections[si].count)||0)*(complexSections[si].doubleStacked?2:1); return p.first>=s&&p.first<=s+sn-1; })||null) : null) || getCab();
+    const pxLoad=n*portCab2.pxW*portCab2.pxH;
+    const pct=getMaxPx()?`${(pxLoad/getMaxPx()*100).toFixed(0)}%`:'';
+    return `<div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span><strong>P${p.portNum||i+1}:</strong> ${esc(p.label)||'Unlabeled'} — ${n} cabs${pct?' · '+pct:''}</div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// SPEC SHEET RENDER
+// ════════════════════════════════════════════════════════════════
+function pxForPort(p) {
+  const portCab = (p.first ? getSectionCab(complexSections.find((_,si)=>{ const s=getSectionStartCab(si),sn=(parseInt(complexSections[si].count)||0)*(complexSections[si].doubleStacked?2:1); return p.first>=s&&p.first<=s+sn-1; })||null) : null) || getCab();
+  const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
+  return n*portCab.pxW*portCab.pxH;
+}
+function loadPct(px) {
+  const max=getMaxPx(); if(!max) return null;
+  return (px/max*100).toFixed(1);
+}
+function loadClass(pct) {
+  if(pct===null) return ''; if(pct>100) return 'over'; if(pct>80) return 'warn'; return 'ok';
+}
+function fmtPx(n) {
+  if(n>=1000000) return (n/1000000).toFixed(2)+'M';
+  if(n>=1000) return (n/1000).toFixed(1)+'K';
+  return String(n);
+}
+
+function render() {
+  updateLayoutSummary();
+  updatePortSummary();
+
+  const job=document.getElementById('jobName').value.trim();
+  const venue=document.getElementById('venue').value.trim();
+  const date=document.getElementById('showDate').value.trim();
+  const tech=document.getElementById('techName').value.trim();
+  const rev=document.getElementById('revision').value.trim()||'v1';
+  const proc=document.getElementById('procModel').value.trim();
+  const notes=document.getElementById('techNotes').value.trim();
+  const totalCabs=cxPathTotal();
+  const totalPx=complexSections.reduce((sum,s)=>{ const sc=getSectionCab(s); return sum+(parseInt(s.count)||0)*(s.doubleStacked?2:1)*sc.pxW*sc.pxH; },0);
+  const nowStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const cab=getCab(), maxPx=getMaxPx();
+
+  // Port map chips
+  let portMapHtml='';
+  if(ports.length>0){
+    ports.forEach((p,i)=>{
+      const px=pxForPort(p), pct=loadPct(px);
+      const loadTxt=pct!==null?pct+'%':(px>0?fmtPx(px):'—');
+      const loadC=pct!==null?(pct>100?'#cc2020':pct>80?'#b86c00':'#1a8a1a'):'#888';
+      portMapHtml+=`<div class="pm-chip" style="background-color:${hexAlpha(p.color,0.15)};border-color:${p.color};color:${p.color}" title="${esc(p.label)}">
+        <span class="pc-n">${p.portNum||i+1}</span>
+        <span class="pc-lbl" style="color:#333">${esc(p.label)||'—'}</span>
+        <span class="pc-load" style="color:${loadC}">${loadTxt}</span>
+      </div>`;
+    });
+  } else {
+    portMapHtml='<div style="font-size:11px;color:#999;font-family:\'Barlow Condensed\',sans-serif;padding:10px 0">No port assignments yet — use "Assign Ports" to map processor outputs to cabinet runs</div>';
+  }
+
+  // Diagram SVG for spec sheet
+  let diagramHtml='';
+  if(complexSections.length>0){
+    // Build a print-friendly version using portColorForCab
+    diagramHtml=buildFieldDiagramForPrint(920,610);
+  }
+
+  // Table rows
+  let rowsHtml='';
+  if(ports.length>0){
+    ports.forEach((p,i)=>{
+      const px=pxForPort(p), pct=loadPct(px);
+      const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
+      const pctStr=pct!==null?pct+'%':'—';
+      const cls=loadClass(pct);
+      const cabRange=p.first&&p.last?`#${Math.min(p.first,p.last)}–#${Math.max(p.first,p.last)}`:'—';
+      rowsHtml+=`<tr>
+        <td class="td-port" style="color:${p.color};border-left:4px solid ${p.color}">${p.portNum||i+1}</td>
+        <td class="td-zone"><span class="color-swatch" style="background:${p.color}"></span>${esc(p.label)||'<span style="color:#999;font-weight:400;font-style:italic">Unlabeled</span>'}</td>
+        <td class="r" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#555">${p.backupPort||'—'}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700">${(()=>{ const fb=fiberBoxForPort(i); return fb?`<span style="background:#f9731622;color:#f97316;border:1px solid #f9731644;padding:1px 5px;border-radius:3px">◈ ${esc(fb.name)}</span>`:'—'; })()}</td>
+        <td class="r">${cabRange}</td>
+        <td class="r" style="font-weight:600">${n||'—'}</td>
+        <td class="r" style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px">${px>0?fmtPx(px):'—'}</td>
+        <td class="td-load r ${cls}">${pctStr}</td>
+        <td class="td-run">${esc(p.run)||'—'}</td>
+      </tr>`;
+    });
+    const totalPortPx=ports.reduce((a,p)=>a+pxForPort(p),0);
+    const avgPct=maxPx&&ports.length?loadPct(totalPortPx/ports.length):null;
+    rowsHtml+=`<tr class="total-row">
+      <td colspan="2" class="big">TOTAL — ${ports.length} Output${ports.length!==1?'s':''}</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="r big">${ports.reduce((a,p)=>a+Math.max(0,Math.abs((p.last||0)-(p.first||0))+1),0)||'—'}</td>
+      <td class="r big">${fmtPx(totalPortPx)||'—'}</td>
+      <td class="r big ${loadClass(avgPct)}" style="color:${avgPct!==null?(avgPct>100?'#f87171':avgPct>80?'#fbbf24':'#4ade80'):'rgba(255,255,255,.5)'}">${avgPct!==null?avgPct+'% avg':'—'}</td>
+      <td></td>
+    </tr>`;
+  } else {
+    rowsHtml=`<tr><td colspan="7" style="text-align:center;padding:20px;color:#999;font-size:13px;font-style:italic">No port assignments defined. Use "Assign Ports" in the sidebar.</td></tr>`;
+  }
+
+  document.getElementById('sheetWrap').innerHTML=`
+  <div class="spec-sheet">
+
+    <!-- ═══ PAGE 1: Header + Infobar + Port Table + Notes ═══ -->
+    <div class="ss-page">
+      <div class="ss-header">
+        <div>
+          <div class="ss-title">${job||'TECH CABLING SHEET'}</div>
+          <div class="ss-sub">LED Processor Port Assignment · ${rev}</div>
+        </div>
+        <div class="ss-meta">
+          ${venue?`<div><strong>${esc(venue)}</strong></div>`:''}
+          ${date?`<div><strong>${esc(date)}</strong></div>`:''}
+          ${tech?`<div>Tech: <strong>${esc(tech)}</strong></div>`:''}
+          <div style="opacity:.4;margin-top:4px">Generated ${nowStr}</div>
+        </div>
+      </div>
+      <div class="ss-infobar">
+        <div class="ic"><div class="ic-l">Field Size</div><div class="ic-v"><em>${getFieldL()}</em><span style="color:rgba(255,255,255,.3);font-size:11px"> × </span><em>${getFieldW()}</em><span style="font-size:11px;color:rgba(255,255,255,.4)"> ft</span></div></div>
+        <div class="ic"><div class="ic-l">Processor</div><div class="ic-v"><em>${esc(proc)||'—'}</em></div></div>
+        <div class="ic"><div class="ic-l">Ports Assigned</div><div class="ic-v"><em>${ports.length}</em></div></div>
+        <div class="ic"><div class="ic-l">Cabinet Type</div><div class="ic-v">${cab.name} <em style="font-size:12px;color:#aaa">${cab.mm}</em></div></div>
+        <div class="ic"><div class="ic-l">Px / Cabinet</div><div class="ic-v"><em>${cab.pxW}×${cab.pxH}</em></div></div>
+        <div class="ic"><div class="ic-l">Total Cabinets</div><div class="ic-v"><em>${totalCabs||'—'}</em></div></div>
+        ${maxPx?`<div class="ic"><div class="ic-l">Max Px / Port</div><div class="ic-v"><em>${fmtPx(maxPx)}</em></div></div>`:''}
+      </div>
+      <div class="ss-body">
+        ${fiberBoxes.length>0?`<div class="ss-diagram" style="padding-top:14px">
+          <div class="ss-diag-title">Fiber Converters — ${fiberBoxes.length} Box${fiberBoxes.length!==1?'es':''}</div>
+          <table class="ss-table" style="margin-top:8px">
+            <thead><tr>
+              <th style="width:100px">Box</th>
+              <th style="width:80px">Location</th>
+              <th>Ports Connected</th>
+            </tr></thead>
+            <tbody>${fiberBoxes.map(box=>{
+              if(!box.backupPortIdxs) box.backupPortIdxs=[];
+              const primaryList = box.portIdxs.map(pi=>{
+                const p=ports[pi]; if(!p) return '';
+                return `<span style="display:inline-flex;align-items:center;gap:3px;background:${p.color}22;border:1px solid ${p.color}55;color:${p.color};padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;margin-right:4px">P${p.portNum||pi+1}${p.label?' '+esc(p.label):''}</span>`;
+              }).join('');
+              const backupList = box.backupPortIdxs.map(pi=>{
+                const p=ports[pi]; if(!p||!p.backupPort) return '';
+                return `<span style="display:inline-flex;align-items:center;gap:3px;background:#b0b8c822;border:1px solid #b0b8c855;color:#888;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;margin-right:4px">B${p.backupPort}</span>`;
+              }).join('');
+              const allPorts = (primaryList||'') + (backupList||'');
+              return `<tr>
+                <td style="font-weight:700;font-family:'Barlow Condensed',sans-serif"><span style="color:#f97316">◈</span> ${esc(box.name)}</td>
+                <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700">${box.cabNum?`Cab #${box.cabNum}`:'—'}</td>
+                <td>${allPorts||'<span style="color:#999;font-style:italic;font-size:12px">No ports assigned</span>'}</td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>`:''}
+        <div class="ss-table-wrap">
+          <table class="ss-table">
+            <thead><tr>
+              <th style="width:38px">Port</th>
+              <th>Zone / Label</th>
+              <th class="r" style="width:60px">Backup</th>
+              <th style="width:80px">Fiber Box</th>
+              <th class="r" style="width:100px">Cab Range</th>
+              <th class="r" style="width:55px">Count</th>
+              <th class="r" style="width:75px">Pixels</th>
+              <th class="r" style="width:65px">${maxPx?'Load %':'Px Load'}</th>
+              <th style="width:160px">Cable Run / Chain</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+        ${notes?`<div class="ss-notes"><div class="ss-notes-title">Tech Notes</div><div class="ss-notes-body">${esc(notes)}</div></div>`:''}
+      </div>
+      <div class="ss-footer">
+        <span>NOVASPEC · Tech Cabling Sheet · ${rev} · Page 1 of 2</span>
+        <span>${job?esc(job)+' · ':''}${date||nowStr}</span>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 2: Field Diagram ═══ -->
+    <div class="ss-page">
+      <div class="ss-page2-header">
+        <div class="ss-page2-title">${esc(job)||'TECH CABLING SHEET'} <span style="color:#00c8f0;font-weight:400">· Layout Diagram</span></div>
+        <div class="ss-page2-meta">${esc(proc)||''} ${venue?'· '+esc(venue):''} · ${rev}</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:11px;font-family:'Barlow Condensed',sans-serif;color:rgba(255,255,255,.6)">
+          <span style="display:inline-block;width:12px;height:8px;border-radius:2px;background:#00c8f0"></span><span style="color:#ccc">Primary</span>
+          <span style="display:inline-block;width:12px;height:8px;border-radius:2px;background:#b0b8c8"></span><span style="color:#ccc">Backup</span>
+          <span style="display:inline-block;width:12px;height:8px;border-radius:2px;background:#f97316"></span><span style="color:#ccc">Fiber box</span>
+        </div>
+      </div>
+      <div class="ss-body">
+        ${diagramHtml?`<div class="ss-diagram" style="border-bottom:none;padding-top:4px"><div class="ss-diagram-frame">${diagramHtml}</div></div>`:'<div style="padding:40px 28px;color:#999;font-style:italic;text-align:center">No layout defined — use Edit Layout in sidebar</div>'}
+      </div>
+      <div class="ss-footer">
+        <span>NOVASPEC · Tech Cabling Sheet · ${rev} · Page 2 of 2</span>
+        <span>${job?esc(job)+' · ':''}${date||nowStr}</span>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+const BKP_COLOR = '#b0b8c8'; // reserved colour for all backup port annotations
+
+// Returns SVG rect + orientation info for a given cabinet number
+function getCabSvgPos(cabNum, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip) {
+  for(let si=0; si<complexSections.length; si++){
+    const sec=complexSections[si];
+    const n=parseInt(sec.count)||0; if(!n) continue;
+    const stacks=sec.doubleStacked?2:1;
+    const startCab=getSectionStartCab(si);
+    const totalN=n*stacks;
+    const endCab=startCab+totalN-1;
+    if(cabNum<startCab||cabNum>endCab) continue;
+    // Use per-section cabinet dimensions
+    const secCabLen=getSectionLenFt(sec)*sc;
+    const secStrip=Math.max(7,Math.min(secCabLen*0.35,16));
+    const pos=computeCxSectionSvg(sec,sc,fieldX,fieldY,fieldW,fieldH,secCabLen,secStrip);
+    if(!pos) continue;
+    const relIdx=cabNum-startCab;
+    const row=Math.floor(relIdx/n);
+    const colIdx=relIdx%n;
+    const snake = (sec.stackFlow||'snake')==='snake';
+    const rowDir = (row===1 && snake) ? (sec.direction==='rev'?'fwd':'rev') : sec.direction;
+    const physIdx = rowDir==='rev' ? n-1-colIdx : colIdx;
+    if(pos.orientation==='H'){
+      const x=pos.startX+physIdx*secCabLen;
+      const y=sec.side==='south' ? pos.cy-secStrip/2+row*secStrip : pos.cy-secStrip/2-row*secStrip;
+      return { x, y, w:secCabLen, h:secStrip, orientation:'H', side:sec.side, dir:sec.direction, pos, row, stacks, strip:secStrip };
+    } else {
+      const ry=pos.startY-(physIdx+1)*secCabLen;
+      const x=sec.side==='east' ? pos.cx-secStrip/2+row*secStrip : pos.cx-secStrip/2-row*secStrip;
+      return { x, y:ry, w:secStrip, h:secCabLen, orientation:'V', side:sec.side, dir:sec.direction, pos, row, stacks, strip:secStrip };
+    }
+  }
+  return null;
+}
+
+// Draws a small arrow + pill label at a cabinet edge
+// role: 'primary' | 'backup'
+function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
+  if(!fromPos) return '';
+  lateralOffset = lateralOffset || 0;
+  const AH=5, AW=4;
+  const FONT=7.5, PAD=3, RX=2;
+  const isH = fromPos.orientation==='H';
+  const isBackup = role==='backup';
+
+  const outsideSide = { south:'below', north:'above', east:'right', west:'left' }[fromPos.side];
+
+  // Arrow direction from SVG coords
+  let arrowRight=true, arrowDown=false;
+  if(isH){
+    const fromCX = fromPos.x + fromPos.w/2;
+    const toCX   = toPos ? toPos.x + toPos.w/2 : fromCX+1;
+    arrowRight = toCX >= fromCX;
+  } else {
+    const fromCY = fromPos.y + fromPos.h/2;
+    const toCY   = toPos ? toPos.y + toPos.h/2 : fromCY+1;
+    arrowDown = toCY >= fromCY;
+  }
+
+  const ARROW_CHAR_W = FONT * 0.72;
+  const textW = label.length * (FONT * 0.62);
+  const pillW = isH ? textW + PAD*2 + AH + 3 : ARROW_CHAR_W + 2 + textW + PAD*2;
+  const pillH = FONT + PAD*2;
+
+  // Whether to draw L-shape: primary on inner row of double-stacked section
+  // These exit toward the FIELD (inward) so they never conflict with the backup
+  const drawL = !isBackup && (fromPos.stacks||1) > 1 && (fromPos.row||0) === 0;
+
+  // Inward side (toward the field) — opposite of outsideSide
+  const inwardSide = { below:'above', above:'below', right:'left', left:'right' }[outsideSide];
+
+  const SHORT_STEM = 3;
+  const LONG_STEM  = SHORT_STEM + pillH + 4;
+  const STEM = isBackup ? LONG_STEM : SHORT_STEM;
+  const L_STEM = 10; // how far inward before the horizontal jog
+  const L_JOG  = pillW * 0.6 + 6; // horizontal offset
+
+  let svg = '';
+
+  if(isH){
+    const realCabCX = fromPos.x + fromPos.w/2;   // true cabinet center — stem touches here
+    const pillCX    = realCabCX + lateralOffset;  // pill is offset laterally
+
+    if(drawL){
+      let stemStartY, stemEndY;
+      if(inwardSide==='above'){
+        stemStartY = fromPos.y;
+        stemEndY   = stemStartY - L_STEM;
+      } else {
+        stemStartY = fromPos.y + fromPos.h;
+        stemEndY   = stemStartY + L_STEM;
+      }
+      const jogX = arrowRight ? pillCX - L_JOG : pillCX + L_JOG;
+      const pillX = arrowRight ? jogX - pillW/2 : jogX - pillW/2;
+
+      // Stem: real cab center → vertical → jog to offset pill X
+      svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${stemStartY.toFixed(1)}" x2="${realCabCX.toFixed(1)}" y2="${stemEndY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      if(lateralOffset !== 0){
+        svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${stemEndY.toFixed(1)}" x2="${pillCX.toFixed(1)}" y2="${stemEndY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
+      }
+      svg+=`<line x1="${pillCX.toFixed(1)}" y1="${stemEndY.toFixed(1)}" x2="${jogX.toFixed(1)}" y2="${stemEndY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      const pillY = stemEndY - pillH/2;
+      svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}"/>`;
+      const arrowY = pillY+pillH/2;
+      if(arrowRight){
+        const ax=pillX+PAD;
+        svg+=`<polygon points="${ax},${arrowY-AW} ${ax+AH},${arrowY} ${ax},${arrowY+AW}" fill="rgba(0,0,0,0.5)"/>`;
+        svg+=`<text x="${(ax+AH+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="#000" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+      } else {
+        const ax=pillX+pillW-PAD;
+        svg+=`<polygon points="${ax},${arrowY-AW} ${ax-AH},${arrowY} ${ax},${arrowY+AW}" fill="rgba(0,0,0,0.5)"/>`;
+        svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="#000" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+      }
+
+    } else {
+      const pillX = pillCX - pillW/2;
+      let pillY, stemY1, stemY2;
+      if(outsideSide==='below'){
+        stemY2=fromPos.y+fromPos.h; stemY1=stemY2+STEM; pillY=stemY1;
+      } else {
+        stemY2=fromPos.y; stemY1=stemY2-STEM; pillY=stemY1-pillH;
+      }
+      // Vertical stem from real cab center, then horizontal jog to pill if offset
+      svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${stemY2.toFixed(1)}" x2="${realCabCX.toFixed(1)}" y2="${(isBackup?stemY1:pillY+pillH).toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      if(lateralOffset !== 0){
+        svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${(isBackup?stemY1:pillY+pillH).toFixed(1)}" x2="${pillCX.toFixed(1)}" y2="${(isBackup?stemY1:pillY+pillH).toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
+      }
+      svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}" opacity="${isBackup?'.85':'1'}"/>`;
+      const arrowY = pillY+pillH/2;
+      if(arrowRight){
+        const ax=pillX+PAD;
+        svg+=`<polygon points="${ax},${arrowY-AW} ${ax+AH},${arrowY} ${ax},${arrowY+AW}" fill="rgba(0,0,0,0.5)"/>`;
+        svg+=`<text x="${(ax+AH+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="${isBackup?'#444':'#000'}" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+      } else {
+        const ax=pillX+pillW-PAD;
+        svg+=`<polygon points="${ax},${arrowY-AW} ${ax-AH},${arrowY} ${ax},${arrowY+AW}" fill="rgba(0,0,0,0.5)"/>`;
+        svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="${isBackup?'#444':'#000'}" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+      }
+    }
+
+  } else {
+    const realCabCY = fromPos.y + fromPos.h/2;   // true cabinet center
+    const pillCY    = realCabCY + lateralOffset;  // pill offset up/down
+
+    if(drawL){
+      let stemStartX, stemEndX;
+      if(inwardSide==='left'){
+        stemStartX = fromPos.x;
+        stemEndX   = stemStartX - L_STEM;
+      } else {
+        stemStartX = fromPos.x + fromPos.w;
+        stemEndX   = stemStartX + L_STEM;
+      }
+      const jogY = arrowDown ? pillCY - L_JOG : pillCY + L_JOG;
+      const pillY = arrowDown ? jogY - pillH/2 : jogY - pillH/2;
+      // Stem from real cab center, jog vertically to pillCY before going out
+      svg+=`<line x1="${stemStartX.toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${stemEndX.toFixed(1)}" y2="${realCabCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      if(lateralOffset !== 0){
+        svg+=`<line x1="${stemEndX.toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${stemEndX.toFixed(1)}" y2="${pillCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
+      }
+      svg+=`<line x1="${stemEndX.toFixed(1)}" y1="${pillCY.toFixed(1)}" x2="${stemEndX.toFixed(1)}" y2="${jogY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      const pillX = inwardSide==='left' ? stemEndX - pillW : stemEndX;
+      svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}"/>`;
+      const arrowGlyph = arrowDown ? '↓' : '↑';
+      svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="rgba(0,0,0,0.55)" font-weight="900" font-family="Barlow Condensed,sans-serif">${arrowGlyph}</text>`;
+      svg+=`<text x="${(pillX+PAD+ARROW_CHAR_W+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="#000" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+
+    } else {
+      const pillY = pillCY - pillH/2;
+      let pillX, stemX1, stemX2;
+      if(outsideSide==='right'){
+        stemX2=fromPos.x+fromPos.w; stemX1=stemX2+STEM; pillX=stemX1;
+      } else {
+        stemX2=fromPos.x; stemX1=stemX2-STEM; pillX=stemX1-pillW;
+      }
+      // Horizontal stem from real cab center, jog vertically to pillCY if offset
+      if(lateralOffset !== 0){
+        svg+=`<line x1="${stemX2.toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${(outsideSide==='right'?stemX1:stemX2-4).toFixed(1)}" y2="${realCabCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
+        svg+=`<line x1="${(outsideSide==='right'?stemX1:stemX2-4).toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${(outsideSide==='right'?stemX1:stemX2-4).toFixed(1)}" y2="${pillCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
+        svg+=`<line x1="${(outsideSide==='right'?stemX1:stemX2-4).toFixed(1)}" y1="${pillCY.toFixed(1)}" x2="${(outsideSide==='right'?pillX:pillX+pillW).toFixed(1)}" y2="${pillCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      } else {
+        svg+=`<line x1="${stemX2.toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${(outsideSide==='right'?pillX:pillX+pillW).toFixed(1)}" y2="${realCabCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
+      }
+      svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}" opacity="${isBackup?'.85':'1'}"/>`;
+      const arrowGlyph = arrowDown ? '↓' : '↑';
+      svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="rgba(0,0,0,0.55)" font-weight="900" font-family="Barlow Condensed,sans-serif">${arrowGlyph}</text>`;
+      svg+=`<text x="${(pillX+PAD+ARROW_CHAR_W+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="${isBackup?'#444':'#000'}" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+    }
+  }
+
+  return svg;
+}
+
+// Returns the outer-edge connection point of a primary port annotation pill
+function getPortPillConnectPt(portIdx, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, lateralOffset) {
+  lateralOffset = lateralOffset||0;
+  const p = ports[portIdx]; if(!p||!p.first) return null;
+  const fromPos = getCabSvgPos(p.first, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+  if(!fromPos) return null;
+  const FONT=7.5, PAD=3, AH=5, ARROW_CHAR_W=FONT*0.72;
+  const label = `P${p.portNum||portIdx+1}`;
+  const textW = label.length*(FONT*0.62);
+  const pillW = fromPos.orientation==='H' ? textW+PAD*2+AH+3 : ARROW_CHAR_W+2+textW+PAD*2;
+  const pillH = FONT+PAD*2;
+  const outside = { south:'below', north:'above', east:'right', west:'left' }[fromPos.side];
+  const inward  = { below:'above', above:'below', right:'left', left:'right' }[outside];
+  const drawL = (fromPos.stacks||1) > 1 && (fromPos.row||0) === 0;
+  const L_STEM = 10, L_JOG = pillW * 0.6 + 6;
+  if(fromPos.orientation==='H'){
+    const realCabCX = fromPos.x + fromPos.w/2;
+    const pillCX = realCabCX + lateralOffset;
+    if(drawL){
+      const stemEndY = inward==='above' ? fromPos.y - L_STEM : fromPos.y + fromPos.h + L_STEM;
+      const toPos2 = getCabSvgPos(p.last, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+      const arrowRight = toPos2 ? (toPos2.x+toPos2.w/2) >= pillCX : true;
+      const jogX = arrowRight ? pillCX - L_JOG : pillCX + L_JOG;
+      const outerY = inward==='above' ? stemEndY - pillH/2 : stemEndY + pillH/2;
+      return { x: jogX + pillW/2, y: outerY, side: fromPos.side, isH: true, isInward: true };
+    } else {
+      const SHORT_STEM=3;
+      const pillY = outside==='below' ? fromPos.y+fromPos.h+SHORT_STEM : fromPos.y-SHORT_STEM-pillH;
+      const outerY = outside==='below' ? pillY+pillH : pillY;
+      return { x:pillCX, y:outerY, side:fromPos.side, isH:true };
+    }
+  } else {
+    const realCabCY = fromPos.y + fromPos.h/2;
+    const pillCY = realCabCY + lateralOffset;
+    if(drawL){
+      const stemEndX = inward==='left' ? fromPos.x - L_STEM : fromPos.x + fromPos.w + L_STEM;
+      const outerX = inward==='left' ? stemEndX - pillW/2 : stemEndX + pillW/2;
+      return { x: outerX, y: pillCY, side: fromPos.side, isH: false, isInward: true };
+    } else {
+      const SHORT_STEM=3;
+      const pillX = outside==='right' ? fromPos.x+fromPos.w+SHORT_STEM : fromPos.x-SHORT_STEM-pillW;
+      const outerX = outside==='right' ? pillX+pillW : pillX;
+      return { x:outerX, y:pillCY, side:fromPos.side, isH:false };
+    }
+  }
+}
+
+// Returns the outer-edge connection point of a backup port annotation pill
+// Backup pill is stacked further out than primary (LONG_STEM from strip edge)
+function getBackupPillConnectPt(portIdx, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, lateralOffset) {
+  lateralOffset = lateralOffset||0;
+  const p = ports[portIdx]; if(!p||!p.last||!p.backupPort) return null;
+  const fromPos = getCabSvgPos(p.last, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+  if(!fromPos) return null;
+  const FONT=7.5, PAD=3, AH=5, ARROW_CHAR_W=FONT*0.72;
+  const label = `B:${p.backupPort}`;
+  const textW = label.length*(FONT*0.62);
+  const pillW = fromPos.orientation==='H' ? textW+PAD*2+AH+3 : ARROW_CHAR_W+2+textW+PAD*2;
+  const pillH = FONT+PAD*2;
+  const SHORT_STEM=3, LONG_STEM=SHORT_STEM+pillH+4;
+  const outside = { south:'below', north:'above', east:'right', west:'left' }[fromPos.side];
+  if(fromPos.orientation==='H'){
+    const pillCX = fromPos.x+fromPos.w/2 + lateralOffset;
+    const pillY = outside==='below' ? fromPos.y+fromPos.h+LONG_STEM : fromPos.y-LONG_STEM-pillH;
+    const outerY = outside==='below' ? pillY+pillH : pillY;
+    return { x:pillCX, y:outerY, side:fromPos.side, isH:true };
+  } else {
+    const pillCY = fromPos.y+fromPos.h/2 + lateralOffset;
+    const pillX = outside==='right' ? fromPos.x+fromPos.w+LONG_STEM : fromPos.x-LONG_STEM-pillW;
+    const outerX = outside==='right' ? pillX+pillW : pillX;
+    return { x:outerX, y:pillCY, side:fromPos.side, isH:false };
+  }
+}
+
+// Returns center of a fiber box (legacy / fallback)
+function getFiberPillConnectPt(box, boxIdx, svgW, svgH) {
+  const {px, py} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
+  return { x:px+FB_BOX_W/2, y:py+FB_BOX_H/2, isH:true, side:'south', pillH:FB_BOX_H, pillW:FB_BOX_W };
+}
+
+// Draws connector lines from port/backup pills to specific numbered circles on fiber box
+function drawFiberConnectors(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, svgW, svgH, annotLateralMap) {
+  annotLateralMap = annotLateralMap || {};
+  if(!showConnectors) return '';
+  if(!fiberBoxes.length||!ports.length) return '';
+  let svg='';
+
+  // Collect all routes first so we can assign staggered waypoint offsets
+  const allRoutes = [];
+  fiberBoxes.forEach((box, boxIdx)=>{
+    if(!box.cabNum) return;
+    const nums = box.portInputNums || {};
+    (box.portIdxs||[]).forEach(portIdx=>{
+      const p = ports[portIdx]; if(!p) return;
+      const inputNum = nums[`p_${portIdx}`]; if(!inputNum) return;
+      const fPt = getFiberCircleCenter(box, boxIdx, inputNum, svgW, svgH);
+      if(fPt) allRoutes.push({ portIdx, isBackup:false, color: p.color, boxIdx, fPt });
+    });
+    (box.backupPortIdxs||[]).forEach(portIdx=>{
+      const p = ports[portIdx]; if(!p||!p.backupPort) return;
+      const inputNum = nums[`b_${portIdx}`]; if(!inputNum) return;
+      const fPt = getFiberCircleCenter(box, boxIdx, inputNum, svgW, svgH);
+      if(fPt) allRoutes.push({ portIdx, isBackup:true, color: BKP_COLOR, boxIdx, fPt });
+    });
+  });
+
+  // Build a lateralOffset map keyed by pill label — built in annotation block above
+  const STAGGER = 9;
+  const boxRouteCounts = {};
+  allRoutes.forEach(r => { boxRouteCounts[r.boxIdx] = (boxRouteCounts[r.boxIdx]||0) + 1; });
+  const boxRouteIdx = {};
+  allRoutes.forEach(r => {
+    if(boxRouteIdx[r.boxIdx] === undefined) boxRouteIdx[r.boxIdx] = 0;
+    const li = boxRouteIdx[r.boxIdx]++;
+    const total = boxRouteCounts[r.boxIdx];
+    const offset = (li - (total-1)/2) * STAGGER;
+    const srcXOffset = (li - (total-1)/2) * 4;
+
+    const p = ports[r.portIdx];
+    const pillLabel = r.isBackup ? `B:${p?.backupPort}` : `P${p?.portNum||r.portIdx+1}`;
+    const pillOffset = annotLateralMap[pillLabel] || 0;
+
+    const pPt = r.isBackup
+      ? getBackupPillConnectPt(r.portIdx, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, pillOffset)
+      : getPortPillConnectPt(r.portIdx, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, pillOffset);
+    if(!pPt) return;
+
+    // Each circle gets its own dedicated approach rail based purely on input number.
+    // Circle 1 = closest to box, circle 10 = furthest — always visible, always distinct.
+    const STEP = 8;
+    const inputNum = parseInt(Object.entries(fiberBoxes[r.boxIdx].portInputNums||{})
+      .find(([k]) => r.isBackup ? k===`b_${r.portIdx}` : k===`p_${r.portIdx}`)?.[1]) || 1;
+    // entryFromAbove=true (bottom box): circles entered from above, rail above circle
+    // entryFromAbove=false (top box):   circles entered from below, rail below circle
+    const approachRailY = r.fPt.entryFromAbove
+      ? r.fPt.y - (inputNum * STEP)
+      : r.fPt.y + (inputNum * STEP);
+
+    const srcX = pPt.x + srcXOffset;
+    const pts = [
+      `${pPt.x.toFixed(1)},${pPt.y.toFixed(1)}`,
+      `${srcX.toFixed(1)},${pPt.y.toFixed(1)}`,
+      `${srcX.toFixed(1)},${approachRailY.toFixed(1)}`,
+      `${r.fPt.x.toFixed(1)},${approachRailY.toFixed(1)}`,
+      `${r.fPt.x.toFixed(1)},${r.fPt.y.toFixed(1)}`
+    ].join(' ');
+    svg+=`<polyline points="${pts}" fill="none" stroke="${r.color}" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.75" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const arrowDir = r.fPt.entryFromAbove ? 1 : -1;
+    svg+=`<polygon points="${r.fPt.x.toFixed(1)},${r.fPt.y.toFixed(1)} ${(r.fPt.x-3).toFixed(1)},${(r.fPt.y-5*arrowDir).toFixed(1)} ${(r.fPt.x+3).toFixed(1)},${(r.fPt.y-5*arrowDir).toFixed(1)}" fill="${r.color}" opacity="0.9"/>`;
+  });
+  return svg;
+}
+
+function buildFieldDiagramForPrint(svgW, svgH) {
+  const fL=getFieldL(), fW=getFieldW(), cf=cabLenFt(), labelPad=60;
+  let pad=computeCxScenePadding();
+  let sc=Math.min((svgW-labelPad*2)/(fL+pad.eL+pad.eR), (svgH-labelPad*2)/(fW+pad.eT+pad.eB));
+  const {eL,eR,eT,eB}=pad;
+  const fieldW=fL*sc, fieldH=fW*sc;
+  const fieldX=(svgW-fL*sc)/2+(eL-eR)/2*sc;
+  const fieldY=(svgH-fW*sc)/2+(eT-eB)/2*sc;
+  const cabLen=cf*sc;
+  const strip=Math.max(7,Math.min(cabLen*0.35,16));
+  const fbPos = computeFiberBoxYPositions(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+  _fiberBoxTopY = fbPos.topBoxY;
+  _fiberBoxBotY = fbPos.bottomBoxY;
+  const SIDE_COLORS={south:'#c8a830',north:'#c8a830',east:'#5588bb',west:'#5588bb'};
+
+  let svg=`<svg viewBox="0 -20 ${svgW} ${svgH+20}" width="${svgW}" height="${svgH+20}" preserveAspectRatio="xMidYMid meet" style="display:block;font-family:'Barlow Condensed',sans-serif;max-width:100%" xmlns="http://www.w3.org/2000/svg">`;
+  svg+=drawField(fieldX, fieldY, fieldW, fieldH, fieldType, fieldColor);
+
+  let labSvg='';
+  for(let si=0;si<complexSections.length;si++){
+    const sec=complexSections[si]; const n=parseInt(sec.count)||0; if(!n) continue;
+    const secCabLen=getSectionLenFt(sec)*sc;
+    const secStrip=Math.max(7,Math.min(secCabLen*0.35,16));
+    const pos=computeCxSectionSvg(sec,sc,fieldX,fieldY,fieldW,fieldH,secCabLen,secStrip); if(!pos) continue;
+    const startCab=getSectionStartCab(si);
+    const stacks=sec.doubleStacked?2:1;
+    for(let row=0;row<stacks;row++){
+      for(let colIdx=0;colIdx<n;colIdx++){
+        const snake=(sec.stackFlow||'snake')==='snake';
+        const rowDir=(row===1&&snake)?(sec.direction==='rev'?'fwd':'rev'):sec.direction;
+        const physIdx=rowDir==='rev'?n-1-colIdx:colIdx;
+        const cabNum=startCab+row*n+colIdx;
+        const color=portColorForCab(cabNum)||(SIDE_COLORS[sec.side]||'#c8a830');
+        if(pos.orientation==='H'){
+          const x=pos.startX+physIdx*secCabLen;
+          const y=sec.side==='south'?pos.cy-secStrip/2+row*secStrip:pos.cy-secStrip/2-row*secStrip;
+          svg+=`<rect x="${(x+.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen-.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" stroke="#000" stroke-width="0.8" stroke-opacity="0.25" rx=".3"/>`;
+        } else {
+          const y=pos.startY-(physIdx+1)*secCabLen;
+          const x=sec.side==='east'?pos.cx-secStrip/2+row*secStrip:pos.cx-secStrip/2-row*secStrip;
+          svg+=`<rect x="${x.toFixed(1)}" y="${(y+.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen-.6).toFixed(1)}" fill="${color}" stroke="#000" stroke-width="0.8" stroke-opacity="0.25" rx=".3"/>`;
+        }
+      }
+    }
+  }
+
+  // Port entry / backup annotations — detect overlaps and offset colliding pills
+  // Collect all annotations with their natural stem center positions
+  const annotItems = [];
+  ports.forEach((p,i)=>{
+    if(!p.first||!p.last) return;
+    const pLabel=`P${p.portNum||i+1}`;
+    const firstPos=getCabSvgPos(p.first, sc,fieldX,fieldY,fieldW,fieldH,cabLen,strip);
+    const lastPos =getCabSvgPos(p.last,  sc,fieldX,fieldY,fieldW,fieldH,cabLen,strip);
+    if(firstPos) annotItems.push({ pos:firstPos, toPos:lastPos, color:p.color, label:pLabel, role:'primary' });
+    if(p.backupPort && lastPos) annotItems.push({ pos:lastPos, toPos:firstPos, color:BKP_COLOR, label:`B:${p.backupPort}`, role:'backup' });
+  });
+
+  // For each annotation compute its natural stem center X (H) or Y (V)
+  const FONT=7.5, PAD=3, AH=5;
+  function pillW(label, isH) {
+    const tw=label.length*(FONT*0.62);
+    return isH ? tw+PAD*2+AH+3 : FONT*0.72+2+tw+PAD*2;
+  }
+  const pillH = FONT+PAD*2;
+
+  // Detect proximity: two annotations on same side and orientation whose stem centers are within threshold
+  const THRESH = 28; // px — if stem centers are closer than this, offset them
+  const PILL_OFFSET = 18; // px lateral offset to apply
+
+  // Build list with natural stem center positions
+  const annotWithPos = annotItems.map(a => {
+    const isH = a.pos.orientation==='H';
+    const cx = a.pos.x + a.pos.w/2;
+    const cy = a.pos.y + a.pos.h/2;
+    return { ...a, isH, stemCX: cx, stemCY: cy, lateralOffset: 0 };
+  });
+
+  // Find collisions on same side — sort by stem position, then stagger
+  for(let i=0; i<annotWithPos.length; i++){
+    for(let j=i+1; j<annotWithPos.length; j++){
+      const a=annotWithPos[i], b=annotWithPos[j];
+      if(a.pos.side !== b.pos.side) continue;
+      if(a.isH !== b.isH) continue;
+      const dist = a.isH ? Math.abs(a.stemCX-b.stemCX) : Math.abs(a.stemCY-b.stemCY);
+      if(dist < THRESH){
+        // Offset them in opposite lateral directions
+        const half = PILL_OFFSET/2;
+        a.lateralOffset = a.lateralOffset===0 ? -half : a.lateralOffset;
+        b.lateralOffset = b.lateralOffset===0 ?  half : b.lateralOffset;
+      }
+    }
+  }
+
+  let annotSvg='';
+  const annotLateralMap = {};  // label → lateralOffset, for fiber connector lookup
+  annotWithPos.forEach(a => {
+    annotLateralMap[a.label] = a.lateralOffset;
+    annotSvg += drawPortAnnotation(a.pos, a.toPos, a.color, a.label, a.role, a.lateralOffset);
+  });
+
+  // Fiber box markers (fixed corner positions + location stem to cabinet)
+  let fiberSvg='';
+  fiberBoxes.forEach((box, boxIdx)=>{
+    if(!box.cabNum) return;
+    fiberSvg+=drawFiberBoxMarker(boxIdx, box, svgW, svgH, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
+  });
+
+  // Legend — white panel centered inside the field
+  let legendSvg='';
+  if(ports.length>0){
+    const ROW=13, PAD=8, SWATCH=9, GAP=4;
+    const hasBackup = ports.some(p=>p.backupPort);
+    const colW = 105;
+    const cols = hasBackup ? 2 : 1;
+    const panelW = cols*colW + PAD*2;
+    const panelH = PAD*2 + 11 + ports.length*ROW;
+    const lx = fieldX + fieldW/2 - panelW/2;
+    const ly = fieldY + fieldH/2 - panelH/2;
+    legendSvg+=`<rect x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" width="${panelW.toFixed(1)}" height="${panelH.toFixed(1)}" fill="rgba(255,255,255,0.93)" rx="4" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>`;
+    legendSvg+=`<text x="${(lx+PAD).toFixed(1)}" y="${(ly+PAD+7).toFixed(1)}" font-size="7" fill="#888" font-weight="800" letter-spacing="1.5" font-family="Barlow Condensed,sans-serif">PORT LEGEND</text>`;
+    ports.forEach((p,i)=>{
+      const ry = ly+PAD+14+i*ROW;
+      legendSvg+=`<rect x="${(lx+PAD).toFixed(1)}" y="${ry.toFixed(1)}" width="${SWATCH}" height="${SWATCH}" fill="${p.color}" rx="1.5"/>`;
+      legendSvg+=`<text x="${(lx+PAD+SWATCH+GAP).toFixed(1)}" y="${(ry+SWATCH-1).toFixed(1)}" font-size="8.5" fill="#111" font-weight="700" font-family="Barlow Condensed,sans-serif">P${p.portNum||i+1} ${esc(p.label)||''}</text>`;
+      if(hasBackup && p.backupPort){
+        legendSvg+=`<rect x="${(lx+PAD+colW).toFixed(1)}" y="${ry.toFixed(1)}" width="${SWATCH}" height="${SWATCH}" fill="${BKP_COLOR}" rx="1.5"/>`;
+        legendSvg+=`<text x="${(lx+PAD+colW+SWATCH+GAP).toFixed(1)}" y="${(ry+SWATCH-1).toFixed(1)}" font-size="8.5" fill="#666" font-weight="600" font-family="Barlow Condensed,sans-serif">BKP:${p.backupPort}</text>`;
+      }
+    });
+  }
+
+  // Fiber connector lines (drawn before pills so they sit underneath)
+  let connSvg = drawFiberConnectors(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, svgW, svgH, annotLateralMap);
+
+  svg+=labSvg+connSvg+annotSvg+fiberSvg+legendSvg;
+  svg+=`<g transform="translate(${20},${svgH-20}) rotate(${compassBearing})"><line x1="0" y1="0" x2="0" y2="-12" stroke="#666" stroke-width="1.5"/><polygon points="0,-14 -3,-7 3,-7" fill="#666"/><text x="0" y="-17" text-anchor="middle" font-size="7" fill="#666" font-weight="800">N</text></g>`;
+  svg+='</svg>';
+  return svg;
+}
+
+// ════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function hexAlpha(hex,alpha){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function onCabChange(){ render(); }
+
+// ════════════════════════════════════════════════════════════════
+// FIBER BOXES
+// ════════════════════════════════════════════════════════════════
+const FIBER_BOX_NAMES = ['OPT1','OPT2','OPT3','OPT4'];
+
+function addFiberBox(){
+  if(fiberBoxes.length>=4) return;
+  fiberBoxes.push({ name: FIBER_BOX_NAMES[fiberBoxes.length], cabNum:'', portIdxs:[], backupPortIdxs:[], portInputNums:{}, cornerPos: fiberBoxes.length % 4 });
+  renderFiberBoxes(); render();
+}
+
+function removeFiberBox(i){
+  fiberBoxes.splice(i,1);
+  renderFiberBoxes(); render();
+}
+
+function updateFiberBox(i, field, val){
+  fiberBoxes[i][field] = field==='cabNum' ? (parseInt(val)||'') : val;
+  renderFiberBoxes(); render();
+}
+
+function fiberNextInputNum(box) {
+  const used = new Set(Object.values(box.portInputNums||{}));
+  for(let n=1;n<=10;n++) if(!used.has(n)) return n;
+  return null;
+}
+function toggleFiberPort(boxIdx, portIdx){
+  const box = fiberBoxes[boxIdx];
+  if(!box.portInputNums) box.portInputNums={};
+  const pos = box.portIdxs.indexOf(portIdx);
+  if(pos>=0){
+    box.portIdxs.splice(pos,1);
+    delete box.portInputNums[`p_${portIdx}`];
+  } else {
+    box.portIdxs.push(portIdx);
+    const n = fiberNextInputNum(box);
+    if(n) box.portInputNums[`p_${portIdx}`] = n;
+  }
+  renderFiberBoxes(); render();
+}
+function toggleFiberBackupPort(boxIdx, portIdx){
+  const box = fiberBoxes[boxIdx];
+  if(!box.backupPortIdxs) box.backupPortIdxs=[];
+  if(!box.portInputNums) box.portInputNums={};
+  const pos = box.backupPortIdxs.indexOf(portIdx);
+  if(pos>=0){
+    box.backupPortIdxs.splice(pos,1);
+    delete box.portInputNums[`b_${portIdx}`];
+  } else {
+    box.backupPortIdxs.push(portIdx);
+    const n = fiberNextInputNum(box);
+    if(n) box.portInputNums[`b_${portIdx}`] = n;
+  }
+  renderFiberBoxes(); render();
+}
+function setFiberInputNum(boxIdx, portIdx, isBackup, val){
+  const box = fiberBoxes[boxIdx];
+  if(!box.portInputNums) box.portInputNums={};
+  const key = isBackup ? `b_${portIdx}` : `p_${portIdx}`;
+  box.portInputNums[key] = parseInt(val)||1;
+  render();
+}
+
+function renderFiberBoxes(){
+  const el = document.getElementById('fiberBoxList');
+  if(!el) return;
+  if(fiberBoxes.length===0){ el.innerHTML=''; return; }
+  // Auto-assign input numbers for any ports that don't have one yet
+  fiberBoxes.forEach(box=>{
+    if(!box.portInputNums) box.portInputNums={};
+    (box.portIdxs||[]).forEach(portIdx=>{
+      const key=`p_${portIdx}`;
+      if(!box.portInputNums[key]){ const n=fiberNextInputNum(box); if(n) box.portInputNums[key]=n; }
+    });
+    (box.backupPortIdxs||[]).forEach(portIdx=>{
+      const key=`b_${portIdx}`;
+      if(!box.portInputNums[key]){ const n=fiberNextInputNum(box); if(n) box.portInputNums[key]=n; }
+    });
+  });
+  el.innerHTML = fiberBoxes.map((box,i)=>{
+    if(!box.backupPortIdxs) box.backupPortIdxs=[];
+    if(!box.portInputNums)  box.portInputNums={};
+    const noPorts = ports.length===0;
+    const numOpts = [1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('');
+    const primaryChecks = noPorts
+      ? `<span style="font-size:10px;color:var(--muted);font-style:italic">Add ports first</span>`
+      : ports.map((p,pi)=>{
+          const checked = box.portIdxs.includes(pi);
+          const col = p.color;
+          const inputNum = box.portInputNums[`p_${pi}`] || '';
+          return `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;font-family:'Barlow Condensed',sans-serif;font-weight:700;padding:3px 7px;border-radius:3px;border:1px solid ${checked?col:'var(--border)'};background:${checked?col+'22':'transparent'};color:${checked?col:'var(--muted)'}">
+            <input type="checkbox" ${checked?'checked':''} onchange="toggleFiberPort(${i},${pi})" style="width:auto;margin:0">
+            P${p.portNum||pi+1}
+            ${checked?`<select onchange="setFiberInputNum(${i},${pi},false,this.value)" style="margin-left:2px;width:38px;font-size:10px;font-weight:800;font-family:'Barlow Condensed',sans-serif;background:#f0f0f0;color:#000;border:2px solid ${col};border-radius:3px;padding:1px 2px">
+              ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${inputNum===n?' selected':''}>${n}</option>`).join('')}
+            </select>`:''}
+          </label>`;
+        }).join('');
+    const backupChecks = noPorts ? ''
+      : ports.filter(p=>p.backupPort).length===0
+        ? `<span style="font-size:10px;color:var(--muted);font-style:italic">No backup ports set</span>`
+        : ports.map((p,pi)=>{
+            if(!p.backupPort) return '';
+            const checked = box.backupPortIdxs.includes(pi);
+            const inputNum = box.portInputNums[`b_${pi}`] || '';
+            return `<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;font-family:'Barlow Condensed',sans-serif;font-weight:700;padding:3px 7px;border-radius:3px;border:1px solid ${checked?BKP_COLOR:'var(--border)'};background:${checked?BKP_COLOR+'44':'transparent'};color:${checked?'#888':'var(--muted)'}">
+              <input type="checkbox" ${checked?'checked':''} onchange="toggleFiberBackupPort(${i},${pi})" style="width:auto;margin:0">
+              B${p.backupPort}
+              ${checked?`<select onchange="setFiberInputNum(${i},${pi},true,this.value)" style="margin-left:2px;width:38px;font-size:10px;font-weight:800;font-family:'Barlow Condensed',sans-serif;background:#f0f0f0;color:#000;border:2px solid ${BKP_COLOR};border-radius:3px;padding:1px 2px">
+                ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${inputNum===n?' selected':''}>${n}</option>`).join('')}
+              </select>`:''}
+            </label>`;
+          }).join('');
+    return `<div class="fiber-box-card">
+      <div class="fiber-box-header">
+        <div class="fiber-box-icon">F</div>
+        <input type="text" value="${esc(box.name)}" onchange="updateFiberBox(${i},'name',this.value)" style="flex:1;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:13px" placeholder="Box name">
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;margin-right:2px">@ Cab</span>
+        <input type="number" min="1" value="${box.cabNum||''}" onchange="updateFiberBox(${i},'cabNum',this.value)" placeholder="—" style="width:52px;text-align:center;font-weight:700;color:#f97316;padding:4px 4px">
+        <select onchange="fiberBoxes[${i}].cornerPos=parseInt(this.value);render()" title="Diagram position" style="font-size:10px;font-family:'Barlow Condensed',sans-serif;background:var(--surface2);color:#f97316;border:1px solid #f97316;border-radius:3px;padding:2px 3px;font-weight:700">
+          <option value="0"${(box.cornerPos??i%4)===0?' selected':''}>↙ BL</option>
+          <option value="1"${(box.cornerPos??i%4)===1?' selected':''}>↘ BR</option>
+          <option value="2"${(box.cornerPos??i%4)===2?' selected':''}>↖ TL</option>
+          <option value="3"${(box.cornerPos??i%4)===3?' selected':''}>↗ TR</option>
+        </select>
+        <button onclick="removeFiberBox(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px">✕</button>
+      </div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Primary ports → input #:</div>
+      <div class="fiber-port-checks" style="margin-bottom:8px">${primaryChecks}</div>
+      ${ports.some(p=>p.backupPort)?`<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Backup ports → input #:</div>
+      <div class="fiber-port-checks">${backupChecks}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function fiberBoxForPort(portIdx){
+  return fiberBoxes.find(b=>b.portIdxs.includes(portIdx));
+}
+
+// Fiber box SVG geometry constants
+// Fiber box SVG geometry — fixed corner positions, stable regardless of cabinet location
+const FB_R=7, FB_SP=18, FB_N=10, FB_HPAD=6, FB_CPAD=5;
+const FB_LABEL_W=30;
+const FB_BOX_W = FB_LABEL_W + FB_HPAD + (FB_N-1)*FB_SP + FB_R*2 + FB_HPAD;
+const FB_BOX_H = FB_R*2 + FB_CPAD*2;
+const FB_CIR0X = FB_LABEL_W + FB_HPAD + FB_R; // x offset from px to first circle center
+const FB_MARGIN = 10;
+const FB_LABEL_H = 18;
+const FB_RAIL_SPACE = 10 * 8 + 10; // space for 10 approach rails + buffer = 90px
+
+function getFiberBoxFixedPos(box, boxIdx, svgW, svgH, topBoxY, bottomBoxY) {
+  const corner = (box && box.cornerPos != null) ? box.cornerPos : boxIdx % 4;
+  const tY = (topBoxY != null) ? topBoxY : (_fiberBoxTopY != null ? _fiberBoxTopY : FB_MARGIN + FB_RAIL_SPACE);
+  const bY = (bottomBoxY != null) ? bottomBoxY : (_fiberBoxBotY != null ? _fiberBoxBotY : svgH - FB_MARGIN - FB_BOX_H);
+  switch(corner % 4) {
+    case 0: return { px: FB_MARGIN,                   py: bY, corner:0 };
+    case 1: return { px: svgW - FB_MARGIN - FB_BOX_W, py: bY, corner:1 };
+    case 2: return { px: FB_MARGIN,                   py: tY, corner:2 };
+    case 3: return { px: svgW - FB_MARGIN - FB_BOX_W, py: tY, corner:3 };
+  }
+}
+
+// Draw a fiber box at its fixed corner, plus a dashed location stem to its assigned cabinet
+function drawFiberBoxMarker(boxIdx, box, svgW, svgH, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip){
+  if(!box) return '';
+  const {px, py} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
+  let svg='';
+
+  // Label: "Place at cabinet: N" — above box for bottom corners, below for top corners
+  if(box.cabNum){
+    const {corner} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
+    const isBottom = corner < 2;
+    const labelX = px + FB_BOX_W/2;
+    const labelY = isBottom ? py + FB_BOX_H + 11 : py - 5;
+    svg+=`<text x="${labelX.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#f97316" font-family="Barlow Condensed,sans-serif">Place at cabinet: ${box.cabNum}</text>`;
+  }
+
+  // Box body + divider + name label
+  svg+=`<rect x="${px.toFixed(1)}" y="${py.toFixed(1)}" width="${FB_BOX_W.toFixed(1)}" height="${FB_BOX_H.toFixed(1)}" fill="#1a1a1a" stroke="#f97316" stroke-width="1.5" rx="3"/>`;
+  svg+=`<line x1="${(px+FB_LABEL_W).toFixed(1)}" y1="${py.toFixed(1)}" x2="${(px+FB_LABEL_W).toFixed(1)}" y2="${(py+FB_BOX_H).toFixed(1)}" stroke="#f97316" stroke-width="1" opacity=".6"/>`;
+  svg+=`<text x="${(px+FB_LABEL_W/2).toFixed(1)}" y="${(py+FB_BOX_H/2+3.5).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="900" fill="#f97316" font-family="Barlow Condensed,sans-serif">${box.name}</text>`;
+
+  // Circles — build inputNum→color map
+  const nums = box.portInputNums||{};
+  const inputMap = {};
+  (box.portIdxs||[]).forEach(pi=>{ const n=nums[`p_${pi}`]; if(n&&ports[pi]) inputMap[n]=ports[pi].color; });
+  (box.backupPortIdxs||[]).forEach(pi=>{ const n=nums[`b_${pi}`]; if(n&&ports[pi]&&ports[pi].backupPort) inputMap[n]=BKP_COLOR; });
+  const cirCY = py + FB_BOX_H/2;
+  for(let n=1;n<=FB_N;n++){
+    const cirCX = px + FB_CIR0X + (n-1)*FB_SP;
+    const col = inputMap[n];
+    if(col){
+      svg+=`<circle cx="${cirCX.toFixed(1)}" cy="${cirCY.toFixed(1)}" r="${FB_R}" fill="${col}" stroke="#f97316" stroke-width="1"/>`;
+      svg+=`<text x="${cirCX.toFixed(1)}" y="${(cirCY+3).toFixed(1)}" text-anchor="middle" font-size="7" font-weight="900" fill="#000" font-family="Barlow Condensed,sans-serif">${n}</text>`;
+    } else {
+      svg+=`<circle cx="${cirCX.toFixed(1)}" cy="${cirCY.toFixed(1)}" r="${FB_R}" fill="none" stroke="#f97316" stroke-width="1.8" opacity=".7"/>`;
+      svg+=`<text x="${cirCX.toFixed(1)}" y="${(cirCY+3).toFixed(1)}" text-anchor="middle" font-size="7" font-weight="700" fill="#f97316" opacity=".5" font-family="Barlow Condensed,sans-serif">${n}</text>`;
+    }
+  }
+  return svg;
+}
+
+// Returns the entry point of a specific numbered circle (the edge facing the field)
+function getFiberCircleCenter(box, boxIdx, inputNum, svgW, svgH) {
+  const {px, py, corner} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
+  const cirCX = px + FB_CIR0X + (inputNum-1)*FB_SP;
+  const cirCY = py + FB_BOX_H/2;
+  const isBottom = corner < 2;  // 0=BL, 1=BR are bottom; 2=TL, 3=TR are top
+  return {
+    x: cirCX,
+    y: isBottom ? cirCY - FB_R : cirCY + FB_R,
+    entryFromAbove: isBottom,
+    isH: false,
+    side: isBottom ? 'south' : 'north'
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
+// SAVE / LOAD
+// ════════════════════════════════════════════════════════════════
+function collectFormFields() {
+  const ids = ['jobName','venue','showDate','techName','revision','procModel','maxPixels','techNotes','cabType','fieldLength','fieldWidth'];
+  const out = {};
+  ids.forEach(id => { const el=document.getElementById(id); if(el) out[id]=el.value; });
+  return out;
+}
+
+function applyFormFields(fields) {
+  if(!fields) return;
+  Object.entries(fields).forEach(([id,val]) => {
+    const el=document.getElementById(id); if(el) el.value=val;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// IMPORT FROM .e360 CLIENT SPEC
+// ════════════════════════════════════════════════════════════════
+function importE360(event) {
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const f = data.fields || {};
+
+      // ── Project fields ──────────────────────────────────────────
+      const jobEl    = document.getElementById('jobName');
+      const venueEl  = document.getElementById('venue');
+      const dateEl   = document.getElementById('showDate');
+      const cabEl    = document.getElementById('cabType');
+      const fLenEl   = document.getElementById('fieldLength');
+      const fWidEl   = document.getElementById('fieldWidth');
+
+      // Only overwrite if field is currently empty or user confirms
+      const hasExisting = (jobEl.value||'').trim() || complexSections.length;
+      if(hasExisting) {
+        if(!confirm('Importing will overwrite your current cabinet layout and field settings.\n\nContinue?')) {
+          event.target.value = ''; return;
+        }
+      }
+
+      // Map client name → job name (only if blank)
+      if(!jobEl.value.trim() && f.clientName) jobEl.value = f.clientName;
+      if(f.venueName)  venueEl.value  = f.venueName;
+      if(f.releaseDate) dateEl.value  = f.releaseDate;
+
+      // Cabinet type — keys match exactly
+      if(f.cabinetType && CAB[f.cabinetType]) cabEl.value = f.cabinetType;
+
+      // Field dimensions
+      if(f.fieldLength) fLenEl.value = f.fieldLength;
+      if(f.fieldWidth)  fWidEl.value = f.fieldWidth;
+
+      // ── Layout ──────────────────────────────────────────────────
+      if(Array.isArray(data.complexSections) && data.complexSections.length > 0) {
+        // Complex layout — import directly
+        complexSections = data.complexSections.map(s=>({
+          doubleStacked: false, stackFlow: 'snake', ...s
+        }));
+        // Cross-reference zones to set doubleStacked on the matching section
+        if(Array.isArray(data.zones)) {
+          let runningCab = 1;
+          complexSections.forEach(sec => {
+            const n = parseInt(sec.count)||0;
+            const secStart = runningCab;
+            const secEnd = secStart + n - 1;
+            const matchedZone = data.zones.find(z => z.doubleStacked && z.first >= secStart && z.last <= secEnd);
+            if(matchedZone) sec.doubleStacked = true;
+            runningCab = secEnd + 1;
+          });
+        }
+      } else if(data.layoutMode === 'u' || !data.layoutMode) {
+        // Simple U layout — reconstruct complexSections from sideStates + fields
+        const cabType = (f.cabinetType && CAB[f.cabinetType]) ? f.cabinetType : (document.getElementById('cabType').value);
+        const cab = CAB[cabType] || CAB['p10'];
+        const cf = cab.lenFt;
+        const fL = parseFloat(f.fieldLength) || 360;
+        const fW = parseFloat(f.fieldWidth)  || 160;
+        const total = parseInt(f.totalCabinets) || 0;
+        const ss = data.sideStates || {};
+        const southOn = !!ss.south, northOn = !!ss.north;
+        const eastOn  = !!ss.east,  westOn  = !!ss.west;
+
+        // Replicate computeDistribution from e360
+        let touchCabs = 0, actualTurnDist = 10;
+        if(southOn || northOn) {
+          const targetRun = fL + 20;
+          let raw = Math.ceil(targetRun / cf);
+          if((raw % 2) !== (total % 2)) raw += 1;
+          touchCabs = raw;
+          actualTurnDist = (touchCabs * cf - fL) / 2;
+        }
+        const numTouchlines = (southOn?1:0)+(northOn?1:0);
+        const numEndlines   = (eastOn?1:0)+(westOn?1:0);
+        const usedByTouch   = touchCabs * numTouchlines;
+        const remaining     = Math.max(0, total - usedByTouch);
+        const endCabs       = numEndlines > 0 ? Math.floor(remaining / numEndlines) : 0;
+        const endRemainder  = remaining - endCabs * numEndlines;
+
+        const dist = {
+          south: southOn ? touchCabs : 0,
+          north: northOn ? touchCabs : 0,
+          east:  eastOn  ? endCabs + (eastOn && endRemainder > 0 ? 1 : 0) : 0,
+          west:  westOn  ? endCabs : 0,
+        };
+
+        // Path order matches e360: west → south → east, north is separate
+        // fieldDist = distance from field edge to cabinet strip center
+        const touchFieldDist = actualTurnDist;
+        const endFieldDist   = actualTurnDist; // end lines anchor at turn point
+
+        complexSections = [];
+        if(dist.west  > 0) complexSections.push({ name:'West',  side:'west',  count:dist.west,  offset:0, fieldDist:endFieldDist,   direction:'fwd', doubleStacked:false, stackFlow:'snake' });
+        if(dist.south > 0) complexSections.push({ name:'South', side:'south', count:dist.south, offset:0, fieldDist:touchFieldDist, direction:'fwd', doubleStacked:false, stackFlow:'snake' });
+        if(dist.east  > 0) complexSections.push({ name:'East',  side:'east',  count:dist.east,  offset:0, fieldDist:endFieldDist,   direction:'rev', doubleStacked:false, stackFlow:'snake' });
+        if(dist.north > 0) complexSections.push({ name:'North', side:'north', count:dist.north, offset:0, fieldDist:touchFieldDist, direction:'rev', doubleStacked:false, stackFlow:'snake' });
+
+        // Apply doubleStacked from zones if present
+        if(Array.isArray(data.zones)) {
+          let runningCab = 1;
+          complexSections.forEach(sec => {
+            const n = parseInt(sec.count)||0;
+            const secStart = runningCab;
+            const secEnd = secStart + n - 1;
+            const matchedZone = data.zones.find(z => z.doubleStacked && z.first >= secStart && z.last <= secEnd);
+            if(matchedZone) sec.doubleStacked = true;
+            runningCab = secEnd + 1;
+          });
+        }
+      }
+      if(data.complexUnit)    complexUnit    = data.complexUnit;
+      if(typeof data.compassBearing === 'number') {
+        compassBearing = data.compassBearing;
+        document.getElementById('compassSidebar').value = compassBearing;
+        document.getElementById('compassSidebarVal').textContent = compassBearing + '°';
+        document.getElementById('compassDeg').value = compassBearing;
+      }
+      if(typeof data.reverseNumbering === 'boolean') reverseNumbering = data.reverseNumbering;
+
+      // ── Sync UI ──────────────────────────────────────────────────
+      renderCxSections();
+      renderCxDiagram();
+      renderPortEntries();
+      renderPortDiagram();
+      renderFiberBoxes();
+      updatePortSummary();
+      updateLayoutSummary();
+      render();
+
+      // Brief confirmation flash on the button
+      const btn = document.getElementById('e360Input').previousElementSibling;
+      const orig = btn.textContent;
+      btn.textContent = '✓ Imported!';
+      btn.style.borderColor = '#4ade80'; btn.style.color = '#4ade80';
+      setTimeout(()=>{ btn.textContent=orig; btn.style.borderColor='#7c6ef7'; btn.style.color='#7c6ef7'; }, 2000);
+
+    } catch(err) {
+      console.error('NovaSpec e360 import error:', err);
+      alert('Failed to import .e360 file:\n' + err.message + '\n\nCheck browser console for details.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function saveSheet() {
+  const data = {
+    _version: 1,
+    _app: 'NovaSpec',
+    fields: collectFormFields(),
+    complexSections,
+    complexUnit,
+    compassBearing,
+    reverseNumbering,
+    showConnectors,
+    fieldType,
+    fieldColor,
+    ports,
+    fiberBoxes,
+  };
+  const job = document.getElementById('jobName').value.trim() || 'novaspec';
+  const date = new Date().toISOString().slice(0,10);
+  const filename = `${job.replace(/[^a-z0-9_-]/gi,'_')}_${date}.nsf`;
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function loadSheet(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(data._app !== 'NovaSpec') { alert('This does not appear to be a NovaSpec file.'); return; }
+      applyFormFields(data.fields || {});
+      complexSections  = (data.complexSections || []).map(s => ({
+        doubleStacked: false, stackFlow: 'snake', cabOverride: null, ...s
+      }));
+      complexUnit      = data.complexUnit       || 'ft';
+      compassBearing   = data.compassBearing    || 0;
+      document.getElementById('compassSidebar').value = compassBearing;
+      document.getElementById('compassSidebarVal').textContent = compassBearing+'°';
+      document.getElementById('compassDeg').value = compassBearing;
+      reverseNumbering = data.reverseNumbering  || false;
+      showConnectors   = data.showConnectors !== false;
+      document.getElementById('connectorToggle').checked = showConnectors;
+      if(data.fieldType) {
+        fieldType = data.fieldType;
+        document.getElementById('fieldTypeSelect').value = fieldType;
+        document.getElementById('fieldColorRow').style.display = fieldType==='custom' ? 'flex' : 'none';
+      }
+      if(data.fieldColor) {
+        fieldColor = data.fieldColor;
+        document.getElementById('fieldColorPicker').value = fieldColor;
+      }
+      ports            = data.ports             || [];
+      fiberBoxes       = (data.fiberBoxes || []).map((b,i)=>({ backupPortIdxs:[], portInputNums:{}, cornerPos: i%4, ...b }));
+      // Auto-assign input numbers for any ports that were assigned before portInputNums existed
+      fiberBoxes.forEach(box=>{
+        (box.portIdxs||[]).forEach(portIdx=>{
+          const key=`p_${portIdx}`;
+          if(!box.portInputNums[key]){ const n=fiberNextInputNum(box); if(n) box.portInputNums[key]=n; }
+        });
+        (box.backupPortIdxs||[]).forEach(portIdx=>{
+          const key=`b_${portIdx}`;
+          if(!box.portInputNums[key]){ const n=fiberNextInputNum(box); if(n) box.portInputNums[key]=n; }
+        });
+      });
+      renderCxSections();
+      renderCxDiagram();
+      renderPortEntries();
+      renderPortDiagram();
+      renderFiberBoxes();
+      updatePortSummary();
+      updateLayoutSummary();
+      render();
+      alert('✅ Loaded successfully!');
+    } catch(err) {
+      console.error('NovaSpec load error:', err);
+      alert('Failed to load file:\n' + err.message + '\n\nCheck browser console for details.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset file input so same file can be reloaded
+  event.target.value = '';
+}
+
+function resetAll(){
+  if(!confirm('Reset all data?')) return;
+  ['jobName','venue','showDate','techName','revision','procModel','maxPixels','techNotes'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('cabType').value='p10';
+  complexSections=[]; ports=[]; fiberBoxes=[]; pickMode=null; reverseNumbering=false;
+  renderFiberBoxes();
+  render();
+}
+
+function copyText(){
+  const job=document.getElementById('jobName').value.trim()||'Tech Sheet';
+  const proc=document.getElementById('procModel').value.trim()||'Processor';
+  let lines=[`${job} — ${proc} Cabling Sheet\n`];
+  ports.forEach((p,i)=>{
+    const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
+    const px=pxForPort(p);
+    const pct=getMaxPx()?` | ${(px/getMaxPx()*100).toFixed(1)}%`:'';
+    lines.push(`Port ${p.portNum||i+1}: ${p.label||'Unlabeled'} | Cabs #${Math.min(p.first,p.last)}–#${Math.max(p.first,p.last)} (${n}) | ${fmtPx(px)}px${pct}${p.run?' | '+p.run:''}`);
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Copied!'));
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>
