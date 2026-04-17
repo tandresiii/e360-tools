@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>e360 Sport — Power Cabling Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0d1117; }
+  .hidden { display: none; }
+  /* Tailwind-like utilities used in JSX */
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .items-end { align-items: flex-end; }
+  .justify-between { justify-content: space-between; }
+  .justify-center { justify-content: center; }
+  .flex-1 { flex: 1; }
+  .flex-wrap { flex-wrap: wrap; }
+  .gap-1 { gap: 4px; }
+  .min-h-screen { min-height: 100vh; }
+  .text-center { text-align: center; }
+  .max-w-lg { max-width: 32rem; }
+  .mx-auto { margin-left: auto; margin-right: auto; }
+  .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .mb-2 { margin-bottom: 0.5rem; }
+  .mb-8 { margin-bottom: 2rem; }
+  .text-3xl { font-size: 1.875rem; }
+  .text-xs { font-size: 0.75rem; }
+  .text-sm { font-size: 0.875rem; }
+  .font-bold { font-weight: 700; }
+  .font-semibold { font-weight: 600; }
+  .tracking-widest { letter-spacing: 0.1em; }
+  .cursor-pointer { cursor: pointer; }
+  .rounded { border-radius: 0.25rem; }
+  @media print {
+    .no-print { display: none !important; }
+    @page { size: landscape; margin: 0.3in; }
+    .ps ~ .ps { page-break-before: always; }
+  }
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useRef, useCallback } = React;
+
+const CAB_PRESETS = {
+  p10: { label: "P10 (10mm)", cpc: 4, widthFt: 5.25 },
+  p12: { label: "P12 (12mm)", cpc: 6, widthFt: 5.25 },
+  p391: { label: "P3.91 (3.91mm)", cpc: 30, widthFt: 1.64 },
+};
+const DISTRO_MODELS = { 200: { maxSoc: 3 }, 400: { maxSoc: 6 } };
+const CKT_PER_SOC = 6;
+const TRUE1_LEN = 31;
+const MAX_SOC_RUN = 250;
+const SOC_COLORS = ["#ef4444","#3b82f6","#22c55e","#f97316","#a855f7","#06b6d4","#dc2626","#2563eb","#16a34a","#ea580c","#9333ea","#0891b2","#f43f5e","#6366f1","#10b981","#fb923c"];
+
+// ── PARSING ──────────────────────────────────────────────────────
+function parseConfig(txt) {
+  const d = JSON.parse(txt);
+  const clientName = d.fields?.clientName || d.fields?.jobName || "Unknown";
+  const rawCab = d.fields?.cabinetType || d.fields?.cabType || "p10";
+  const defType = rawCab === "p3.91" ? "p391" : (rawCab === "p391" ? "p391" : rawCab);
+  if (d.complexSections?.length) {
+    const sections = d.complexSections.map((cs, i) => {
+      const ct = cs.cabOverride === "p3.91" ? "p391" : (cs.cabOverride === "p391" ? "p391" : (cs.cabOverride || defType));
+      const cw = CAB_PRESETS[ct]?.widthFt || 5.25;
+      let gap = 0;
+      if (i > 0) {
+        const prev = d.complexSections[i - 1];
+        const prevCt = prev.cabOverride === "p3.91" ? "p391" : (prev.cabOverride || defType);
+        const pcw = CAB_PRESETS[prevCt]?.widthFt || 5.25;
+        if (cs.side === prev.side) {
+          const endPrev = (parseFloat(prev.offset) || 0) + (parseInt(prev.count) || 0) * pcw;
+          gap = Math.max(0, Math.round(((parseFloat(cs.offset) || 0) - endPrev) * 10) / 10);
+        } else { gap = 2; }
+      }
+      return { name: cs.name || `Section ${i + 1}`, side: cs.side || "main", cabType: ct, count: parseInt(cs.count) || 0, gapBefore: gap };
+    });
+    return { clientName, sections };
+  }
+  const tc = parseInt(d.fields?.totalCabinets || "0") || 0;
+  return { clientName, sections: [{ name: "Touchline", side: "main", cabType: defType, count: tc || 70, gapBefore: 0 }] };
+}
+
+// ── GEOMETRY ─────────────────────────────────────────────────────
+function buildGeometry(sections) {
+  let pos = 0, cabNum = 0;
+  const cabData = {}, secData = [], gapData = [];
+  for (let si = 0; si < sections.length; si++) {
+    const sec = sections[si];
+    if (si > 0 && sec.gapBefore > 0) { gapData.push({ afterSection: si - 1, startPos: pos, len: sec.gapBefore }); pos += sec.gapBefore; }
+    const cw = CAB_PRESETS[sec.cabType]?.widthFt || 5.25;
+    const startPos = pos, firstCab = cabNum + 1;
+    for (let i = 0; i < sec.count; i++) { cabNum++; cabData[cabNum] = { num: cabNum, centerPos: pos + cw / 2, sectionIdx: si, cabType: sec.cabType }; pos += cw; }
+    secData.push({ ...sec, idx: si, firstCab, lastCab: cabNum, startPos, endPos: pos, cabWidthFt: cw, lengthFt: sec.count * cw });
+  }
+  return { cabData, secData, gapData, totalPerimLen: pos, totalCabs: cabNum };
+}
+
+// ── CIRCUITS ─────────────────────────────────────────────────────
+function buildCircuitsForRange(first, last, cabData, cpc_override) {
+  const circuits = [];
+  let cn = last;
+  while (cn >= first) {
+    const cd = cabData[cn];
+    if (!cd) { cn--; continue; }
+    const cabType = cd.cabType || "p10";
+    const cpc = cpc_override || CAB_PRESETS[cabType]?.cpc || 4;
+    const cabs = [];
+    let peek = cn;
+    while (peek >= first && cabs.length < cpc) {
+      const pcd = cabData[peek];
+      if (!pcd) break;
+      if ((pcd.cabType || "p10") !== cabType) break;
+      cabs.push(peek);
+      peek--;
+    }
+    circuits.push({ maxCab: Math.max(...cabs), minCab: Math.min(...cabs), count: cabs.length, cabType, cabs });
+    cn = peek;
+  }
+  return circuits;
+}
+
+function calcCircuitSizes(totalCabs, targetCpc) {
+  if (totalCabs <= 0) return [];
+  const t = Math.max(1, targetCpc);
+  const n = Math.min(CKT_PER_SOC, Math.ceil(totalCabs / t));
+  const base = Math.floor(totalCabs / n), extra = totalCabs % n;
+  return Array.from({ length: n }, (_, i) => base + (i < extra ? 1 : 0));
+}
+
+// ── SOCAPEX GENERATION ───────────────────────────────────────────
+// mode: "pack" = fill to 6, partial closest to distro
+//       "spread" = distribute evenly across spreadCount outputs
+function autoSocForDistro(firstCab, lastCab, secData, cabData, maxSoc, mode = "pack", spreadCount = null) {
+  const first = Math.min(firstCab, lastCab), last = Math.max(firstCab, lastCab);
+  const circuits = buildCircuitsForRange(first, last, cabData, null);
+  if (!circuits.length) return [];
+
+  if (mode === "spread") {
+    const numSoc = Math.min(maxSoc, Math.max(1, spreadCount || maxSoc));
+    const base = Math.floor(circuits.length / numSoc), extra = circuits.length % numSoc;
+    const groups = [];
+    let idx = 0;
+    for (let i = 0; i < numSoc; i++) {
+      const n = base + (i < extra ? 1 : 0);
+      if (n > 0) groups.push(circuits.slice(idx, idx + n));
+      idx += n;
+    }
+    return groups.map(g => {
+      const ac = g.flatMap(c => c.cabs);
+      return { firstCab: Math.min(...ac), lastCab: Math.max(...ac), cpc: CAB_PRESETS[g[0]?.cabType]?.cpc || 4 };
+    });
+  }
+
+  // Pack mode: outside-in ordering
+  // Fill from both ends toward center so partial ends up near distro midpoint
+  const numSoc = Math.min(maxSoc, Math.ceil(circuits.length / CKT_PER_SOC));
+  const groups = [];
+  let lo = 0, hi = circuits.length - 1;
+  let fromHigh = true; // start from high-cab end (right side in rear view)
+
+  while (lo <= hi) {
+    const group = [];
+    if (fromHigh) {
+      for (let i = 0; i < CKT_PER_SOC && lo <= hi; i++) group.push(circuits[lo++]);
+    } else {
+      for (let i = 0; i < CKT_PER_SOC && lo <= hi; i++) group.push(circuits[hi--]);
+    }
+    groups.push(group);
+    fromHigh = !fromHigh;
+  }
+
+  // Convert groups to soc entries, sorted by firstCab descending for consistent display
+  const result = groups.map(g => {
+    const ac = g.flatMap(c => c.cabs);
+    return { firstCab: Math.min(...ac), lastCab: Math.max(...ac), cpc: CAB_PRESETS[g[0]?.cabType]?.cpc || 4 };
+  });
+  result.sort((a, b) => b.lastCab - a.lastCab);
+  return result;
+}
+
+// ── AUTO DISTROS ─────────────────────────────────────────────────
+function autoDistros(sections) {
+  const geo = buildGeometry(sections);
+  const { cabData, secData, totalPerimLen, totalCabs } = geo;
+  if (!totalCabs) return [{ model: 200, firstCab: 1, lastCab: 1, socapex: [], socMode: "pack" }];
+  const maxSpan = MAX_SOC_RUN * 2;
+  const max200Ckts = 3 * CKT_PER_SOC;
+  // Find max cabs a 200A can handle (from high end)
+  let max200Cabs = 0;
+  for (let fc = totalCabs; fc >= 1; fc--) {
+    if (buildCircuitsForRange(fc, totalCabs, cabData, null).length <= max200Ckts) { max200Cabs = totalCabs - fc + 1; } else break;
+  }
+  if (max200Cabs === 0) max200Cabs = 1;
+  let numDistros = Math.max(1, Math.ceil(totalPerimLen / maxSpan));
+  for (let safety = 0; safety < 20; safety++) {
+    const filled = Math.min(max200Cabs * (numDistros - 1), totalCabs);
+    const ls = totalCabs - filled;
+    if (ls < 1) break;
+    const lc = buildCircuitsForRange(1, ls, cabData, null);
+    if (Math.ceil(lc.length / CKT_PER_SOC) > 6) numDistros++; else break;
+  }
+  // Fill from high cabs down: Distro 1 = highest cabs (left in rear view)
+  const result = [];
+  let cabEnd = totalCabs;
+  for (let di = 0; di < numDistros; di++) {
+    const isLast = di === numDistros - 1;
+    const fc = isLast || cabEnd - max200Cabs + 1 <= 1 ? 1 : cabEnd - max200Cabs + 1;
+    const ckts = buildCircuitsForRange(fc, cabEnd, cabData, null);
+    const sn = Math.ceil(ckts.length / CKT_PER_SOC);
+    const model = sn <= 3 ? 200 : 400;
+    const ms = model === 200 ? 3 : 6;
+    const soc = autoSocForDistro(fc, cabEnd, secData, cabData, ms, "pack");
+    result.push({ model, firstCab: fc, lastCab: cabEnd, socapex: soc, socMode: "pack" });
+    cabEnd = fc - 1;
+    if (cabEnd < 1) break;
+  }
+  // 250ft check
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (let i = 0; i < result.length; i++) {
+      const d = result[i];
+      const p1 = cabData[d.firstCab]?.centerPos || 0, p2 = cabData[d.lastCab]?.centerPos || 0;
+      if (Math.abs(p2 - p1) > maxSpan) {
+        const mid = Math.floor((d.firstCab + d.lastCab) / 2);
+        const c1 = buildCircuitsForRange(mid + 1, d.lastCab, cabData, null);
+        const m1 = Math.ceil(c1.length / CKT_PER_SOC) <= 3 ? 200 : 400;
+        const c2 = buildCircuitsForRange(d.firstCab, mid, cabData, null);
+        const m2 = Math.ceil(c2.length / CKT_PER_SOC) <= 3 ? 200 : 400;
+        result.splice(i, 1,
+          { model: m1, firstCab: mid + 1, lastCab: d.lastCab, socapex: autoSocForDistro(mid + 1, d.lastCab, secData, cabData, m1 === 200 ? 3 : 6, "pack"), socMode: "pack" },
+          { model: m2, firstCab: d.firstCab, lastCab: mid, socapex: autoSocForDistro(d.firstCab, mid, secData, cabData, m2 === 200 ? 3 : 6, "pack"), socMode: "pack" }
+        );
+        changed = true; break;
+      }
+    }
+  }
+  return result;
+}
+
+// ── CALC LAYOUT ──────────────────────────────────────────────────
+function calcLayout(sections, distros, wattsPerCab) {
+  if (!sections?.length || !distros?.length) return null;
+  const geo = buildGeometry(sections);
+  const { cabData, secData, gapData, totalPerimLen, totalCabs } = geo;
+  if (!totalCabs) return null;
+  const allCircuits = [], allSocapex = [], layoutDistros = [];
+  let gSocId = 0;
+  for (let di = 0; di < distros.length; di++) {
+    const ud = distros[di];
+    const first = Math.min(ud.firstCab, ud.lastCab), last = Math.max(ud.firstCab, ud.lastCab);
+    const dSoc = [];
+    for (const us of (ud.socapex || [])) {
+      const sf = Math.max(first, Math.min(us.firstCab, us.lastCab));
+      const sl = Math.min(last, Math.max(us.firstCab, us.lastCab));
+      if (sf > sl) continue;
+      gSocId++;
+      const targetCpc = us.cpc || null;
+      const rawCkts = buildCircuitsForRange(sf, sl, cabData, targetCpc);
+      const sCkts = rawCkts.map(rc => ({ id: 0, cabs: rc.cabs, sectionIdx: cabData[rc.cabs[0]]?.sectionIdx || 0, watts: rc.count * wattsPerCab }));
+      const allCabs = sCkts.flatMap(c => c.cabs);
+      const positions = allCabs.map(cn => cabData[cn]?.centerPos || 0);
+      const tp = positions.length ? (Math.min(...positions) + Math.max(...positions)) / 2 : 0;
+      sCkts.forEach(c => { c.id = allCircuits.length + 1; allCircuits.push(c); });
+      dSoc.push({ id: gSocId, circuits: sCkts, minCab: Math.min(...allCabs), maxCab: Math.max(...allCabs), termPos: tp, cabCount: allCabs.length, cpc: us.cpc });
+    }
+    const dPos = [];
+    for (let cn = first; cn <= last; cn++) if (cabData[cn]) dPos.push(cabData[cn].centerPos);
+    // Use behindCab override if set, otherwise midpoint
+    const autoMid = dPos.length ? (Math.min(...dPos) + Math.max(...dPos)) / 2 : 0;
+    const dp = (ud.behindCab && cabData[ud.behindCab]) ? cabData[ud.behindCab].centerPos : autoMid;
+    dSoc.forEach(s => { s.cableLen = Math.abs(s.termPos - dp); s.distroId = di + 1; });
+    layoutDistros.push({ id: di + 1, model: ud.model, socapex: dSoc, placement: dp, firstCab: first, lastCab: last, totalCabs: dPos.length, behindCab: ud.behindCab || null });
+    allSocapex.push(...dSoc);
+  }
+  // Label socapex per distro: A-F, left to right in rear view (highest cab pos = leftmost = A)
+  const LETTERS = "ABCDEF";
+  for (const d of layoutDistros) {
+    const sorted = [...d.socapex].sort((a, b) => b.termPos - a.termPos);
+    sorted.forEach((sc, i) => {
+      sc.label = `${d.id}${LETTERS[i] || String(i + 1)}`;
+      sc.letter = LETTERS[i] || "?";
+      // Label each circuit within this socapex: A1, A2... matching breaker numbers
+      sc.circuits.forEach((ckt, ci) => {
+        ckt.breakerLabel = `${sc.letter}${ci + 1}`;
+        ckt.distroId = d.id;
+      });
+    });
+  }
+  const warnings = [];
+  for (const d of layoutDistros) { const ms = DISTRO_MODELS[d.model]?.maxSoc || 3; if (d.socapex.length > ms) warnings.push(`Distro ${d.id} needs ${d.socapex.length} SOC, has ${ms}`); }
+  for (const d of layoutDistros) { for (const sc of d.socapex) { if (sc.cableLen > 250) warnings.push(`SOC ${sc.label}: ${sc.cableLen.toFixed(0)}ft exceeds 250ft max`); } }
+  const covered = new Set(allCircuits.flatMap(c => c.cabs));
+  const unc = []; for (let i = 1; i <= totalCabs; i++) if (!covered.has(i)) unc.push(i);
+  if (unc.length) warnings.push(`${unc.length} cab(s) unassigned (e.g. cab ${unc[0]})`);
+  return { secData, cabData, gapData, circuits: allCircuits, socapex: allSocapex, distros: layoutDistros, totalPerimLen, totalCabs, totalCkts: allCircuits.length, totalSoc: allSocapex.length, totalDistros: layoutDistros.length, totalPower: totalCabs * wattsPerCab, warnings };
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────────
+function Upload({ onLoad, onLoadState, onManual }) {
+  const ref = useRef(null);
+  const [drag, setDrag] = useState(false);
+  const go = async f => {
+    if (!f) return;
+    try {
+      const txt = await f.text();
+      const d = JSON.parse(txt);
+      if (f.name.endsWith(".pcfg") || d._app === "e360_power_cabling") {
+        onLoadState(d);
+      } else {
+        onLoad(parseConfig(txt));
+      }
+    } catch { alert("Invalid config file"); }
+  };
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d1117" }}>
+      <div className="text-center max-w-lg mx-auto px-6">
+        <div className="mb-2 text-xs tracking-widest" style={{ color: "#f59e0b" }}>e360 SPORT</div>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: "#e6edf3" }}>Power Cabling Diagram</h1>
+        <p className="mb-8 text-sm" style={{ color: "#8b949e" }}>Load .e360 / .nsf / .pcfg config or start from scratch.</p>
+        <div onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={e => { e.preventDefault(); setDrag(false); go(e.dataTransfer.files[0]); }}
+          style={{ border: `2px dashed ${drag ? "#f59e0b" : "#30363d"}`, borderRadius: 12, padding: "32px 24px", marginBottom: 16, cursor: "pointer" }} onClick={() => ref.current?.click()}>
+          <div style={{ color: drag ? "#f59e0b" : "#8b949e", fontSize: 14 }}>{drag ? "Drop config file" : "Drag & drop .e360 / .nsf / .pcfg or click"}</div>
+          <input ref={ref} type="file" accept=".e360,.nsf,.json,.pcfg" onChange={e => go(e.target.files[0])} className="hidden" />
+        </div>
+        <button onClick={onManual} className="px-6 py-3 rounded font-semibold text-sm cursor-pointer" style={{ background: "transparent", color: "#8b949e", border: "1px solid #30363d" }}>MANUAL CONFIG</button>
+      </div>
+    </div>
+  );
+}
+
+// ── SIDEBAR ──────────────────────────────────────────────────────
+function Settings({ s, onUpdate, layout, onReset }) {
+  const u = useCallback((k, v) => onUpdate({ ...s, [k]: v }), [s, onUpdate]);
+  const inp = { background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3", borderRadius: 4, padding: "4px 6px", width: "100%", fontSize: 11, fontFamily: "'SF Mono','Consolas',monospace", outline: "none" };
+  const inpSm = { ...inp, width: 48, padding: "3px 4px" };
+  const lbl = { color: "#8b949e", fontSize: 9, fontWeight: 600, letterSpacing: "0.04em", marginBottom: 1, display: "block" };
+  const btn = { background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "3px 7px", fontSize: 10, cursor: "pointer" };
+  const hdr = { color: "#f59e0b", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em" };
+  const toggleBtn = (active) => ({ ...btn, background: active ? "#f59e0b22" : "none", color: active ? "#f59e0b" : "#6e7681", borderColor: active ? "#f59e0b" : "#30363d", fontSize: 8, padding: "2px 6px" });
+
+  const uSec = (i, f, v) => { const ns = [...s.sections]; ns[i] = { ...ns[i], [f]: v }; u("sections", ns); };
+  const addSec = () => u("sections", [...s.sections, { name: `Section ${s.sections.length + 1}`, side: "main", cabType: "p10", count: 20, gapBefore: 5 }]);
+  const rmSec = i => { const ns = s.sections.filter((_, j) => j !== i); u("sections", ns.length ? ns : [{ name: "Section 1", side: "main", cabType: "p10", count: 20, gapBefore: 0 }]); };
+  const uDist = (i, f, v) => { const d = [...s.distros]; d[i] = { ...d[i], [f]: v }; u("distros", d); };
+  const uSoc = (di, si, f, v) => { const d = [...s.distros]; const socs = [...(d[di].socapex || [])]; socs[si] = { ...socs[si], [f]: v }; d[di] = { ...d[di], socapex: socs }; u("distros", d); };
+  const doAuto = () => u("distros", autoDistros(s.sections));
+  const regenSoc = di => {
+    const d = [...s.distros]; const ud = d[di]; const geo = buildGeometry(s.sections);
+    const ms = DISTRO_MODELS[ud.model]?.maxSoc || 3;
+    const mode = ud.socMode || "pack";
+    const sc = ud.socSpreadCount || ms;
+    d[di] = { ...ud, socapex: autoSocForDistro(ud.firstCab, ud.lastCab, geo.secData, geo.cabData, ms, mode, sc) };
+    u("distros", d);
+  };
+  const setMode = (di, mode) => {
+    const d = [...s.distros]; const ud = d[di]; const geo = buildGeometry(s.sections);
+    const ms = DISTRO_MODELS[ud.model]?.maxSoc || 3;
+    const sc = ud.socSpreadCount || ms;
+    d[di] = { ...ud, socMode: mode, socapex: autoSocForDistro(ud.firstCab, ud.lastCab, geo.secData, geo.cabData, ms, mode, sc) };
+    u("distros", d);
+  };
+  const setSpreadCount = (di, n) => {
+    const d = [...s.distros]; const ud = d[di]; const geo = buildGeometry(s.sections);
+    const ms = DISTRO_MODELS[ud.model]?.maxSoc || 3;
+    d[di] = { ...ud, socSpreadCount: n, socapex: autoSocForDistro(ud.firstCab, ud.lastCab, geo.secData, geo.cabData, ms, "spread", n) };
+    u("distros", d);
+  };
+  const addDist = () => { const tc = s.sections.reduce((a, x) => a + x.count, 0); const last = s.distros[s.distros.length - 1]; const fc = last ? last.lastCab + 1 : 1; const geo = buildGeometry(s.sections); const soc = autoSocForDistro(fc, tc, geo.secData, geo.cabData, 3, "pack"); u("distros", [...s.distros, { model: 200, firstCab: fc, lastCab: tc, socapex: soc, socMode: "pack" }]); };
+  const rmDist = i => { const d = s.distros.filter((_, j) => j !== i); u("distros", d.length ? d : autoDistros(s.sections)); };
+  const addSoc = di => { const d = [...s.distros]; const socs = [...(d[di].socapex || [])]; const last = socs[socs.length - 1]; socs.push({ firstCab: last ? last.firstCab : d[di].firstCab, lastCab: last ? last.firstCab - 1 : d[di].lastCab, cpc: 4 }); d[di] = { ...d[di], socapex: socs }; u("distros", d); };
+  const rmSoc = (di, si) => { const d = [...s.distros]; d[di] = { ...d[di], socapex: d[di].socapex.filter((_, j) => j !== si) }; u("distros", d); };
+
+  return (
+    <div style={{ width: 290, flexShrink: 0, borderRight: "1px solid #21262d", background: "#161b22", padding: 12, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6, fontSize: 11 }}>
+      <div className="flex items-center justify-between"><span style={hdr}>CONFIG</span><button onClick={onReset} style={{ ...btn, border: "none", textDecoration: "underline", fontSize: 9 }}>New</button></div>
+      <div><label style={lbl}>CLIENT</label><input style={inp} value={s.clientName} onChange={e => u("clientName", e.target.value)} /></div>
+      <div><label style={lbl}>WATTS / CAB</label><input style={inp} type="number" min={1} value={s.wattsPerCab} onChange={e => u("wattsPerCab", parseInt(e.target.value) || 1)} /></div>
+
+      <div style={{ borderTop: "1px solid #21262d", paddingTop: 6 }}>
+        <span style={hdr}>SECTIONS</span>
+        {s.sections.map((sec, i) => (
+          <div key={i} style={{ background: "#0d1117", border: "1px solid #21262d", borderRadius: 5, padding: 6, marginTop: 4 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+              <input style={{ ...inp, border: "none", padding: 0, fontWeight: 600, flex: 1 }} value={sec.name} onChange={e => uSec(i, "name", e.target.value)} />
+              <button onClick={() => rmSec(i)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>✕</button>
+            </div>
+            <div className="flex gap-1 items-end flex-wrap">
+              <div><label style={lbl}>Type</label><select style={{ ...inpSm, width: 64 }} value={sec.cabType} onChange={e => uSec(i, "cabType", e.target.value)}>
+                {Object.entries(CAB_PRESETS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+              </select></div>
+              <div><label style={lbl}>Cabs</label><input style={inpSm} type="number" min={1} value={sec.count} onChange={e => uSec(i, "count", parseInt(e.target.value) || 1)} /></div>
+              {i > 0 && <div><label style={lbl}>Gap</label><input style={inpSm} type="number" min={0} step={0.1} value={sec.gapBefore} onChange={e => uSec(i, "gapBefore", parseFloat(e.target.value) || 0)} /></div>}
+            </div>
+          </div>
+        ))}
+        <button onClick={addSec} style={{ ...btn, width: "100%", textAlign: "center", padding: "4px 0", marginTop: 4 }}>+ Section</button>
+      </div>
+
+      <div style={{ borderTop: "1px solid #21262d", paddingTop: 6 }}>
+        <div className="flex items-center justify-between" style={{ marginBottom: 2 }}><span style={hdr}>DISTROS</span><button onClick={doAuto} style={{ ...btn, borderColor: "#f59e0b", color: "#f59e0b", fontSize: 9 }}>AUTO</button></div>
+        {s.distros.map((d, di) => {
+          const ms = DISTRO_MODELS[d.model]?.maxSoc || 3;
+          const mode = d.socMode || "pack";
+          return (
+            <div key={di} style={{ background: "#0d1117", border: "1px solid #21262d", borderRadius: 5, padding: 6, marginTop: 4 }}>
+              <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
+                <span style={{ color: "#f59e0b", fontSize: 11, fontWeight: 700 }}>Distro {di + 1}</span>
+                <div className="flex gap-1">
+                  <button onClick={() => regenSoc(di)} style={{ ...btn, fontSize: 8, padding: "1px 4px", color: "#3b82f6", borderColor: "#3b82f6" }}>↻ SOC</button>
+                  <button onClick={() => rmDist(di)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>✕</button>
+                </div>
+              </div>
+              <div className="flex gap-1 items-end flex-wrap" style={{ marginBottom: 4 }}>
+                <div><label style={lbl}>Model</label><select style={{ ...inpSm, width: 58 }} value={d.model} onChange={e => uDist(di, "model", parseInt(e.target.value))}><option value={200}>200A</option><option value={400}>400A</option></select></div>
+                <div><label style={lbl}>First</label><input style={inpSm} type="number" min={1} value={d.firstCab} onChange={e => uDist(di, "firstCab", parseInt(e.target.value) || 1)} /></div>
+                <div><label style={lbl}>Last</label><input style={inpSm} type="number" min={1} value={d.lastCab} onChange={e => uDist(di, "lastCab", parseInt(e.target.value) || 1)} /></div>
+                <div><label style={lbl}>Behind</label><input style={{ ...inpSm, width: 42 }} type="text" placeholder="Auto" value={d.behindCab || ""} onChange={e => { const v = parseInt(e.target.value); uDist(di, "behindCab", isNaN(v) ? null : v); }} /></div>
+              </div>
+
+              {/* Pack / Spread toggle */}
+              <div className="flex gap-1 items-center" style={{ marginBottom: 4 }}>
+                <button onClick={() => setMode(di, "pack")} style={toggleBtn(mode === "pack")}>PACK</button>
+                <button onClick={() => setMode(di, "spread")} style={toggleBtn(mode === "spread")}>SPREAD</button>
+                {mode === "spread" && (
+                  <div className="flex items-center gap-1">
+                    <span style={{ color: "#8b949e", fontSize: 8 }}>across</span>
+                    <input style={{ ...inpSm, width: 28 }} type="number" min={1} max={ms} value={d.socSpreadCount || ms} onChange={e => setSpreadCount(di, parseInt(e.target.value) || 1)} />
+                    <span style={{ color: "#8b949e", fontSize: 8 }}>SOC</span>
+                  </div>
+                )}
+                {mode === "pack" && <span style={{ color: "#6e7681", fontSize: 8 }}>min cables, partial near distro</span>}
+              </div>
+
+              {(d.socapex || []).map((sc, si) => {
+                const layoutSoc = layout?.socapex?.find(x => x.minCab === Math.min(sc.firstCab, sc.lastCab) && x.maxCab === Math.max(sc.firstCab, sc.lastCab));
+                const gIdx = layoutSoc ? layout.socapex.indexOf(layoutSoc) : si;
+                const col = SOC_COLORS[gIdx % SOC_COLORS.length];
+                const cabCount = Math.max(0, Math.max(sc.firstCab, sc.lastCab) - Math.min(sc.firstCab, sc.lastCab) + 1);
+                const sizes = calcCircuitSizes(cabCount, sc.cpc || 4);
+                const cLen = layoutSoc?.cableLen;
+                const over = cLen != null && cLen > 250;
+                return (
+                  <div key={si} style={{ borderLeft: `3px solid ${over ? "#ff4444" : col}`, paddingLeft: 6, marginBottom: 4, marginLeft: 2 }}>
+                    <div className="flex items-center justify-between">
+                      <span style={{ color: over ? "#ff4444" : col, fontSize: 10, fontWeight: 700 }}>SOC {layoutSoc?.label || String.fromCharCode(65 + si)}{cLen != null ? ` — ${cLen.toFixed(0)}ft` : ""}</span>
+                      <button onClick={() => rmSoc(di, si)} style={{ ...btn, border: "none", color: "#c0392b", fontSize: 8, padding: 0 }}>✕</button>
+                    </div>
+                    {over && <div style={{ fontSize: 8, color: "#ff4444", fontWeight: 600 }}>⚠ Exceeds 250ft — add a distro</div>}
+                    <div className="flex gap-1 items-end flex-wrap">
+                      <div><label style={lbl}>First</label><input style={{ ...inpSm, width: 42 }} type="number" min={1} value={sc.firstCab} onChange={e => uSoc(di, si, "firstCab", parseInt(e.target.value) || 1)} /></div>
+                      <div><label style={lbl}>Last</label><input style={{ ...inpSm, width: 42 }} type="number" min={1} value={sc.lastCab} onChange={e => uSoc(di, si, "lastCab", parseInt(e.target.value) || 1)} /></div>
+                      <div><label style={lbl}>Cab/Ckt</label><input style={{ ...inpSm, width: 36 }} type="number" min={1} value={sc.cpc || 4} onChange={e => uSoc(di, si, "cpc", parseInt(e.target.value) || 1)} /></div>
+                    </div>
+                    <div style={{ fontSize: 8, color: "#6e7681", marginTop: 2 }}>{cabCount} cabs → {sizes.length} ckts [{sizes.join(",")}]</div>
+                  </div>
+                );
+              })}
+              <button onClick={() => addSoc(di)} style={{ ...btn, width: "100%", textAlign: "center", padding: "2px 0", fontSize: 9, marginTop: 2 }}>+ SOC output</button>
+            </div>
+          );
+        })}
+        <button onClick={addDist} style={{ ...btn, width: "100%", textAlign: "center", padding: "4px 0", marginTop: 4 }}>+ Distro</button>
+      </div>
+
+      {layout && (
+        <div style={{ borderTop: "1px solid #21262d", paddingTop: 6 }}>
+          <span style={hdr}>SUMMARY</span>
+          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(1)}ft`], ["Circuits", layout.totalCkts], ["Socapex", layout.totalSoc], ["Max Power", `${(layout.totalPower / 1000).toFixed(1)}kW`]].map(([k, v]) =>
+            <div key={k} className="flex justify-between" style={{ fontSize: 10, marginTop: 1 }}><span style={{ color: "#8b949e" }}>{k}</span><span style={{ color: "#e6edf3", fontFamily: "monospace" }}>{v}</span></div>
+          )}
+          {layout.warnings?.map((w, i) => <div key={i} style={{ color: "#c0392b", fontSize: 9, marginTop: 2 }}>⚠ {w}</div>)}
+          <div style={{ marginTop: 6, borderTop: "1px solid #21262d", paddingTop: 6 }}>
+            <span style={hdr}>TRUE1 <span style={{ color: "#8b949e", fontWeight: 400, fontSize: 8 }}>(31ft sections)</span></span>
+            {layout.socapex.map((sc, si) => {
+              const col = SOC_COLORS[si % SOC_COLORS.length];
+              const runs = sc.circuits.map(ckt => { const sb = Math.max(...ckt.cabs); const lb = Math.min(...ckt.cabs); const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", cab: sb, lastCab: lb, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
+              return (<div key={sc.id} style={{ marginTop: 3 }}><div style={{ fontSize: 9, color: col, fontWeight: 600 }}>{sc.label}: {runs.reduce((a, r) => a + r.cables, 0)} cables</div>
+                {runs.map(r => <div key={r.label} style={{ fontSize: 8, color: "#8b949e", marginLeft: 10, fontFamily: "monospace" }}>{r.label}: {r.cab}→{r.lastCab} {r.ft.toFixed(0)}ft → {r.cables}×31'</div>)}</div>);
+            })}
+            <div style={{ borderTop: "1px solid #21262d", paddingTop: 3, marginTop: 4, fontSize: 10 }}>
+              <span style={{ color: "#8b949e" }}>Total: </span>
+              <span style={{ color: "#e6edf3", fontWeight: 600, fontFamily: "monospace" }}>
+                {layout.socapex.reduce((a, sc) => a + sc.circuits.reduce((b, ckt) => { const ft = Math.abs(layout.cabData[Math.max(...ckt.cabs)].centerPos - sc.termPos); return b + (ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN)); }, 0), 0)}× 31ft
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── DIAGRAM ──────────────────────────────────────────────────────
+function Diagram({ layout }) {
+  if (!layout) return <div className="flex-1 flex items-center justify-center" style={{ color: "#484f58" }}>Configure system</div>;
+  const PAD = 60, drawW = Math.max(800, layout.totalCabs * 24), svgW = PAD * 2 + drawW;
+  const SC = drawW / layout.totalPerimLen;
+  const toX = p => PAD + (layout.totalPerimLen - p) * SC;
+
+  // Y layout
+  const FLOW_Y = 54, CAB_Y = 68, CAB_H = 38;
+  const TERM_R = 6; // term circle radius
+  const TERM_Y = CAB_Y + CAB_H + 50; // center of term circles — room for True1 branches
+  const SOC_LABEL_Y = TERM_Y + 16;
+  // Socapex horizontal lanes — staggered per output, one lane per soc across all distros
+  const maxSocInAnyDistro = Math.max(...layout.distros.map(d => d.socapex.length), 1);
+  const SOC_LANE_START = SOC_LABEL_Y + 14;
+  const SOC_LANE_STEP = 14;
+  const DISTRO_Y = SOC_LANE_START + maxSocInAnyDistro * SOC_LANE_STEP + 16;
+  const DISTRO_H = 48;
+  const svgH = DISTRO_Y + DISTRO_H + 30;
+
+  const cabSocIdx = {};
+  layout.socapex.forEach((sc, si) => sc.circuits.forEach(c => c.cabs.forEach(cn => { cabSocIdx[cn] = si; })));
+  const cktStartCabs = new Set(layout.circuits.map(c => Math.max(...c.cabs)));
+
+  // True1 branch Y range
+  const TRUE1_START = CAB_Y + CAB_H + 2;
+  const TRUE1_END = TERM_Y - TERM_R - 2;
+
+  return (
+    <div style={{ flex: 1, overflowX: "auto", overflowY: "auto", background: "#0d1117" }}>
+      <svg width={svgW} height={svgH} style={{ display: "block" }}>
+        <defs><marker id="aR" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="7,2.5 0,0 0,5" fill="#484f58" /></marker></defs>
+        <rect width={svgW} height={svgH} fill="#0d1117" />
+
+        {/* Header */}
+        <text x={PAD} y={18} fill="#e6edf3" fontSize={13} fontWeight={700} fontFamily="'Segoe UI',sans-serif">{layout.secData[0]?.name || "System"} — Power Cabling</text>
+        <text x={PAD} y={31} fill="#8b949e" fontSize={9} fontFamily="monospace">{layout.totalCabs} cabs | {layout.totalPerimLen.toFixed(0)}ft | {layout.totalDistros}d | {layout.totalSoc}soc | {layout.totalCkts}ckts | {(layout.totalPower/1000).toFixed(0)}kW</text>
+        <text x={PAD + drawW} y={18} textAnchor="end" fill="#f59e0b" fontSize={10} fontWeight={700} fontFamily="monospace" letterSpacing="0.12em">REAR VIEW</text>
+        <text x={PAD + drawW / 2} y={46} textAnchor="middle" fill="#30363d" fontSize={7} fontFamily="monospace" letterSpacing="0.1em">▲ AUDIENCE / FIELD ▲</text>
+        <line x1={PAD + 8} y1={FLOW_Y} x2={PAD + drawW - 8} y2={FLOW_Y} stroke="#484f58" strokeWidth={0.8} markerEnd="url(#aR)" />
+        <text x={PAD + drawW / 2} y={FLOW_Y - 3} textAnchor="middle" fill="#484f58" fontSize={7} fontFamily="monospace">POWER FLOW ({layout.totalCabs} → 1)</text>
+
+        {/* Gaps + corners */}
+        {layout.gapData.map((g, i) => {
+          const x1 = toX(g.startPos + g.len), x2 = toX(g.startPos);
+          const sA = layout.secData[g.afterSection], sB = layout.secData[g.afterSection + 1];
+          const corner = sA && sB && sA.side !== sB.side;
+          return <g key={`gap-${i}`}><rect x={x1} y={CAB_Y + 2} width={x2 - x1} height={CAB_H - 4} fill="none" stroke={corner ? "#f59e0b" : "#30363d"} strokeWidth={corner ? 1.2 : 0.8} strokeDasharray="3,3" rx={2} />
+            <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + (corner ? -1 : 3)} textAnchor="middle" fill={corner ? "#f59e0b" : "#484f58"} fontSize={7} fontFamily="monospace">{g.len.toFixed(1)}'</text>
+            {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 10} textAnchor="middle" fill="#f59e0b" fontSize={8} fontFamily="monospace" fontWeight={700}>⌐ 90°</text>}</g>;
+        })}
+        {layout.secData.map(sd => <text key={sd.idx} x={(toX(sd.startPos) + toX(sd.endPos)) / 2} y={CAB_Y - 2} textAnchor="middle" fill="#484f58" fontSize={6} fontFamily="monospace">{sd.name}</text>)}
+
+        {/* Cabs */}
+        {Object.values(layout.cabData).map(cd => {
+          const si = cabSocIdx[cd.num]; const col = SOC_COLORS[si !== undefined ? si % SOC_COLORS.length : 0];
+          const sd = layout.secData[cd.sectionIdx]; const x = toX(cd.centerPos + sd.cabWidthFt / 2); const w = sd.cabWidthFt * SC;
+          return <g key={cd.num}><rect x={x + 0.5} y={CAB_Y} width={Math.max(2, w - 1)} height={CAB_H} fill={si !== undefined ? col : "#30363d"} rx={1} opacity={si !== undefined ? 0.8 : 0.3} />
+            {cktStartCabs.has(cd.num) && w > 10 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 3} textAnchor="middle" fill="#fff" fontSize={Math.min(9, w * 0.55)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
+        })}
+        {/* Circuit dividers */}
+        {layout.circuits.map(ckt => { const mx = Math.max(...ckt.cabs); const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab) return null; return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={CAB_Y - 1} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={CAB_Y + CAB_H + 1} stroke="#0d1117" strokeWidth={1.5} />; })}
+
+        {/* True1 branches: thin stems from circuit start cabs down to term circles */}
+        {layout.socapex.map((sc, si) => {
+          const col = SOC_COLORS[si % SOC_COLORS.length];
+          const tx = toX(sc.termPos);
+          const numCkts = sc.circuits.length;
+          return sc.circuits.map((ckt, ci) => {
+            const startCab = Math.max(...ckt.cabs);
+            const cx = toX(layout.cabData[startCab].centerPos);
+            const ft = Math.abs(layout.cabData[startCab].centerPos - sc.termPos);
+            const cables = ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN);
+            // Stagger branch Y so stems don't overlap
+            const branchY = TRUE1_START + 6 + (ci / Math.max(1, numCkts - 1)) * (TRUE1_END - TRUE1_START - 12);
+            // Label at midpoint of horizontal segment
+            const midX = (cx + tx) / 2;
+            return <g key={`t1-${ckt.id}`}>
+              <path d={`M${cx} ${TRUE1_START} L${cx} ${branchY} L${tx} ${branchY} L${tx} ${TRUE1_END}`}
+                fill="none" stroke={col} strokeWidth={1.2} opacity={0.5} strokeLinejoin="round" />
+              <text x={midX} y={branchY - 3} textAnchor="middle" fill={col} fontSize={6} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}×31'</text>
+            </g>;
+          });
+        })}
+
+        {/* Term circles + labels */}
+        {layout.socapex.map((sc, si) => {
+          const tx = toX(sc.termPos);
+          const col = SOC_COLORS[si % SOC_COLORS.length];
+          // Find nearest cab to term
+          let termCab = sc.minCab, termDist = Infinity;
+          for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < termDist) { termDist = dist; termCab = cn; } } }
+          return <g key={`tc-${sc.id}`}>
+            <circle cx={tx} cy={TERM_Y} r={TERM_R} fill={col} stroke="#0d1117" strokeWidth={2} />
+            <text x={tx} y={TERM_Y + 3} textAnchor="middle" fill="#fff" fontSize={6} fontFamily="monospace" fontWeight={700}>{sc.letter}</text>
+            <text x={tx} y={SOC_LABEL_Y} textAnchor="middle" fill={col} fontSize={8} fontFamily="monospace" fontWeight={700}>{sc.label}</text>
+          </g>;
+        })}
+
+        {/* Socapex cables: thick right-angle routes from term circles to distros */}
+        {layout.distros.map(d => {
+          const dx = toX(d.placement);
+          // Sort soc by distance from distro so lanes don't cross unnecessarily
+          const sortedSoc = [...d.socapex].map((sc, i) => {
+            const gsi = layout.socapex.indexOf(sc);
+            return { sc, gsi, tx: toX(sc.termPos) };
+          }).sort((a, b) => Math.abs(b.tx - dx) - Math.abs(a.tx - dx)); // longest first = outermost lane
+
+          return sortedSoc.map((item, li) => {
+            const { sc, gsi, tx } = item;
+            const col = SOC_COLORS[gsi % SOC_COLORS.length];
+            const over = sc.cableLen > 250;
+            const strokeCol = over ? "#ff4444" : col;
+            const laneY = SOC_LANE_START + li * SOC_LANE_STEP;
+            const lt = sc.cableLen < 1 ? "<1'" : `${sc.cableLen.toFixed(0)}'`;
+
+            // Route: from term circle bottom → down to lane → horizontal to distro X → down to distro top
+            return <g key={`soc-${d.id}-${sc.id}`}>
+              <path d={`M${tx} ${TERM_Y + TERM_R} L${tx} ${laneY} L${dx} ${laneY} L${dx} ${DISTRO_Y - 2}`}
+                fill="none" stroke={strokeCol} strokeWidth={over ? 3.5 : 2.8} strokeLinecap="round" strokeLinejoin="round" opacity={over ? 0.85 : 0.6} />
+              {/* Length label on horizontal run */}
+              <text x={(tx + dx) / 2} y={laneY - 3} textAnchor="middle" fill={strokeCol} fontSize={7} fontFamily="monospace" fontWeight={700} opacity={0.9}>{lt}</text>
+              {/* SOC label at the elbow near term */}
+              {over && <text x={(tx + dx) / 2} y={laneY + 9} textAnchor="middle" fill="#ff4444" fontSize={7} fontFamily="monospace" fontWeight={700}>⚠ ADD DISTRO</text>}
+            </g>;
+          });
+        })}
+
+        {/* Distros */}
+        {layout.distros.map(d => {
+          const dx = toX(d.placement);
+          let nc = d.behindCab || d.firstCab;
+          if (!d.behindCab) { let nd = Infinity; for (let cn = d.firstCab; cn <= d.lastCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - d.placement); if (dist < nd) { nd = dist; nc = cn; } } } }
+          return <g key={`d-${d.id}`}>
+            <rect x={dx - 70} y={DISTRO_Y} width={140} height={DISTRO_H} fill="#1a1a1a" stroke="#f59e0b" strokeWidth={1.5} rx={3} />
+            <text x={dx} y={DISTRO_Y + 13} textAnchor="middle" fill="#f59e0b" fontSize={11} fontWeight={700}>{d.model}A DISTRO{layout.totalDistros > 1 ? ` ${d.id}` : ""}</text>
+            <text x={dx} y={DISTRO_Y + 24} textAnchor="middle" fill="#8b949e" fontSize={8} fontFamily="monospace">{d.socapex.length} SOC | {d.totalCabs} cabs</text>
+            <text x={dx} y={DISTRO_Y + 34} textAnchor="middle" fill="#e6edf3" fontSize={8} fontFamily="monospace" fontWeight={600}>behind cab {nc}</text>
+            <text x={dx} y={DISTRO_Y + 43} textAnchor="middle" fill="#6e7681" fontSize={6} fontFamily="monospace">@ {d.placement.toFixed(0)}ft</text>
+          </g>;
+        })}
+
+        {/* Scale bar */}
+        {(() => { const bf = Math.max(1, Math.round(layout.totalPerimLen / 20)); const bw = bf * SC, bx = PAD, by = svgH - 6;
+          return <g><line x1={bx} y1={by} x2={bx + bw} y2={by} stroke="#30363d" strokeWidth={1.2} /><line x1={bx} y1={by - 2} x2={bx} y2={by + 2} stroke="#30363d" strokeWidth={1.2} /><line x1={bx + bw} y1={by - 2} x2={bx + bw} y2={by + 2} stroke="#30363d" strokeWidth={1.2} /><text x={bx + bw / 2} y={by - 4} textAnchor="middle" fill="#30363d" fontSize={7} fontFamily="monospace">{bf}ft</text></g>; })()}
+      </svg>
+    </div>
+  );
+}
+
+// ── PRINT: SINGLE DISTRO DIAGRAM ─────────────────────────────────
+function DistroDiagram({ distro, layout, compact }) {
+  const d = distro;
+  const first = d.firstCab, last = d.lastCab;
+  // Build geometry just for this distro's range
+  const relevantCabs = {};
+  for (let cn = first; cn <= last; cn++) if (layout.cabData[cn]) relevantCabs[cn] = layout.cabData[cn];
+  const positions = Object.values(relevantCabs).map(c => c.centerPos);
+  if (!positions.length) return null;
+  const minPos = Math.min(...positions), maxPos = Math.max(...positions);
+  // Add some padding for cab width
+  const firstSd = layout.secData[relevantCabs[first]?.sectionIdx];
+  const lastSd = layout.secData[relevantCabs[last]?.sectionIdx];
+  const rangeStart = minPos - (firstSd?.cabWidthFt || 5.25) / 2;
+  const rangeEnd = maxPos + (lastSd?.cabWidthFt || 5.25) / 2;
+  const rangeLen = rangeEnd - rangeStart;
+
+  const PAD = 30;
+  const drawW = compact ? 700 : 900;
+  const svgW = PAD * 2 + drawW;
+  const SC = drawW / rangeLen;
+  const toX = p => PAD + (rangeEnd - p) * SC; // rear view
+
+  const CAB_Y = compact ? 22 : 32, CAB_H = compact ? 20 : 32;
+  const TERM_R = compact ? 4 : 7;
+  const TERM_Y = CAB_Y + CAB_H + (compact ? 30 : 50);
+  const SOC_LABEL_Y = TERM_Y + (compact ? 10 : 18);
+  const SOC_LANE_START = SOC_LABEL_Y + (compact ? 8 : 14);
+  const SOC_LANE_STEP = compact ? 8 : 14;
+  const nsoc = d.socapex.length;
+  const DISTRO_Y = SOC_LANE_START + nsoc * SOC_LANE_STEP + (compact ? 6 : 14);
+  const DISTRO_H = compact ? 24 : 40;
+  const svgH = DISTRO_Y + DISTRO_H + 10;
+  const TRUE1_START = CAB_Y + CAB_H + 2;
+  const TRUE1_END = TERM_Y - TERM_R - 2;
+  const fs = compact ? 0.75 : 1;
+
+  // Which socapex belong to this distro
+  const dSocSet = new Set(d.socapex.map(s => s.id));
+  const dSocList = layout.socapex.filter(s => dSocSet.has(s.id));
+  const cabSocIdx = {};
+  dSocList.forEach((sc, si) => sc.circuits.forEach(c => c.cabs.forEach(cn => { cabSocIdx[cn] = layout.socapex.indexOf(sc); })));
+  const dCircuits = dSocList.flatMap(sc => sc.circuits);
+  const cktStartCabs = new Set(dCircuits.map(c => Math.max(...c.cabs)));
+
+  // Find nearest cab to distro
+  let nearCab = first, nearDist = Infinity;
+  for (let cn = first; cn <= last; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - d.placement); if (dist < nearDist) { nearDist = dist; nearCab = cn; } } }
+
+  // Relevant gaps
+  const dGaps = layout.gapData.filter(g => {
+    const sA = layout.secData[g.afterSection], sB = layout.secData[g.afterSection + 1];
+    return sA && sB && sA.lastCab >= first && sB.firstCab <= last;
+  });
+
+  // Relevant sections
+  const dSecs = layout.secData.filter(sd => sd.lastCab >= first && sd.firstCab <= last);
+
+  const dx = toX(d.placement);
+
+  return (
+    <svg viewBox={`0 0 ${svgW} ${svgH}`} width="100%" style={{ display: "block" }}>
+      <rect width={svgW} height={svgH} fill="#0d1117" />
+      <text x={PAD} y={14} fill="#f59e0b" fontSize={9 * fs} fontWeight={700} fontFamily="monospace">{d.model}A DISTRO {d.id} — Cabs {first}–{last} ({d.totalCabs} cabs) — behind cab {nearCab}</text>
+      <text x={PAD + drawW} y={14} textAnchor="end" fill="#8b949e" fontSize={7 * fs} fontFamily="monospace">REAR VIEW</text>
+      <text x={PAD + drawW / 2} y={24} textAnchor="middle" fill="#30363d" fontSize={5 * fs} fontFamily="monospace">▲ AUDIENCE / FIELD ▲</text>
+
+      {/* Gaps + corners */}
+      {dGaps.map((g, i) => {
+        const x1 = toX(g.startPos + g.len), x2 = toX(g.startPos);
+        const sA = layout.secData[g.afterSection], sB = layout.secData[g.afterSection + 1];
+        const corner = sA && sB && sA.side !== sB.side;
+        return <g key={`g-${i}`}><rect x={x1} y={CAB_Y + 1} width={x2 - x1} height={CAB_H - 2} fill="none" stroke={corner ? "#f59e0b" : "#30363d"} strokeWidth={0.6} strokeDasharray="2,2" rx={1} />
+          {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#f59e0b" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>90°</text>}</g>;
+      })}
+      {dSecs.map(sd => <text key={sd.idx} x={(toX(Math.max(sd.startPos, rangeStart)) + toX(Math.min(sd.endPos, rangeEnd))) / 2} y={CAB_Y - 1} textAnchor="middle" fill="#484f58" fontSize={5 * fs} fontFamily="monospace">{sd.name}</text>)}
+
+      {/* Cabs */}
+      {Object.values(relevantCabs).map(cd => {
+        const si = cabSocIdx[cd.num]; const col = SOC_COLORS[si !== undefined ? si % SOC_COLORS.length : 0];
+        const sd = layout.secData[cd.sectionIdx]; const x = toX(cd.centerPos + sd.cabWidthFt / 2); const w = sd.cabWidthFt * SC;
+        return <g key={cd.num}><rect x={x + 0.3} y={CAB_Y} width={Math.max(1.5, w - 0.6)} height={CAB_H} fill={si !== undefined ? col : "#30363d"} rx={0.5} opacity={si !== undefined ? 0.8 : 0.3} />
+          {cktStartCabs.has(cd.num) && w > 6 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#fff" fontSize={Math.min(8 * fs, w * 0.45)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
+      })}
+      {dCircuits.map(ckt => { const mx = Math.max(...ckt.cabs); const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab || mx === last) return null; return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={CAB_Y} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={CAB_Y + CAB_H} stroke="#0d1117" strokeWidth={1} />; })}
+
+      {/* True1 branches */}
+      {dSocList.map((sc, si) => {
+        const gsi = layout.socapex.indexOf(sc);
+        const col = SOC_COLORS[gsi % SOC_COLORS.length]; const tx = toX(sc.termPos); const numCkts = sc.circuits.length;
+        return sc.circuits.map((ckt, ci) => {
+          const sb = Math.max(...ckt.cabs); const cx = toX(layout.cabData[sb].centerPos);
+          const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); const cables = ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN);
+          const branchY = TRUE1_START + 4 + (ci / Math.max(1, numCkts - 1)) * (TRUE1_END - TRUE1_START - 8);
+          return <g key={`t-${ckt.id}`}>
+            <path d={`M${cx} ${TRUE1_START} L${cx} ${branchY} L${tx} ${branchY} L${tx} ${TRUE1_END}`} fill="none" stroke={col} strokeWidth={1 * fs} opacity={0.5} strokeLinejoin="round" />
+            <text x={(cx + tx) / 2} y={branchY - 2} textAnchor="middle" fill={col} fontSize={5 * fs} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}×31'</text>
+          </g>;
+        });
+      })}
+
+      {/* Term circles */}
+      {dSocList.map((sc, si) => { const gsi = layout.socapex.indexOf(sc); const tx = toX(sc.termPos); const col = SOC_COLORS[gsi % SOC_COLORS.length];
+        let termCab = sc.minCab, termDist = Infinity;
+        for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < termDist) { termDist = dist; termCab = cn; } } }
+        return <g key={`tc-${si}`}><circle cx={tx} cy={TERM_Y} r={TERM_R} fill={col} stroke="#0d1117" strokeWidth={1.5} />
+          <text x={tx} y={TERM_Y + 2 * fs} textAnchor="middle" fill="#fff" fontSize={5 * fs} fontFamily="monospace" fontWeight={700}>{sc.letter}</text>
+          <text x={tx} y={SOC_LABEL_Y} textAnchor="middle" fill={col} fontSize={7 * fs} fontFamily="monospace" fontWeight={700}>{sc.label}</text>
+          <text x={tx} y={SOC_LABEL_Y + 8 * fs} textAnchor="middle" fill="#6e7681" fontSize={5 * fs} fontFamily="monospace">cab {termCab}</text>
+        </g>; })}
+
+      {/* Socapex cables */}
+      {(() => {
+        const sortedSoc = [...dSocList].map(sc => ({ sc, gsi: layout.socapex.indexOf(sc), tx: toX(sc.termPos) })).sort((a, b) => Math.abs(b.tx - dx) - Math.abs(a.tx - dx));
+        return sortedSoc.map((item, li) => { const { sc, gsi, tx } = item; const col = SOC_COLORS[gsi % SOC_COLORS.length]; const over = sc.cableLen > 250;
+          const laneY = SOC_LANE_START + li * SOC_LANE_STEP; const lt = sc.cableLen < 1 ? "<1'" : `${sc.cableLen.toFixed(0)}'`;
+          return <g key={`soc-${sc.id}`}>
+            <path d={`M${tx} ${TERM_Y + TERM_R} L${tx} ${laneY} L${dx} ${laneY} L${dx} ${DISTRO_Y - 2}`} fill="none" stroke={over ? "#ff4444" : col} strokeWidth={over ? 3 : 2.2} strokeLinecap="round" strokeLinejoin="round" opacity={over ? 0.8 : 0.55} />
+            <text x={(tx + dx) / 2} y={laneY - 2} textAnchor="middle" fill={over ? "#ff4444" : col} fontSize={6 * fs} fontFamily="monospace" fontWeight={700} opacity={0.9}>{lt}</text>
+            {over && <text x={(tx + dx) / 2} y={laneY + 8 * fs} textAnchor="middle" fill="#ff4444" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>⚠ ADD DISTRO</text>}
+          </g>; });
+      })()}
+
+      {/* Distro box */}
+      <rect x={dx - 50} y={DISTRO_Y} width={100} height={DISTRO_H} fill="#1a1a1a" stroke="#f59e0b" strokeWidth={1.2} rx={2} />
+      <text x={dx} y={DISTRO_Y + 10 * fs} textAnchor="middle" fill="#f59e0b" fontSize={9 * fs} fontWeight={700}>{d.model}A DISTRO {d.id}</text>
+      <text x={dx} y={DISTRO_Y + 20 * fs} textAnchor="middle" fill="#8b949e" fontSize={6 * fs} fontFamily="monospace">{nsoc} SOC | {d.totalCabs} cabs | cab {nearCab}</text>
+    </svg>
+  );
+}
+
+// ── PRINT SHEET (MULTI-PAGE) ─────────────────────────────────────
+function PrintSheet({ layout, settings, onBack }) {
+  if (!layout) return null;
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const th = { background: "#1a1a1a", color: "#fff", padding: "4px 8px", fontSize: 10, fontWeight: 700, textAlign: "left", whiteSpace: "nowrap" };
+  const td = { padding: "3px 8px", fontSize: 10, borderBottom: "1px solid #e0e0e0", fontFamily: "'SF Mono','Consolas',monospace", whiteSpace: "nowrap" };
+
+  const socBom = layout.socapex.map((sc, si) => {
+    const col = SOC_COLORS[si % SOC_COLORS.length];
+    const runs = sc.circuits.map(ckt => { const sb = Math.max(...ckt.cabs); const lb = Math.min(...ckt.cabs); const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", distroId: ckt.distroId, cab: sb, lastCab: lb, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
+    return { ...sc, col, runs, totalCables: runs.reduce((a, r) => a + r.cables, 0) };
+  });
+  const totalTrue1 = socBom.reduce((a, s) => a + s.totalCables, 0);
+
+  const printRef = useRef(null);
+  const downloadHTML = () => {
+    if (!printRef.current) return;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${settings.clientName} — Power Cabling</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#111}
+@media print{.no-print{display:none!important}@page{size:landscape;margin:0.3in}}.ps~.ps{page-break-before:always}
+.page{background:#fff;padding:20px 28px}.page~.page{page-break-before:always}
+table{border-collapse:collapse;width:100%}
+th{background:#1a1a1a;color:#fff;padding:4px 8px;font-size:10px;font-weight:700;text-align:left;white-space:nowrap}
+td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'SF Mono',Consolas,monospace;white-space:nowrap}
+.footer{border-top:1px solid #f59e0b;padding-top:4px;display:flex;justify-content:space-between;font-size:9px;color:#999;margin-top:6px}</style></head>
+<body>${printRef.current.innerHTML}</body></html>`;
+    try {
+      const a = document.createElement("a");
+      a.href = "data:text/html;charset=utf-8," + encodeURIComponent(html);
+      a.download = `${(settings.clientName || "power_cabling").replace(/[^a-zA-Z0-9]/g, "_")}_power_cabling.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {
+      alert("Download failed. Try using Print / Save PDF instead.");
+    }
+  };
+
+  const pageStyle = { background: "#fff", color: "#111", fontFamily: "'Segoe UI',system-ui,sans-serif", padding: "20px 28px" };
+
+  return (
+    <div ref={printRef} style={{ background: "#fff", minHeight: "100vh" }}>
+      <style>{`@media print { .no-print { display: none !important; } body { margin: 0; padding: 0; } @page { size: landscape; margin: 0.3in; } .ps ~ .ps { page-break-before: always; } }`}</style>
+
+      {/* ═══ PAGE 1: SYSTEM OVERVIEW ═══ */}
+      <div className="ps" style={pageStyle}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #f59e0b", paddingBottom: 4, marginBottom: 8 }}>
+          <div><div style={{ fontSize: 20, fontWeight: 700 }}>{settings.clientName}</div><div style={{ fontSize: 12, color: "#666" }}>Power Cabling Reference — System Overview</div></div>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.1em" }}>e360 SPORT</div>
+            <div style={{ fontSize: 10, color: "#999" }}>{today}</div>
+            <div className="no-print" style={{ marginTop: 4, display: "flex", gap: 4, justifyContent: "flex-end" }}>
+              <button onClick={downloadHTML} style={{ background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>⬇ DOWNLOAD HTML</button>
+              <button onClick={() => window.print()} style={{ background: "#333", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>🖨 PRINT / PDF</button>
+              <button onClick={onBack} style={{ background: "#f59e0b", color: "#000", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>← BACK TO EDITOR</button>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10, fontSize: 11, padding: "6px 10px", background: "#f9f9f9", borderRadius: 4 }}>
+          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(0)}ft`], ["Distros", layout.distros.map(d => `${d.model}A`).join(" + ")], ["Socapex", layout.totalSoc], ["Circuits", layout.totalCkts], ["True1", `${totalTrue1}× 31ft`], ["Max Power", `${(layout.totalPower / 1000).toFixed(0)}kW`]].map(([k, v]) =>
+            <div key={k}><span style={{ color: "#999" }}>{k}: </span><span style={{ fontWeight: 700 }}>{v}</span></div>)}
+        </div>
+
+        {layout.warnings?.length > 0 && (
+          <div style={{ background: "#fff3f3", border: "1px solid #ffcccc", borderRadius: 4, padding: 8, marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#c00", marginBottom: 4 }}>⚠ WARNINGS</div>
+            {layout.warnings.map((w, i) => <div key={i} style={{ fontSize: 10, color: "#c00" }}>{w}</div>)}
+          </div>
+        )}
+
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#f59e0b" }}>DISTRO PLACEMENT</div>
+          <table style={{ borderCollapse: "collapse", width: "100%" }}>
+            <thead><tr>{["Distro", "Model", "Cab Range", "SOC Outputs", "Position"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
+            <tbody>{layout.distros.map(d => {
+              let nc = d.behindCab || d.firstCab; if (!d.behindCab) { let nd = Infinity; for (let cn = d.firstCab; cn <= d.lastCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - d.placement); if (dist < nd) { nd = dist; nc = cn; } } } }
+              return <tr key={d.id}><td style={td}>Distro {d.id}</td><td style={td}>{d.model}A</td><td style={td}>Cabs {d.firstCab}–{d.lastCab} ({d.totalCabs})</td><td style={td}>{d.socapex.length} ({d.socapex.map(s => s.letter).join(",")})</td><td style={td}>Behind cab {nc}</td></tr>;
+            })}</tbody>
+          </table>
+        </div>
+
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#f59e0b" }}>SOCAPEX RUNS</div>
+          <table style={{ borderCollapse: "collapse", width: "100%" }}>
+            <thead><tr>{["SOC", "Cab Range", "# Cabs", "Circuits", "Run Length", "Term @ Cab"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
+            <tbody>{socBom.map((sc, si) => {
+              let termCab = sc.minCab, termDist = Infinity;
+              for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < termDist) { termDist = dist; termCab = cn; } } }
+              return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}–{sc.minCab}</td><td style={td}>{sc.cabCount}</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {termCab}</td></tr>;
+            })}</tbody>
+          </table>
+          <div style={{ marginTop: 4, fontSize: 11, fontWeight: 600, color: "#111" }}>
+            True1 Fanouts Required: {layout.distros.map(d => <span key={d.id} style={{ marginRight: 12 }}><span style={{ color: "#f59e0b" }}>Distro {d.id}:</span> <span style={{ fontFamily: "'SF Mono','Consolas',monospace" }}>{d.socapex.length}</span></span>)}
+            <span style={{ marginLeft: 4, color: "#999" }}>| Total: <span style={{ color: "#111", fontFamily: "'SF Mono','Consolas',monospace" }}>{layout.totalSoc}</span></span>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#f59e0b" }}>TRUE1 CABLE LIST <span style={{ color: "#999", fontWeight: 400, fontSize: 10 }}>(31ft sections)</span></div>
+          <table style={{ borderCollapse: "collapse", width: "100%" }}>
+            <thead><tr>{["Distro", "Circuit", "Power Input Cab", "Last Cab", "Distance", "Cables"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
+            <tbody>
+              {socBom.flatMap(sc => sc.runs.map(r => (
+                <tr key={`${r.distroId}-${r.label}`}><td style={td}>{r.distroId}</td><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(1)}ft</td><td style={td}>{r.cables}× 31ft</td></tr>
+              )))}
+              <tr style={{ background: "#f5f5f5" }}><td colSpan={5} style={{ ...td, fontWeight: 700, textAlign: "right", fontFamily: "'Segoe UI',sans-serif" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700, fontSize: 12 }}>{totalTrue1}× 31ft</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style={{ borderTop: "1px solid #f59e0b", paddingTop: 4, display: "flex", justifyContent: "space-between", fontSize: 9, color: "#999", marginTop: 6 }}>
+          <span>e360 Sport — {settings.clientName}</span><span>{today} — CONFIDENTIAL</span>
+        </div>
+      </div>
+
+      {/* ═══ PAGE 2+: ONE PER DISTRO (no footer) ═══ */}
+      {layout.distros.map((d, di) => {
+        const dSocs = socBom.filter(sc => d.socapex.some(ds => ds.id === sc.id));
+        const dTrue1 = dSocs.reduce((a, s) => a + s.totalCables, 0);
+        let nc = d.behindCab || d.firstCab; if (!d.behindCab) { let nd = Infinity; for (let cn = d.firstCab; cn <= d.lastCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - d.placement); if (dist < nd) { nd = dist; nc = cn; } } } }
+        return (
+          <div key={di} className="ps" style={pageStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #f59e0b", paddingBottom: 4, marginBottom: 6 }}>
+              <div><div style={{ fontSize: 18, fontWeight: 700 }}>{settings.clientName} — Distro {d.id}</div>
+                <div style={{ fontSize: 11, color: "#666" }}>{d.model}A | Cabs {d.firstCab}–{d.lastCab} ({d.totalCabs}) | {d.socapex.length} SOC | Behind cab {nc} | {dTrue1}× True1</div></div>
+              <div style={{ textAlign: "right" }}><div style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.1em" }}>e360 SPORT</div><div style={{ fontSize: 9, color: "#999" }}>{today}</div></div>
+            </div>
+
+            <div style={{ border: "1px solid #e0e0e0", borderRadius: 6, marginBottom: 8, background: "#0d1117", padding: "6px 0" }}>
+              <DistroDiagram distro={d} layout={layout} compact={false} />
+            </div>
+
+            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <div style={{ flex: "0 0 200px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>SOCAPEX — DISTRO {d.id}</div>
+                <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                  <thead><tr>{["SOC", "Cabs", "Ckts", "Run", "Term"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
+                  <tbody>{dSocs.map((sc, si) => {
+                    let tc = sc.minCab, td2 = Infinity;
+                    for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < td2) { td2 = dist; tc = cn; } } }
+                    return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}–{sc.minCab} ({sc.cabCount})</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {tc}</td></tr>;
+                  })}</tbody>
+                </table>
+                <div style={{ marginTop: 4, fontSize: 10, fontWeight: 600, color: "#111" }}>True1 Fanouts Required: <span style={{ fontFamily: "'SF Mono','Consolas',monospace" }}>{dSocs.length}</span></div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>TRUE1 — DISTRO {d.id}</div>
+                <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                  <thead><tr>{["Circuit", "Input Cab", "Last Cab", "Dist", "Cables"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {dSocs.flatMap(sc => sc.runs.map(r => (
+                      <tr key={`${r.distroId}-${r.label}`}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(0)}ft</td><td style={td}>{r.cables}×31'</td></tr>
+                    )))}
+                    <tr style={{ background: "#f5f5f5" }}><td colSpan={4} style={{ ...td, fontWeight: 700, textAlign: "right" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700 }}>{dTrue1}×31'</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── APP ──────────────────────────────────────────────────────────
+function App() {
+  const [config, setConfig] = useState(null);
+  const [settings, setSettings] = useState(null);
+  const [printMode, setPrintMode] = useState(false);
+  const layout = useMemo(() => settings ? calcLayout(settings.sections, settings.distros, settings.wattsPerCab) : null, [settings]);
+
+  const saveConfig = () => {
+    if (!settings) return;
+    const data = JSON.stringify({ _app: "e360_power_cabling", _version: 1, _saved: new Date().toISOString(), ...settings }, null, 2);
+    try {
+      const a = document.createElement("a");
+      a.href = "data:application/json;charset=utf-8," + encodeURIComponent(data);
+      a.download = `${(settings.clientName || "power_config").replace(/[^a-zA-Z0-9]/g, "_")}.pcfg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch { alert("Save failed."); }
+  };
+
+  const loadState = (d) => {
+    setConfig({ m: 1 });
+    setSettings({ clientName: d.clientName || "Unknown", sections: d.sections || [], wattsPerCab: d.wattsPerCab || 1000, distros: d.distros || [] });
+  };
+
+  return !config ? (
+    <Upload
+      onLoad={cfg => { setConfig(cfg); setSettings({ clientName: cfg.clientName, sections: cfg.sections, wattsPerCab: 1000, distros: autoDistros(cfg.sections) }); }}
+      onLoadState={loadState}
+      onManual={() => { setConfig({ m: 1 }); const secs = [{ name: "Touchline", side: "main", cabType: "p10", count: 70, gapBefore: 0 }]; setSettings({ clientName: "New Project", sections: secs, wattsPerCab: 1000, distros: autoDistros(secs) }); }}
+    />
+  ) : printMode ? (
+    <PrintSheet layout={layout} settings={settings} onBack={() => setPrintMode(false)} />
+  ) : (
+    <div style={{ display: "flex", height: "100vh", background: "#0d1117", color: "#e6edf3", overflow: "hidden" }}>
+      <Settings s={settings} onUpdate={setSettings} layout={layout} onReset={() => { setConfig(null); setSettings(null); setPrintMode(false); }} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ padding: "6px 12px", borderBottom: "1px solid #21262d", display: "flex", justifyContent: "flex-end", gap: 6 }}>
+          <button onClick={saveConfig} style={{ background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>💾 SAVE CONFIG</button>
+          <button onClick={() => setPrintMode(true)} style={{ background: "#f59e0b", color: "#0d1117", border: "none", borderRadius: 4, padding: "5px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>EXPORT SHEET</button>
+        </div>
+        <Diagram layout={layout} />
+      </div>
+    </div>
+  );
+}
+
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
