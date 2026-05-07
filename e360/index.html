@@ -1656,24 +1656,90 @@ function buildFieldDiagram() {
       return out;
     }
 
+    // ── Per-zone labels for a horizontal run ──
+    // Renders individual labels for each zone that overlaps the run
+    function hRunZoneLabels(n, cy, pathOffset, labelY, lsz) {
+      if (!zones || zones.length === 0) {
+        // No zones: single combined label
+        const label = `${n} cabs · ${(n * cf).toFixed(1)} ft`;
+        return `<text x="${midX}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
+      }
+      const totalLen = n * cabLen_svg;
+      const startX   = midX - totalLen / 2;
+      const runFirst = pathOffset + 1;
+      const runLast  = pathOffset + n;
+      let out = '';
+      const showLen = document.getElementById('showZoneLength')?.checked;
+      for (const z of zones) {
+        const zlo = Math.min(z.first, z.last), zhi = Math.max(z.first, z.last);
+        const overlapFirst = Math.max(runFirst, zlo);
+        const overlapLast  = Math.min(runLast, zhi);
+        if (overlapFirst > overlapLast) continue;
+        const i0 = overlapFirst - runFirst; // index within run
+        const i1 = overlapLast  - runFirst;
+        const x0 = startX + i0 * cabLen_svg;
+        const x1 = startX + (i1 + 1) * cabLen_svg;
+        const cx = (x0 + x1) / 2;
+        const count = overlapLast - overlapFirst + 1;
+        const label = showLen ? `${z.name} · ${(count * cf).toFixed(1)} ft` : z.name;
+        out += `<text x="${cx}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
+      }
+      return out || `<text x="${midX}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${n} cabs · ${(n * cf).toFixed(1)} ft</text>`;
+    }
+
+    // ── Per-zone labels for a vertical run ──
+    function vRunZoneLabels(n, pathOffset, cabPositions, labelX, anchor, rotAngle, lsz) {
+      if (!zones || zones.length === 0) {
+        const anchorY = cabPositions.midY;
+        const label = `${n} cabs · ${(n * cf).toFixed(1)} ft`;
+        return `<text x="${labelX}" y="${anchorY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${anchorY})">${label}</text>`;
+      }
+      const runFirst = pathOffset + 1;
+      const runLast  = pathOffset + n;
+      let out = '';
+      const showLen = document.getElementById('showZoneLength')?.checked;
+      for (const z of zones) {
+        const zlo = Math.min(z.first, z.last), zhi = Math.max(z.first, z.last);
+        const overlapFirst = Math.max(runFirst, zlo);
+        const overlapLast  = Math.min(runLast, zhi);
+        if (overlapFirst > overlapLast) continue;
+        const i0 = overlapFirst - runFirst;
+        const i1 = overlapLast  - runFirst;
+        const y0 = cabPositions.getY(i0);
+        const y1 = cabPositions.getY(i1);
+        const cy = (y0 + y1) / 2;
+        const count = overlapLast - overlapFirst + 1;
+        const label = showLen ? `${z.name} · ${(count * cf).toFixed(1)} ft` : z.name;
+        out += `<text x="${labelX}" y="${cy}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${cy})">${label}</text>`;
+      }
+      return out || `<text x="${labelX}" y="${cabPositions.midY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${cabPositions.midY})">${n} cabs · ${(n * cf).toFixed(1)} ft</text>`;
+    }
+
     // ── South touchline ──────────────────────────────────────────────
     // Sits actualTurnDist off the south field edge (which is >= 10ft)
     // BUT we draw it at a fixed offsetPx for positioning, the turn dist
     // is reflected in how far the ends of the touchline extend past the field
     const southTouchY = fieldY + fieldH + offsetPx + strip/2;
 
-    // Path offsets: west cabs come first, then south, then east
+    // Path offsets: must match buildCabPath() ordering
+    // South mode (standard U): west → south → east
+    // North mode (inverted U): west → north → east
     const westCount  = dist.west  || 0;
     const southCount = dist.south || 0;
+    const northCount = dist.north || 0;
+    const southOn_ = dist.south > 0;
+    const northOn_ = dist.north > 0;
+
+    const westPathOffset  = 0;
     const southPathOffset = westCount; // south starts after west
-    const eastPathOffset  = westCount + southCount;
+    const northPathOffset = southOn_ ? (westCount + southCount + (dist.east || 0)) : westCount; // north after west (inverted U) or after east (full wrap)
+    const eastPathOffset  = southOn_ ? (westCount + southCount) : (westCount + northCount);
 
     if (dist.south > 0) {
       svg += hRun(dist.south, southTouchY, TOUCH_COLOR, southPathOffset);
       if (document.getElementById('showDiagramLabels')?.checked !== false) {
         const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const label = zoneLabelForRange(southPathOffset + 1, southPathOffset + dist.south, (dist.south * cf).toFixed(1)) || `${dist.south} cabs · ${(dist.south * cf).toFixed(1)} ft`;
-        svg += `<text x="${midX}" y="${southTouchY + strip/2 + 11}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
+        svg += hRunZoneLabels(dist.south, southTouchY, southPathOffset, southTouchY + strip/2 + 11, lsz);
       }
     }
 
@@ -1681,12 +1747,10 @@ function buildFieldDiagram() {
     const northTouchY = fieldY - offsetPx - strip/2;
 
     if (dist.north > 0) {
-      svg += hRun(dist.north, northTouchY, TOUCH_COLOR);
+      svg += hRun(dist.north, northTouchY, TOUCH_COLOR, northPathOffset);
       if (document.getElementById('showDiagramLabels')?.checked !== false) {
         const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const northOffset = westCount + southCount + (dist.east || 0);
-        const label = zoneLabelForRange(northOffset + 1, northOffset + dist.north, (dist.north * cf).toFixed(1)) || `${dist.north} cabs · ${(dist.north * cf).toFixed(1)} ft`;
-        svg += `<text x="${midX}" y="${northTouchY - strip/2 - 4}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
+        svg += hRunZoneLabels(dist.north, northTouchY, northPathOffset, northTouchY - strip/2 - 4, lsz);
       }
     }
 
@@ -1733,7 +1797,7 @@ function buildFieldDiagram() {
     if (dist.east > 0) {
       const cx = fieldX + fieldW + turnPx + strip/2;
       let endSvg = '';
-      let anchorY, labelY;
+      let anchorY, isDown = false;
       if (dist.south > 0 && dist.north > 0) {
         endSvg  = vRunUp(dist.east, cx, endLineSouthY, END_COLOR, eastPathOffset);
         anchorY = endLineSouthY - (dist.east * cabLen_svg) / 2;
@@ -1743,18 +1807,25 @@ function buildFieldDiagram() {
       } else {
         endSvg  = vRunDown(dist.east, cx, endLineNorthY, END_COLOR, eastPathOffset);
         anchorY = endLineNorthY + (dist.east * cabLen_svg) / 2;
+        isDown = true;
       }
       svg += endSvg;
       if (document.getElementById('showDiagramLabels')?.checked !== false) {
         const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const label = zoneLabelForRange(eastPathOffset + 1, eastPathOffset + dist.east, (dist.east * cf).toFixed(1)) || `${dist.east} cabs · ${(dist.east * cf).toFixed(1)} ft`;
-        svg += `<text x="${cx+strip/2+5}" y="${anchorY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(90,${cx+strip/2+9},${anchorY})">${label}</text>`;
+        const labelX = cx+strip/2+9;
+        const cabPos = {
+          midY: anchorY,
+          getY: isDown
+            ? (i) => endLineNorthY + (i + 0.5) * cabLen_svg
+            : (i) => endLineSouthY - (i + 0.5) * cabLen_svg
+        };
+        svg += vRunZoneLabels(dist.east, eastPathOffset, cabPos, labelX, 'middle', 90, lsz);
       }
     }
 
     if (dist.west > 0) {
       const cx = fieldX - turnPx - strip/2;
-      let endSvg = '', anchorY;
+      let endSvg = '', anchorY, isDown = false;
       if (dist.south > 0 && dist.north > 0) {
         endSvg  = vRunUp(dist.west, cx, endLineSouthY, END_COLOR, 0);
         anchorY = endLineSouthY - (dist.west * cabLen_svg) / 2;
@@ -1764,12 +1835,19 @@ function buildFieldDiagram() {
       } else {
         endSvg  = vRunDown(dist.west, cx, endLineNorthY, END_COLOR, 0);
         anchorY = endLineNorthY + (dist.west * cabLen_svg) / 2;
+        isDown = true;
       }
       svg += endSvg;
       if (document.getElementById('showDiagramLabels')?.checked !== false) {
         const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const label = zoneLabelForRange(1, dist.west, (dist.west * cf).toFixed(1)) || `${dist.west} cabs · ${(dist.west * cf).toFixed(1)} ft`;
-        svg += `<text x="${cx-strip/2-5}" y="${anchorY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(-90,${cx-strip/2-9},${anchorY})">${label}</text>`;
+        const labelX = cx-strip/2-9;
+        const cabPos = {
+          midY: anchorY,
+          getY: isDown
+            ? (i) => endLineNorthY + (i + 0.5) * cabLen_svg
+            : (i) => endLineSouthY - (i + 0.5) * cabLen_svg
+        };
+        svg += vRunZoneLabels(dist.west, westPathOffset, cabPos, labelX, 'middle', -90, lsz);
       }
     }
   }
@@ -3636,10 +3714,15 @@ function renderMappingStats() {
     east:  'East End',
     west:  'West End',
   };
-  // Compute cab ranges along path
+  // Compute cab ranges along path — order must match buildCabPath()
+  // South mode (standard U): west → south → east
+  // North mode (inverted U): west → north → east
+  const pathSideOrder = dist.south > 0
+    ? ['west','south','east','north']
+    : ['west','north','east'];
   let offset = 0;
   const ranges = {};
-  for (const s of sideOrder) {
+  for (const s of pathSideOrder) {
     if (dist[s] > 0) {
       ranges[s] = { start: offset + 1, end: offset + dist[s] };
       offset += dist[s];
