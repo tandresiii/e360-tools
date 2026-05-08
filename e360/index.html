@@ -887,53 +887,69 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         </div>
       </div>
 
-      <!-- SPORT & FIELD -->
-      <div class="section-label">Sport & Field</div>
-      <div class="form-group">
-        <label class="form-label">Sport</label>
-        <select id="sport" onchange="onSportChange()">
-          <option value="soccer">Soccer</option>
-          <option value="football">Football (American)</option>
-          <option value="basketball">Basketball</option>
-          <option value="volleyball">Volleyball</option>
-          <option value="rugby">Rugby</option>
-          <option value="hockey">Ice Hockey</option>
-          <option value="other">Other / Custom</option>
-        </select>
-      </div>
-
-      <!-- CABINET TYPE -->
-      <div class="section-label">Cabinet Type</div>
-      <div class="form-group">
-        <label class="form-label">Cabinet Model</label>
-        <select id="cabinetType" onchange="onCabinetChange()">
-          <option value="p10">P10 — 1600×900mm — 160×90px</option>
-          <option value="p391">P3.91 — 500×500mm — 128×128px</option>
-          <option value="p12">P12 — 1600×900mm — 128×72px</option>
-        </select>
-      </div>
-      <div id="cabinet-info" style="font-size:11px;color:var(--accent);margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px"></div>
-      <div id="cabinet-footprint" class="cab-footprint"><!-- built by JS --></div>
-
-      <!-- FIELD DIMENSIONS -->
-      <div class="section-label">Field / Court Dimensions</div>
-      <div class="two-col">
+      <div data-hide-in-modular>
+        <!-- SPORT & FIELD -->
+        <div class="section-label">Sport & Field</div>
         <div class="form-group">
-          <label class="form-label">Length (ft)</label>
-          <input type="number" id="fieldLength" value="115" min="10" oninput="update()">
+          <label class="form-label">Sport</label>
+          <select id="sport" onchange="onSportChange()">
+            <option value="soccer">Soccer</option>
+            <option value="football">Football (American)</option>
+            <option value="basketball">Basketball</option>
+            <option value="volleyball">Volleyball</option>
+            <option value="rugby">Rugby</option>
+            <option value="hockey">Ice Hockey</option>
+            <option value="other">Other / Custom</option>
+          </select>
         </div>
+
+        <!-- CABINET TYPE -->
+        <div class="section-label">Cabinet Type</div>
         <div class="form-group">
-          <label class="form-label">Width (ft)</label>
-          <input type="number" id="fieldWidth" value="75" min="10" oninput="update()">
+          <label class="form-label">Cabinet Model</label>
+          <select id="cabinetType" onchange="onCabinetChange()">
+            <option value="p10">P10 — 1600×900mm — 160×90px</option>
+            <option value="p391">P3.91 — 500×500mm — 128×128px</option>
+            <option value="p12">P12 — 1600×900mm — 128×72px</option>
+          </select>
         </div>
+        <div id="cabinet-info" style="font-size:11px;color:var(--accent);margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px"></div>
+        <div id="cabinet-footprint" class="cab-footprint"><!-- built by JS --></div>
+
+        <!-- FIELD DIMENSIONS -->
+        <div class="section-label">Field / Court Dimensions</div>
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Length (ft)</label>
+            <input type="number" id="fieldLength" value="115" min="10" oninput="update()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Width (ft)</label>
+            <input type="number" id="fieldWidth" value="75" min="10" oninput="update()">
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.5">Cabinets run 10 ft off field edge. System starts at midfield on the main touchline and works outward symmetrically, turning at each active corner.</div>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.5">Cabinets run 10 ft off field edge. System starts at midfield on the main touchline and works outward symmetrically, turning at each active corner.</div>
 
       <!-- LAYOUT MODE -->
       <div class="section-label">Layout Mode</div>
-      <div class="layout-mode-pill">
+      <div class="layout-mode-pill" style="grid-template-columns:repeat(3,1fr);display:grid">
         <label><input type="radio" name="layoutMode" value="u" checked onchange="setLayoutMode('u')"> ⬡ U Config</label>
-        <label><input type="radio" name="layoutMode" value="complex" onchange="setLayoutMode('complex')"> ⬡ Complex Layout</label>
+        <label><input type="radio" name="layoutMode" value="complex" onchange="setLayoutMode('complex')"> ⬡ Complex</label>
+        <label><input type="radio" name="layoutMode" value="modular" onchange="setLayoutMode('modular')"> ▦ Modular LED</label>
+      </div>
+
+      <div data-hide-in-modular>
+        <!-- DIAGRAM VIEW -->
+        <div class="section-label">Diagram View</div>
+        <div class="layout-mode-pill">
+          <label><input type="radio" name="diagramView" value="topdown" checked onchange="diagramView=this.value;update()"> ▦ Top-Down</label>
+          <label><input type="radio" name="diagramView" value="isometric" onchange="diagramView=this.value;update()"> ◳ Isometric 3D</label>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;font-size:12px;color:var(--text)">
+          <input type="checkbox" id="isoCabStroke" onchange="isoCabStroke=this.checked;update()" style="accent-color:var(--accent);width:15px;height:15px">
+          Cabinet outlines (iso view)
+        </label>
       </div>
 
       <!-- U-CONFIG SECTION (shown by default) -->
@@ -954,51 +970,86 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <!-- COMPLEX LAYOUT SECTION (hidden by default) -->
       <div id="complex-config-section" style="display:none">
         <button class="btn btn-primary btn-block" onclick="openComplexModal()">⬡ Edit Complex Layout</button>
+        <button class="btn btn-outline btn-block" style="margin-top:6px" onclick="createZonesFromSections()" title="Generate one zone per section using the section name and start/end cab numbers">⬡ Create Zones from Sections</button>
         <div id="complex-sidebar-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
       </div>
 
-      <!-- ZONE DEFINITION -->
-      <div class="section-label">Zone Definition</div>
-      <button class="btn btn-primary btn-block" onclick="openZoneModal()">⬡ Define Zones</button>
-      <div id="zone-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
+      <!-- MODULAR LED SECTION (hidden by default) -->
+      <div id="modular-config-section" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Cabinet Model</label>
+          <select id="modularCabType" onchange="modularConfig.cabType=this.value;update()">
+            <option value="p10">P10 — 1600×900mm — 160×90px</option>
+            <option value="p391" selected>P3.91 — 500×500mm — 128×128px</option>
+            <option value="p12">P12 — 1600×900mm — 128×72px</option>
+          </select>
+        </div>
+        <div class="two-col">
+          <div class="form-group">
+            <label class="form-label">Cabs Wide</label>
+            <input type="number" id="modularCabsWide" min="1" max="200" value="4" oninput="modularConfig.cabsWide=parseInt(this.value)||1;update()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cabs Tall</label>
+            <input type="number" id="modularCabsTall" min="1" max="100" value="3" oninput="modularConfig.cabsTall=parseInt(this.value)||1;update()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mounting</label>
+          <div class="layout-mode-pill">
+            <label><input type="radio" name="modularMounting" value="ground" checked onchange="modularConfig.mounting=this.value;update()"> ⌒ Ground Support</label>
+            <label><input type="radio" name="modularMounting" value="chains" onchange="modularConfig.mounting=this.value;update()"> ⛓ Chain Motors</label>
+          </div>
+        </div>
+        <div id="modular-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:4px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:4px"></div>
+      </div>
 
-      <!-- CABINET MAPPING -->
-      <div class="section-label">Cabinet Mapping</div>
-      <button class="btn btn-outline btn-block" onclick="openMappingModal()">⬡ View Cabinet Map</button>
+      <div data-hide-in-modular>
+        <!-- ZONE DEFINITION -->
+        <div class="section-label">Zone Definition</div>
+        <button class="btn btn-primary btn-block" onclick="openZoneModal()">⬡ Define Zones</button>
+        <div id="zone-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
+
+        <!-- CABINET MAPPING -->
+        <div class="section-label">Cabinet Mapping</div>
+        <button class="btn btn-outline btn-block" onclick="openMappingModal()">⬡ View Cabinet Map</button>
+      </div>
 
       <!-- VIDEO SPECS -->
       <div class="section-label">Video Specs</div>
       <button class="btn btn-outline btn-block" onclick="openCodecModal()">▶ Edit Video Specs</button>
       <div id="codec-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
 
-      <!-- COMPASS BEARING -->
-      <div class="section-label">Compass Bearing</div>
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">North Arrow Rotation (°)</label>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" min="0" max="360" step="1" value="0" id="compassBearingInput"
-            oninput="compassBearing = ((parseInt(this.value)||0) % 360 + 360) % 360; update()"
-            style="flex:1">
-          <span style="font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;white-space:nowrap">0° = N up</span>
+      <div data-hide-in-modular>
+        <!-- COMPASS BEARING -->
+        <div class="section-label">Compass Bearing</div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">North Arrow Rotation (°)</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" min="0" max="360" step="1" value="0" id="compassBearingInput"
+              oninput="compassBearing = ((parseInt(this.value)||0) % 360 + 360) % 360; update()"
+              style="flex:1">
+            <span style="font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;white-space:nowrap">0° = N up</span>
+          </div>
         </div>
       </div>
 
       <!-- CONTACT INFO -->
       <div class="section-label">Contact Info</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Content Manager</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Creative Director</div>
       <div class="two-col">
         <div class="form-group">
           <label class="form-label">Name</label>
-          <input type="text" id="cm_name" value="Quinton Butler" oninput="update()">
+          <input type="text" id="cm_name" value="Bryan Matthews" oninput="update()">
         </div>
         <div class="form-group">
           <label class="form-label">Phone</label>
-          <input type="text" id="cm_phone" value="214.490.1482" oninput="update()">
+          <input type="text" id="cm_phone" value="716.812.4778" oninput="update()">
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input type="text" id="cm_email" value="quinton@e360sport.com" oninput="update()">
+        <input type="text" id="cm_email" value="bryan@e360sport.com" oninput="update()">
       </div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px;margin-top:4px">Technical Director</div>
       <div class="two-col">
@@ -1134,6 +1185,73 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Spec Sheet Preview</div>
         <div id="codec-preview" style="font-size:12px;color:var(--text);line-height:1.8"></div>
       </div>
+
+      <!-- LIVE INPUT (SDI) — only relevant in modular mode -->
+      <div id="sdi-section" style="display:none">
+        <div style="border-top:1px solid var(--border);margin:0 0 18px"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live Input (SDI)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Resolution</label>
+            <select id="sdiResolution" onchange="modularConfig.sdi.resolution=this.value;updateCodecSummary()">
+              <option>1920×1080</option>
+              <option>1280×720</option>
+              <option>3840×2160</option>
+              <option>1920×1200</option>
+              <option>2048×1080</option>
+              <option>Custom</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Frame Rate</label>
+            <select id="sdiFps" onchange="modularConfig.sdi.fps=this.value;updateCodecSummary()">
+              <option>23.98</option>
+              <option>24</option>
+              <option>25</option>
+              <option>29.97</option>
+              <option>30</option>
+              <option>50</option>
+              <option>59.94</option>
+              <option selected>60</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Format</label>
+            <select id="sdiFormat" onchange="modularConfig.sdi.format=this.value;updateCodecSummary()">
+              <option>HD-SDI</option>
+              <option selected>3G-SDI</option>
+              <option>6G-SDI</option>
+              <option>12G-SDI</option>
+              <option>SDI Quad-Link</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Chroma Sampling</label>
+            <select id="sdiSampling" onchange="modularConfig.sdi.sampling=this.value;updateCodecSummary()">
+              <option>4:2:0</option>
+              <option selected>4:2:2</option>
+              <option>4:4:4</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Bit Depth</label>
+            <select id="sdiBitDepth" onchange="modularConfig.sdi.bitDepth=this.value;updateCodecSummary()">
+              <option>8-bit</option>
+              <option selected>10-bit</option>
+              <option>12-bit</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">Colorspace</label>
+            <select id="sdiColorspace" onchange="modularConfig.sdi.colorspace=this.value;updateCodecSummary()">
+              <option selected>Rec. 709</option>
+              <option>Rec. 2020</option>
+              <option>DCI-P3</option>
+              <option>sRGB</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
     <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0;background:var(--surface2)">
       <button class="btn btn-outline" onclick="closeCodecModal()">Cancel</button>
@@ -1205,7 +1323,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <div class="zone-diagram-area">
         <div style="font-size:10px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;font-family:'Barlow Condensed',sans-serif">Live Field Preview — Complex Layout</div>
         <div id="cx-diagram-area"><!-- built by JS --></div>
-        <div style="font-size:10px;color:#444;margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-align:center" id="cx-diagram-hint">Sections appear at their defined positions around the field</div>
+        <div style="font-size:10px;color:#444;margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-align:center" id="cx-diagram-hint">HOVER a section to choose its side · DRAG to reposition along the side · DOUBLE-CLICK to reset</div>
       </div>
     </div>
     <div class="zone-modal-footer">
@@ -1439,6 +1557,18 @@ function cabColorFromZones(cabNum) {
   return z ? z.color : null;
 }
 
+// ── HTML/SVG ESCAPE — prevents XSS via user-controlled strings (zone names,
+// client/venue names, contact info) interpolated into innerHTML or SVG <text>.
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Returns the zone name(s) covering cabinet range [first..last], comma-separated if multiple
 function zoneNamesForRange(first, last) {
   if (!zones || zones.length === 0) return null;
@@ -1631,6 +1761,8 @@ function buildFieldDiagram() {
   }
 
   // ── PERIMETER CABINETS ───────────────────────────────────────────────
+  // cabCenters: pIdx -> { px, py, strip } — used for per-zone label placement
+  const cabCenters = new Map();
   if (d) {
     const { dist, actualTurnDist, cf } = d;
     const cabLen_svg  = cf * sc;           // SVG px per cabinet length along the run
@@ -1640,8 +1772,7 @@ function buildFieldDiagram() {
     const midX = fieldX + fieldW / 2;
 
     // Draw horizontal run of N cabs centered on midfield, strip centered on cy
-    // colorFn(cabPathIndex) -> color string
-    function hRun(n, cy, defaultColor, pathOffset) {
+    function hRun(n, cy, defaultColor, pathOffset, stripName) {
       if (n <= 0) return '';
       const totalLen = n * cabLen_svg;
       const startX   = midX - totalLen / 2;
@@ -1651,68 +1782,10 @@ function buildFieldDiagram() {
         const pIdx  = pathOffset + i + 1; // 1-indexed cab number
         const color = cabColorFromZones(pIdx) || defaultColor;
         out += `<rect x="${x+0.3}" y="${cy - strip/2}" width="${cabLen_svg-0.6}" height="${strip}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        cabCenters.set(pIdx, { px: x + cabLen_svg/2, py: cy, strip: stripName });
       }
       out += `<line x1="${midX}" y1="${cy-strip/2-3}" x2="${midX}" y2="${cy+strip/2+3}" stroke="#fff" stroke-width="1" opacity="0.8"/>`;
       return out;
-    }
-
-    // ── Per-zone labels for a horizontal run ──
-    // Renders individual labels for each zone that overlaps the run
-    function hRunZoneLabels(n, cy, pathOffset, labelY, lsz) {
-      if (!zones || zones.length === 0) {
-        // No zones: single combined label
-        const label = `${n} cabs · ${(n * cf).toFixed(1)} ft`;
-        return `<text x="${midX}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
-      }
-      const totalLen = n * cabLen_svg;
-      const startX   = midX - totalLen / 2;
-      const runFirst = pathOffset + 1;
-      const runLast  = pathOffset + n;
-      let out = '';
-      const showLen = document.getElementById('showZoneLength')?.checked;
-      for (const z of zones) {
-        const zlo = Math.min(z.first, z.last), zhi = Math.max(z.first, z.last);
-        const overlapFirst = Math.max(runFirst, zlo);
-        const overlapLast  = Math.min(runLast, zhi);
-        if (overlapFirst > overlapLast) continue;
-        const i0 = overlapFirst - runFirst; // index within run
-        const i1 = overlapLast  - runFirst;
-        const x0 = startX + i0 * cabLen_svg;
-        const x1 = startX + (i1 + 1) * cabLen_svg;
-        const cx = (x0 + x1) / 2;
-        const count = overlapLast - overlapFirst + 1;
-        const label = showLen ? `${z.name} · ${(count * cf).toFixed(1)} ft` : z.name;
-        out += `<text x="${cx}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${label}</text>`;
-      }
-      return out || `<text x="${midX}" y="${labelY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700">${n} cabs · ${(n * cf).toFixed(1)} ft</text>`;
-    }
-
-    // ── Per-zone labels for a vertical run ──
-    function vRunZoneLabels(n, pathOffset, cabPositions, labelX, anchor, rotAngle, lsz) {
-      if (!zones || zones.length === 0) {
-        const anchorY = cabPositions.midY;
-        const label = `${n} cabs · ${(n * cf).toFixed(1)} ft`;
-        return `<text x="${labelX}" y="${anchorY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${anchorY})">${label}</text>`;
-      }
-      const runFirst = pathOffset + 1;
-      const runLast  = pathOffset + n;
-      let out = '';
-      const showLen = document.getElementById('showZoneLength')?.checked;
-      for (const z of zones) {
-        const zlo = Math.min(z.first, z.last), zhi = Math.max(z.first, z.last);
-        const overlapFirst = Math.max(runFirst, zlo);
-        const overlapLast  = Math.min(runLast, zhi);
-        if (overlapFirst > overlapLast) continue;
-        const i0 = overlapFirst - runFirst;
-        const i1 = overlapLast  - runFirst;
-        const y0 = cabPositions.getY(i0);
-        const y1 = cabPositions.getY(i1);
-        const cy = (y0 + y1) / 2;
-        const count = overlapLast - overlapFirst + 1;
-        const label = showLen ? `${z.name} · ${(count * cf).toFixed(1)} ft` : z.name;
-        out += `<text x="${labelX}" y="${cy}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${cy})">${label}</text>`;
-      }
-      return out || `<text x="${labelX}" y="${cabPositions.midY}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" transform="rotate(${rotAngle},${labelX},${cabPositions.midY})">${n} cabs · ${(n * cf).toFixed(1)} ft</text>`;
     }
 
     // ── South touchline ──────────────────────────────────────────────
@@ -1728,31 +1801,18 @@ function buildFieldDiagram() {
     const southCount = dist.south || 0;
     const northCount = dist.north || 0;
     const southOn_ = dist.south > 0;
-    const northOn_ = dist.north > 0;
 
     const westPathOffset  = 0;
     const southPathOffset = westCount; // south starts after west
     const northPathOffset = southOn_ ? (westCount + southCount + (dist.east || 0)) : westCount; // north after west (inverted U) or after east (full wrap)
     const eastPathOffset  = southOn_ ? (westCount + southCount) : (westCount + northCount);
 
-    if (dist.south > 0) {
-      svg += hRun(dist.south, southTouchY, TOUCH_COLOR, southPathOffset);
-      if (document.getElementById('showDiagramLabels')?.checked !== false) {
-        const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        svg += hRunZoneLabels(dist.south, southTouchY, southPathOffset, southTouchY + strip/2 + 11, lsz);
-      }
-    }
+    if (dist.south > 0) svg += hRun(dist.south, southTouchY, TOUCH_COLOR, southPathOffset, 'south');
 
     // ── North touchline ──────────────────────────────────────────────
     const northTouchY = fieldY - offsetPx - strip/2;
 
-    if (dist.north > 0) {
-      svg += hRun(dist.north, northTouchY, TOUCH_COLOR, northPathOffset);
-      if (document.getElementById('showDiagramLabels')?.checked !== false) {
-        const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        svg += hRunZoneLabels(dist.north, northTouchY, northPathOffset, northTouchY - strip/2 - 4, lsz);
-      }
-    }
+    if (dist.north > 0) svg += hRun(dist.north, northTouchY, TOUCH_COLOR, northPathOffset, 'north');
 
     // ── End lines — anchored to active touchline corner(s), tile away ──
     // Anchor rules:
@@ -1770,7 +1830,7 @@ function buildFieldDiagram() {
 
     // vRunFrom: draw N cabs starting at startY, tiling UPWARD (northward)
     // vRunDown: draw N cabs starting at startY, tiling DOWNWARD (southward)
-    function vRunUp(n, cx, startY, defaultColor, pathOffset) {
+    function vRunUp(n, cx, startY, defaultColor, pathOffset, stripName) {
       if (n <= 0) return '';
       let out = '';
       for (let i=0; i<n; i++) {
@@ -1778,11 +1838,12 @@ function buildFieldDiagram() {
         const pIdx  = pathOffset + i + 1;
         const color = cabColorFromZones(pIdx) || defaultColor;
         out += `<rect x="${cx - strip/2}" y="${y+0.3}" width="${strip}" height="${cabLen_svg-0.6}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        cabCenters.set(pIdx, { px: cx, py: y + cabLen_svg/2, strip: stripName });
       }
       return out;
     }
 
-    function vRunDown(n, cx, startY, defaultColor, pathOffset) {
+    function vRunDown(n, cx, startY, defaultColor, pathOffset, stripName) {
       if (n <= 0) return '';
       let out = '';
       for (let i=0; i<n; i++) {
@@ -1790,65 +1851,45 @@ function buildFieldDiagram() {
         const pIdx  = pathOffset + i + 1;
         const color = cabColorFromZones(pIdx) || defaultColor;
         out += `<rect x="${cx - strip/2}" y="${y+0.3}" width="${strip}" height="${cabLen_svg-0.6}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        cabCenters.set(pIdx, { px: cx, py: y + cabLen_svg/2, strip: stripName });
       }
       return out;
     }
 
     if (dist.east > 0) {
       const cx = fieldX + fieldW + turnPx + strip/2;
-      let endSvg = '';
-      let anchorY, isDown = false;
-      if (dist.south > 0 && dist.north > 0) {
-        endSvg  = vRunUp(dist.east, cx, endLineSouthY, END_COLOR, eastPathOffset);
-        anchorY = endLineSouthY - (dist.east * cabLen_svg) / 2;
-      } else if (dist.south > 0) {
-        endSvg  = vRunUp(dist.east, cx, endLineSouthY, END_COLOR, eastPathOffset);
-        anchorY = endLineSouthY - (dist.east * cabLen_svg) / 2;
-      } else {
-        endSvg  = vRunDown(dist.east, cx, endLineNorthY, END_COLOR, eastPathOffset);
-        anchorY = endLineNorthY + (dist.east * cabLen_svg) / 2;
-        isDown = true;
-      }
-      svg += endSvg;
-      if (document.getElementById('showDiagramLabels')?.checked !== false) {
-        const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const labelX = cx+strip/2+9;
-        const cabPos = {
-          midY: anchorY,
-          getY: isDown
-            ? (i) => endLineNorthY + (i + 0.5) * cabLen_svg
-            : (i) => endLineSouthY - (i + 0.5) * cabLen_svg
-        };
-        svg += vRunZoneLabels(dist.east, eastPathOffset, cabPos, labelX, 'middle', 90, lsz);
-      }
+      if (dist.south > 0) svg += vRunUp(dist.east, cx, endLineSouthY, END_COLOR, eastPathOffset, 'east');
+      else                svg += vRunDown(dist.east, cx, endLineNorthY, END_COLOR, eastPathOffset, 'east');
     }
 
     if (dist.west > 0) {
       const cx = fieldX - turnPx - strip/2;
-      let endSvg = '', anchorY, isDown = false;
-      if (dist.south > 0 && dist.north > 0) {
-        endSvg  = vRunUp(dist.west, cx, endLineSouthY, END_COLOR, 0);
-        anchorY = endLineSouthY - (dist.west * cabLen_svg) / 2;
-      } else if (dist.south > 0) {
-        endSvg  = vRunUp(dist.west, cx, endLineSouthY, END_COLOR, 0);
-        anchorY = endLineSouthY - (dist.west * cabLen_svg) / 2;
-      } else {
-        endSvg  = vRunDown(dist.west, cx, endLineNorthY, END_COLOR, 0);
-        anchorY = endLineNorthY + (dist.west * cabLen_svg) / 2;
-        isDown = true;
-      }
-      svg += endSvg;
-      if (document.getElementById('showDiagramLabels')?.checked !== false) {
-        const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
-        const labelX = cx-strip/2-9;
-        const cabPos = {
-          midY: anchorY,
-          getY: isDown
-            ? (i) => endLineNorthY + (i + 0.5) * cabLen_svg
-            : (i) => endLineSouthY - (i + 0.5) * cabLen_svg
-        };
-        svg += vRunZoneLabels(dist.west, westPathOffset, cabPos, labelX, 'middle', -90, lsz);
-      }
+      if (dist.south > 0) svg += vRunUp(dist.west, cx, endLineSouthY, END_COLOR, 0, 'west');
+      else                svg += vRunDown(dist.west, cx, endLineNorthY, END_COLOR, 0, 'west');
+    }
+
+    // ── PER-ZONE LABELS — one label per zone, draggable / scrollable ────
+    const showLabels = document.getElementById('showDiagramLabels')?.checked !== false;
+    if (showLabels && zones.length > 0 && cabCenters.size > 0) {
+      const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
+      const showLen = document.getElementById('showZoneLength')?.checked;
+      zones.forEach((z, zi) => {
+        const lo = Math.min(z.first, z.last), hi = Math.max(z.first, z.last);
+        const present = [];
+        for (let c = lo; c <= hi; c++) if (cabCenters.has(c)) present.push(c);
+        if (!present.length) return;
+        const medianCab = present[Math.floor(present.length / 2)];
+        const anchor = cabCenters.get(medianCab);
+        const count = hi - lo + 1;
+        const spanFt = (count * cf).toFixed(1);
+        const text = showLen ? `${z.name} · ${spanFt} ft` : z.name;
+        let dx, dy, defRot;
+        if (anchor.strip === 'south')      { dx = 0;                dy =  strip/2 + 11;  defRot = 0; }
+        else if (anchor.strip === 'north') { dx = 0;                dy = -strip/2 - 4;   defRot = 0; }
+        else if (anchor.strip === 'east')  { dx =  strip/2 + 9;     dy = 0;              defRot = 90; }
+        else                                { dx = -strip/2 - 9;     dy = 0;              defRot = -90; }
+        svg += renderIsoLabel(`td_z${zi}`, anchor.px + dx, anchor.py + dy, defRot, lsz, text);
+      });
     }
   }
 
@@ -1859,6 +1900,902 @@ function buildFieldDiagram() {
     <polygon points="0,8 3,0 0,-2 -3,0" fill="#bbb"/>
     <text x="0" y="-11" text-anchor="middle" font-size="6" fill="#333" font-weight="800">N</text>
   </g>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// ISOMETRIC / 3D PERSPECTIVE DIAGRAM
+// One-point perspective (trapezoidal field). Parallel to buildFieldDiagram.
+// Tunable constants — adjust to match reference visual style.
+const PERSPECTIVE_BACK_WIDTH  = 0.55; // back edge width as fraction of front edge
+const PERSPECTIVE_VERT_SQUISH = 0.45; // vertical foreshortening factor
+const ISO_STRIP_FT            = 5;    // scene-space ft for cabinet-strip thickness (visibility, not literal scale)
+
+// Build a perspective projector from scene-space (ft) to projector-space units.
+// Scene convention: y=0 is the NORTH edge (top/back, far from viewer),
+// y=sceneH is the SOUTH edge (bottom/front, close to viewer).
+// Output: narrow at top (back), wide at bottom (front), with vertical foreshortening.
+function makePerspectiveProjector(sceneW, sceneH) {
+  const cx = sceneW / 2;
+  return function project(x, y) {
+    const t = sceneH > 0 ? (1 - y / sceneH) : 0;       // 0 at front (south), 1 at back (north)
+    const widthScale = 1 + (PERSPECTIVE_BACK_WIDTH - 1) * t;
+    return {
+      px: cx + (x - cx) * widthScale,
+      py: y * PERSPECTIVE_VERT_SQUISH,                  // back (y=0) at top of SVG, front at bottom
+    };
+  };
+}
+
+// Render a draggable / rotatable iso label as an SVG group.
+// `key` uniquely identifies the label so its override can be looked up & saved.
+// User interactions (attached after render): drag = move, wheel = rotate, dblclick = reset.
+function renderIsoLabel(key, defaultX, defaultY, defaultRot, fontSize, text) {
+  const o = isoLabelOverrides[key] || { dx: 0, dy: 0, rot: 0 };
+  const x = defaultX + o.dx;
+  const y = defaultY + o.dy;
+  const rot = defaultRot + o.rot;
+  const labelW = Math.max(60, String(text).length * fontSize * 0.6);
+  return `<g class="iso-label" data-label-key="${escapeHtml(key)}" data-default-x="${defaultX.toFixed(2)}" data-default-y="${defaultY.toFixed(2)}" data-default-rot="${defaultRot.toFixed(2)}" transform="translate(${x.toFixed(2)},${y.toFixed(2)}) rotate(${rot.toFixed(2)})" style="cursor:grab">
+    <title>Drag to move · Scroll to rotate · Double-click to reset</title>
+    <rect x="${(-labelW/2).toFixed(1)}" y="${(-fontSize-1).toFixed(1)}" width="${labelW.toFixed(1)}" height="${(fontSize+5).toFixed(1)}" fill="transparent"/>
+    <text x="0" y="0" text-anchor="middle" font-size="${fontSize}" fill="#1a1a1a" font-weight="700" font-family="Barlow Condensed,sans-serif" style="user-select:none">${escapeHtml(text)}</text>
+  </g>`;
+}
+
+function buildIsometricDiagram() {
+  if (layoutMode === 'complex') return buildComplexIsometricDiagram();
+
+  const sport = getSport();
+  const cab   = getCab();
+  const d     = computeDistribution();
+
+  const svgW = 620, svgH = 370;
+  const fL = d ? d.fL : vn('fieldLength');
+  const fW = d ? d.fW : vn('fieldWidth');
+
+  // SVG layout bands
+  const labelBandH   = 38;   // top reserved for north-strip label above LED top
+  const sceneTopY    = labelBandH;
+  const sceneBotY    = 332;  // bottom of perspective area (label + caption fit below)
+  const padX         = 22;
+
+  const OFFSET_FT = currentSport === 'volleyball' ? 5 : 10;
+  const depthFt   = cabDepthFt();
+  const sceneWft  = fL + 2*(OFFSET_FT + depthFt);
+  const sceneHft  = fW + 2*(OFFSET_FT + depthFt);
+
+  const projector = makePerspectiveProjector(sceneWft, sceneHft);
+  const corners   = [projector(0,0), projector(sceneWft,0), projector(sceneWft,sceneHft), projector(0,sceneHft)];
+  const minX = Math.min(...corners.map(c=>c.px));
+  const maxX = Math.max(...corners.map(c=>c.px));
+  const minY = Math.min(...corners.map(c=>c.py));
+  const maxY = Math.max(...corners.map(c=>c.py));
+  const projW = maxX - minX || 1;
+  const projH = maxY - minY || 1;
+
+  const sceneAreaH = sceneBotY - sceneTopY;
+  const sc = Math.min((svgW - 2*padX) / projW, sceneAreaH / projH);
+  const tx = padX - minX*sc + ((svgW - 2*padX) - projW*sc) / 2;
+  const ty = sceneTopY - minY*sc + (sceneAreaH - projH*sc) / 2;
+  const proj = (x, y) => {
+    const p = projector(x, y);
+    return {
+      px: tx + p.px*sc,
+      py: ty + p.py*sc,
+      t:  sceneHft > 0 ? (1 - y / sceneHft) : 0,    // 0 at front, 1 at back — for LED height scaling
+    };
+  };
+  // SVG-pixel LED height as a function of depth (LED stands up perpendicular to ground)
+  const LED_H_FRONT = 20;
+  const LED_H_BACK  = 12;
+  const ledHeightAt = (t) => LED_H_FRONT + (LED_H_BACK - LED_H_FRONT) * t;
+
+  // Field rect corners in scene-space ft
+  const fieldX0 = OFFSET_FT + depthFt;
+  const fieldY0 = OFFSET_FT + depthFt;
+  const fieldX1 = fieldX0 + fL;
+  const fieldY1 = fieldY0 + fW;
+
+  let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+
+  // ── FIELD SURFACE ────────────────────────────────────────────────────
+  const fc = [proj(fieldX0,fieldY0), proj(fieldX1,fieldY0), proj(fieldX1,fieldY1), proj(fieldX0,fieldY1)];
+  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : sport.fieldColor;
+  if (currentSport !== 'football') {
+    svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${fieldBaseColor}"/>`;
+  } else {
+    // Football: solid green base then darker mowing stripes
+    svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${sport.fieldColor || '#3a7a3a'}"/>`;
+  }
+
+  // ── FIELD MARKINGS — mirror top-down for soccer / football / volleyball ──
+  const lc = sport.lineColor || '#fff';
+  // Project a quad given two opposite-corner scene points (xa,ya) (xb,yb)
+  const projQuad = (xa, ya, xb, yb) =>
+    [proj(xa,ya), proj(xb,ya), proj(xb,yb), proj(xa,yb)]
+      .map(p=>`${p.px.toFixed(1)},${p.py.toFixed(1)}`).join(' ');
+
+  if (currentSport === 'soccer' || currentSport === 'rugby') {
+    // Mowing stripes (perpendicular to length, alternating shades)
+    const stripeCount = 8;
+    for (let i=0; i<stripeCount; i++) {
+      if (i % 2 === 0) continue;
+      svg += `<polygon points="${projQuad(fieldX0, fieldY0 + fW*i/stripeCount, fieldX1, fieldY0 + fW*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.10)"/>`;
+    }
+    // Center line
+    const cl0 = proj(fieldX0 + fL/2, fieldY0), cl1 = proj(fieldX0 + fL/2, fieldY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.55"/>`;
+    // Center circle (24-segment polyline)
+    const cr = Math.min(fL, fW) * 0.13, ccx = fieldX0 + fL/2, ccy = fieldY0 + fW/2;
+    let ccPts = [];
+    for (let i=0; i<=24; i++) {
+      const a = (i/24) * Math.PI * 2;
+      const p = proj(ccx + Math.cos(a)*cr, ccy + Math.sin(a)*cr);
+      ccPts.push(`${p.px.toFixed(1)},${p.py.toFixed(1)}`);
+    }
+    svg += `<polyline points="${ccPts.join(' ')}" fill="none" stroke="${lc}" stroke-width="1" opacity="0.55"/>`;
+    // Penalty boxes
+    const pbW = fL * 0.14, pbH = fW * 0.5;
+    const pby0 = fieldY0 + (fW - pbH)/2, pby1 = pby0 + pbH;
+    svg += `<polygon points="${projQuad(fieldX0, pby0, fieldX0+pbW, pby1)}" fill="none" stroke="${lc}" stroke-width="0.8" opacity="0.5"/>`;
+    svg += `<polygon points="${projQuad(fieldX1-pbW, pby0, fieldX1, pby1)}" fill="none" stroke="${lc}" stroke-width="0.8" opacity="0.5"/>`;
+    // Goal area (smaller box inside penalty box)
+    const gaW = fL * 0.05, gaH = fW * 0.25;
+    const gay0 = fieldY0 + (fW - gaH)/2, gay1 = gay0 + gaH;
+    svg += `<polygon points="${projQuad(fieldX0, gay0, fieldX0+gaW, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
+    svg += `<polygon points="${projQuad(fieldX1-gaW, gay0, fieldX1, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
+  } else if (currentSport === 'football') {
+    // Football uses 360-ft long × 160-ft wide as the canonical layout (top-down convention).
+    // Map foot coords through the field rect proportionally so non-default field sizes still scale.
+    const fbX = (ft) => fieldX0 + (ft / 360) * fL;
+    const fbY = (ft) => fieldY0 + (ft / 160) * fW;
+
+    // Mowing stripes — 5-yd alternating bands along the length (perpendicular to the goal lines)
+    for (let yd = 0; yd < 360; yd += 10) {
+      svg += `<polygon points="${projQuad(fbX(yd), fieldY0, fbX(yd+5), fieldY1)}" fill="rgba(0,0,0,0.06)"/>`;
+    }
+    // End zone tints (0-30 ft and 330-360 ft)
+    svg += `<polygon points="${projQuad(fbX(0), fieldY0, fbX(30), fieldY1)}" fill="rgba(0,0,0,0.12)"/>`;
+    svg += `<polygon points="${projQuad(fbX(330), fieldY0, fbX(360), fieldY1)}" fill="rgba(0,0,0,0.12)"/>`;
+    // Field border
+    svg += `<polygon points="${projQuad(fieldX0, fieldY0, fieldX1, fieldY1)}" fill="none" stroke="${lc}" stroke-width="1"/>`;
+    // Goal lines (at 30, 330)
+    [30, 330].forEach(x => {
+      const a = proj(fbX(x), fieldY0), b = proj(fbX(x), fieldY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.85"/>`;
+    });
+    // 5-yard lines
+    [45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315].forEach(x => {
+      const a = proj(fbX(x), fieldY0), b = proj(fbX(x), fieldY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="0.5" opacity="0.7"/>`;
+    });
+    // Hashmark rows (4 rows, short ticks every 3 ft, skipping 5-yd lines)
+    const hashRows = [[0,2],[69.75,71.75],[88.25,90.25],[158,160]];
+    for (let ftX = 33; ftX <= 327; ftX += 3) {
+      if (ftX % 15 === 0) continue;
+      hashRows.forEach(([y1, y2]) => {
+        const a = proj(fbX(ftX), fbY(y1)), b = proj(fbX(ftX), fbY(y2));
+        svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="0.4" opacity="0.6"/>`;
+      });
+    }
+    // Goal posts — H-shape, 3 ft inside each goal line, between y=71.25 and y=88.75
+    [[0, 3], [360, 357]].forEach(([gx, ix]) => {
+      const tA = proj(fbX(gx), fbY(71.25)), tB = proj(fbX(ix), fbY(71.25));
+      const bA = proj(fbX(gx), fbY(88.75)), bB = proj(fbX(ix), fbY(88.75));
+      svg += `<line x1="${tA.px.toFixed(1)}" y1="${tA.py.toFixed(1)}" x2="${tB.px.toFixed(1)}" y2="${tB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+      svg += `<line x1="${bA.px.toFixed(1)}" y1="${bA.py.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${bB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+      svg += `<line x1="${tB.px.toFixed(1)}" y1="${tB.py.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${bB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+    });
+  } else if (currentSport === 'volleyball') {
+    // Inner court inset within the free zone (75% × 60% of total field)
+    const icW = fL * 0.75, icH = fW * 0.60;
+    const icX0 = fieldX0 + (fL - icW) / 2, icY0 = fieldY0 + (fW - icH) / 2;
+    const icX1 = icX0 + icW, icY1 = icY0 + icH;
+    // Tan playing surface
+    svg += `<polygon points="${projQuad(icX0, icY0, icX1, icY1)}" fill="#c8a050"/>`;
+    // White boundary
+    svg += `<polygon points="${projQuad(icX0, icY0, icX1, icY1)}" fill="none" stroke="#fff" stroke-width="1.5"/>`;
+    // Center line
+    const cl0 = proj(icX0 + icW/2, icY0), cl1 = proj(icX0 + icW/2, icY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="#fff" stroke-width="1.2"/>`;
+    // Attack lines at 3m from net (1/3 of each half = icW * 3/18)
+    const atk = icW * (3/18);
+    [icX0 + icW/2 - atk, icX0 + icW/2 + atk].forEach(x => {
+      const a = proj(x, icY0), b = proj(x, icY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="#fff" stroke-width="0.8" opacity="0.7" stroke-dasharray="3,2"/>`;
+    });
+    // Net — short thick line at center, 70% of inner court height (15%-85%)
+    const netA = proj(icX0 + icW/2, icY0 + icH * 0.15);
+    const netB = proj(icX0 + icW/2, icY0 + icH * 0.85);
+    svg += `<line x1="${netA.px.toFixed(1)}" y1="${netA.py.toFixed(1)}" x2="${netB.px.toFixed(1)}" y2="${netB.py.toFixed(1)}" stroke="#ccc" stroke-width="3" opacity="0.6"/>`;
+  } else if (currentSport === 'basketball') {
+    const cl0 = proj(fieldX0 + fL/2, fieldY0), cl1 = proj(fieldX0 + fL/2, fieldY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.5"/>`;
+    const cr = fW * 0.25, ccx = fieldX0 + fL/2, ccy = fieldY0 + fW/2;
+    let ccPts = [];
+    for (let i=0; i<=24; i++) {
+      const a = (i/24) * Math.PI * 2;
+      const p = proj(ccx + Math.cos(a)*cr, ccy + Math.sin(a)*cr);
+      ccPts.push(`${p.px.toFixed(1)},${p.py.toFixed(1)}`);
+    }
+    svg += `<polyline points="${ccPts.join(' ')}" fill="none" stroke="${lc}" stroke-width="1" opacity="0.5"/>`;
+  } else if (currentSport === 'hockey') {
+    const cl0 = proj(fieldX0 + fL/2, fieldY0), cl1 = proj(fieldX0 + fL/2, fieldY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="#cc0000" stroke-width="2" opacity="0.6"/>`;
+    [0.25, 0.75].forEach(frac => {
+      const a = proj(fieldX0 + fL*frac, fieldY0), b = proj(fieldX0 + fL*frac, fieldY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="#0055cc" stroke-width="1.4" opacity="0.5"/>`;
+    });
+  }
+
+  // ── PERIMETER LED PANELS (standing up, perpendicular to field) ──────
+  // Each cabinet's LED face is a vertical rectangle: bottom edge sits on the
+  // ground at the field-facing edge of the strip footprint; top edge rises
+  // by ledHeightAt(t) SVG pixels (depth-scaled for perspective).
+  if (d) {
+    const { dist, actualTurnDist, cf } = d;
+    const TOUCH_COLOR = '#c8a830';
+    const END_COLOR   = '#555555';
+
+    const westCount  = dist.west  || 0;
+    const southCount = dist.south || 0;
+    const northCount = dist.north || 0;
+    const southOn_   = dist.south > 0;
+
+    const westPathOffset  = 0;
+    const southPathOffset = westCount;
+    const northPathOffset = southOn_ ? (westCount + southCount + (dist.east || 0)) : westCount;
+    const eastPathOffset  = southOn_ ? (westCount + southCount) : (westCount + northCount);
+
+    // Touchline LED face is at the field-facing edge of the strip footprint
+    const southEdgeY = fieldY1 + OFFSET_FT;   // north edge of south strip = field-facing
+    const northEdgeY = fieldY0 - OFFSET_FT;   // south edge of north strip = field-facing
+    const eastEdgeX  = fieldX1 + actualTurnDist;
+    const westEdgeX  = fieldX0 - actualTurnDist;
+
+    const strokeAttr = isoCabStroke ? ' stroke="rgba(0,0,0,0.35)" stroke-width="0.5"' : '';
+    // cabCenters: pIdx -> { px, py, t, strip } — used for per-zone label placement
+    const cabCenters = new Map();
+
+    // Horizontal run: LED face stands at scene-space edgeY, runs xa..xb at ground.
+    // When stroke is off, consecutive same-color cabs are merged into single polygons
+    // to eliminate sub-pixel slivers between adjacent polygons (anti-aliasing seams).
+    function persHRun(n, edgeY, defaultColor, pathOffset, stripName) {
+      if (n <= 0) return '';
+      const totalLen = n * cf;
+      const x0 = (fieldX0 + fL/2) - totalLen/2;
+
+      // Pre-compute per-cab color and centers
+      const colors = new Array(n);
+      for (let i=0; i<n; i++) {
+        const pIdx = pathOffset + i + 1;
+        colors[i] = cabColorFromZones(pIdx) || defaultColor;
+        const xc = x0 + (i + 0.5) * cf;
+        const cm = proj(xc, edgeY);
+        cabCenters.set(pIdx, { px: cm.px, py: cm.py, t: cm.t, strip: stripName });
+      }
+
+      let out = '';
+      const emit = (runStart, runEnd, color) => {
+        const startXa = x0 + runStart * cf;
+        const endXb   = x0 + (runEnd + 1) * cf;
+        const bL = proj(startXa, edgeY), bR = proj(endXb, edgeY);
+        const hL = ledHeightAt(bL.t), hR = ledHeightAt(bR.t);
+        const tL = { px: bL.px, py: bL.py - hL };
+        const tR = { px: bR.px, py: bR.py - hR };
+        out += `<polygon points="${bL.px.toFixed(1)},${bL.py.toFixed(1)} ${bR.px.toFixed(1)},${bR.py.toFixed(1)} ${tR.px.toFixed(1)},${tR.py.toFixed(1)} ${tL.px.toFixed(1)},${tL.py.toFixed(1)}" fill="${color}"${strokeAttr}/>`;
+      };
+
+      if (isoCabStroke) {
+        // Individual polygons so the stroke draws every cab division
+        for (let i=0; i<n; i++) emit(i, i, colors[i]);
+      } else {
+        // Merge consecutive same-color cabs (no internal seams → no slivers)
+        let runStart = 0;
+        for (let i=1; i<=n; i++) {
+          if (i === n || colors[i] !== colors[runStart]) {
+            emit(runStart, i - 1, colors[runStart]);
+            runStart = i;
+          }
+        }
+      }
+      return out;
+    }
+
+    // Vertical run: LED face stands at scene-space edgeX, runs along ya..yb at ground.
+    // dir: -1 = tile up (from y0Ft toward smaller y / north), +1 = tile down toward south.
+    // Same merge-when-no-stroke strategy as persHRun.
+    function persVRun(n, edgeX, y0Ft, defaultColor, pathOffset, dir, stripName) {
+      if (n <= 0) return '';
+
+      // For each path index i, the cab spans scene-space y from yLo(i) to yHi(i).
+      // Defining yLo/yHi so they're shared between adjacent cabs for clean merge.
+      const yEdge = (i) => dir > 0 ? (y0Ft + i*cf) : (y0Ft - i*cf);
+
+      const colors = new Array(n);
+      for (let i=0; i<n; i++) {
+        const pIdx = pathOffset + i + 1;
+        colors[i] = cabColorFromZones(pIdx) || defaultColor;
+        const yc = (yEdge(i) + yEdge(i+1)) / 2;
+        const cm = proj(edgeX, yc);
+        cabCenters.set(pIdx, { px: cm.px, py: cm.py, t: cm.t, strip: stripName });
+      }
+
+      let out = '';
+      const emit = (runStart, runEnd, color) => {
+        // For dir = -1 (tile up): yEdge(runStart) is the southern edge, yEdge(runEnd+1) is northern
+        // For dir = +1 (tile down): yEdge(runStart) is northern, yEdge(runEnd+1) is southern
+        const yA = yEdge(runStart);     // start edge in scene-space
+        const yB = yEdge(runEnd + 1);   // end edge in scene-space
+        const bA = proj(edgeX, yA), bB = proj(edgeX, yB);
+        const hA = ledHeightAt(bA.t), hB = ledHeightAt(bB.t);
+        const tA = { px: bA.px, py: bA.py - hA };
+        const tB = { px: bB.px, py: bB.py - hB };
+        out += `<polygon points="${bA.px.toFixed(1)},${bA.py.toFixed(1)} ${bB.px.toFixed(1)},${bB.py.toFixed(1)} ${tB.px.toFixed(1)},${tB.py.toFixed(1)} ${tA.px.toFixed(1)},${tA.py.toFixed(1)}" fill="${color}"${strokeAttr}/>`;
+      };
+
+      if (isoCabStroke) {
+        for (let i=0; i<n; i++) emit(i, i, colors[i]);
+      } else {
+        let runStart = 0;
+        for (let i=1; i<=n; i++) {
+          if (i === n || colors[i] !== colors[runStart]) {
+            emit(runStart, i - 1, colors[runStart]);
+            runStart = i;
+          }
+        }
+      }
+      return out;
+    }
+
+    // Endline run start Y in scene-space — at the touchline corner edge
+    const endStartY  = southOn_ ? southEdgeY : northEdgeY;
+    const endDir     = southOn_ ? -1 : +1;
+
+    // Draw the strips in painter-algorithm depth order:
+    // north (back / deepest) → east/west endlines → south (front / closest).
+    // This way the south LED overlays the endlines' southern ends at the corners,
+    // matching the viewer's expected occlusion.
+    if (northCount > 0) svg += persHRun(northCount, northEdgeY, TOUCH_COLOR, northPathOffset, 'north');
+    if (dist.east > 0)  svg += persVRun(dist.east, eastEdgeX, endStartY, END_COLOR, eastPathOffset, endDir, 'east');
+    if (dist.west > 0)  svg += persVRun(dist.west, westEdgeX, endStartY, END_COLOR, westPathOffset, endDir, 'west');
+    if (southCount > 0) svg += persHRun(southCount, southEdgeY, TOUCH_COLOR, southPathOffset, 'south');
+
+    // ── PER-ZONE LABELS — one label per zone (not per strip) ───────────
+    // Each label is keyed `z<idx>` so per-zone drag/rotate state survives.
+    // Default position uses the median cab in the zone's range; default rotation
+    // depends on which strip that median sits on.
+    const showLabels = document.getElementById('showDiagramLabels')?.checked !== false;
+    if (showLabels && zones.length > 0) {
+      const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
+      const showLen = document.getElementById('showZoneLength')?.checked;
+      zones.forEach((z, zi) => {
+        const lo = Math.min(z.first, z.last), hi = Math.max(z.first, z.last);
+        const present = [];
+        for (let c = lo; c <= hi; c++) if (cabCenters.has(c)) present.push(c);
+        if (!present.length) return;
+        const medianCab = present[Math.floor(present.length / 2)];
+        const anchor = cabCenters.get(medianCab);
+        const count = hi - lo + 1;
+        const spanFt = (count * cf).toFixed(1);
+        const text = showLen ? `${z.name} · ${spanFt} ft` : z.name;
+        const h = ledHeightAt(anchor.t);
+        let dx, dy, defRot;
+        if (anchor.strip === 'south')      { dx = 0;  dy =  14;       defRot = 0; }
+        else if (anchor.strip === 'north') { dx = 0;  dy = -h - 6;    defRot = 0; }
+        else if (anchor.strip === 'east')  { dx = 12; dy = -h / 2;    defRot = 90; }
+        else                                { dx = -12; dy = -h / 2;   defRot = -90; }
+        svg += renderIsoLabel(`iso_z${zi}`, anchor.px + dx, anchor.py + dy, defRot, lsz, text);
+      });
+    }
+  }
+
+  // "*Not to Exact Scale" caption — bottom-right of perspective area
+  svg += `<text x="${(svgW - padX).toFixed(1)}" y="${(sceneBotY + 14).toFixed(1)}" text-anchor="end" font-size="9" font-style="italic" fill="#888">*Not to Exact Scale</text>`;
+
+  // Compass rose — bottom-right of perspective area
+  svg += `<g transform="translate(${svgW - 28},${sceneBotY - 16}) rotate(${compassBearing})">
+    <circle cx="0" cy="0" r="11" fill="white" stroke="#ccc" stroke-width="1"/>
+    <polygon points="0,-7 3,0 0,2 -3,0" fill="#333"/>
+    <polygon points="0,7 3,0 0,-2 -3,0" fill="#bbb"/>
+    <text x="0" y="-9.5" text-anchor="middle" font-size="6" fill="#333" font-weight="800">N</text>
+  </g>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+// Complex-mode iso renderer — projects each section's bounding rect through
+// the same perspective transform. Sections are free-form, so there's no
+// "field" surface; we render section panels as trapezoids with cabinet cells.
+function buildComplexIsometricDiagram() {
+  const svgW = 620, svgH = 370;
+  if (!complexSections || complexSections.length === 0) {
+    return buildComplexFieldDiagram(svgW, svgH);
+  }
+
+  const fL_ft = vn('fieldLength') || 100;
+  const fW_ft = vn('fieldWidth')  || 60;
+
+  // Pad scene by max extent of any section (uses per-section cab length now)
+  const pad = computeCxScenePadding();
+  const sceneWft = fL_ft + pad.extraLeft + pad.extraRight;
+  const sceneHft = fW_ft + pad.extraTop  + pad.extraBottom;
+
+  // Frame: scene origin (0,0) at top-left of padded area; field's top-left at (extraLeft, extraTop)
+  const fX0 = pad.extraLeft;
+  const fY0 = pad.extraTop;
+  const fX1 = fX0 + fL_ft;
+  const fY1 = fY0 + fW_ft;
+
+  // SVG layout bands
+  const labelBandH = 38;
+  const sceneTopY  = labelBandH;
+  const sceneBotY  = 332;
+  const padX       = 22;
+
+  const projector = makePerspectiveProjector(sceneWft, sceneHft);
+  const corners   = [projector(0,0), projector(sceneWft,0), projector(sceneWft,sceneHft), projector(0,sceneHft)];
+  const minX = Math.min(...corners.map(c=>c.px));
+  const maxX = Math.max(...corners.map(c=>c.px));
+  const minY = Math.min(...corners.map(c=>c.py));
+  const maxY = Math.max(...corners.map(c=>c.py));
+  const projW = maxX - minX || 1, projH = maxY - minY || 1;
+  const sceneAreaH = sceneBotY - sceneTopY;
+  const sc = Math.min((svgW - 2*padX) / projW, sceneAreaH / projH);
+  const tx = padX - minX*sc + ((svgW - 2*padX) - projW*sc) / 2;
+  const ty = sceneTopY - minY*sc + (sceneAreaH - projH*sc) / 2;
+  const proj = (x, y) => {
+    const p = projector(x, y);
+    return {
+      px: tx + p.px*sc,
+      py: ty + p.py*sc,
+      t:  sceneHft > 0 ? (1 - y / sceneHft) : 0,
+    };
+  };
+  const LED_H_FRONT = 20;
+  const LED_H_BACK  = 12;
+  const ledHeightAt = (t) => LED_H_FRONT + (LED_H_BACK - LED_H_FRONT) * t;
+
+  let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+
+  // Field surface — same color logic as U-config (volleyball = free-zone green, else sport color)
+  const sport = getSport();
+  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : (sport.fieldColor || '#3a7a3a');
+  const fc = [proj(fX0,fY0), proj(fX1,fY0), proj(fX1,fY1), proj(fX0,fY1)];
+  svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${fieldBaseColor}"/>`;
+
+  // ── FIELD MARKINGS — mirror top-down for soccer / football / volleyball ──
+  const lc = sport.lineColor || '#fff';
+  const projQuad = (xa, ya, xb, yb) =>
+    [proj(xa,ya), proj(xb,ya), proj(xb,yb), proj(xa,yb)]
+      .map(p=>`${p.px.toFixed(1)},${p.py.toFixed(1)}`).join(' ');
+
+  if (currentSport === 'soccer' || currentSport === 'rugby') {
+    // Mowing stripes (perpendicular to length, alternating shades)
+    const stripeCount = 8;
+    for (let i=0; i<stripeCount; i++) {
+      if (i % 2 === 0) continue;
+      svg += `<polygon points="${projQuad(fX0, fY0 + fW_ft*i/stripeCount, fX1, fY0 + fW_ft*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.10)"/>`;
+    }
+    // Center line
+    const cl0 = proj(fX0 + fL_ft/2, fY0), cl1 = proj(fX0 + fL_ft/2, fY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.55"/>`;
+    // Center circle
+    const cr = Math.min(fL_ft, fW_ft) * 0.13, ccx = fX0 + fL_ft/2, ccy = fY0 + fW_ft/2;
+    let ccPts = [];
+    for (let i=0; i<=24; i++) {
+      const a = (i/24) * Math.PI * 2;
+      const p = proj(ccx + Math.cos(a)*cr, ccy + Math.sin(a)*cr);
+      ccPts.push(`${p.px.toFixed(1)},${p.py.toFixed(1)}`);
+    }
+    svg += `<polyline points="${ccPts.join(' ')}" fill="none" stroke="${lc}" stroke-width="1" opacity="0.55"/>`;
+    // Penalty boxes
+    const pbW = fL_ft * 0.14, pbH = fW_ft * 0.5;
+    const pby0 = fY0 + (fW_ft - pbH)/2, pby1 = pby0 + pbH;
+    svg += `<polygon points="${projQuad(fX0, pby0, fX0+pbW, pby1)}" fill="none" stroke="${lc}" stroke-width="0.8" opacity="0.5"/>`;
+    svg += `<polygon points="${projQuad(fX1-pbW, pby0, fX1, pby1)}" fill="none" stroke="${lc}" stroke-width="0.8" opacity="0.5"/>`;
+    // Goal areas
+    const gaW = fL_ft * 0.05, gaH = fW_ft * 0.25;
+    const gay0 = fY0 + (fW_ft - gaH)/2, gay1 = gay0 + gaH;
+    svg += `<polygon points="${projQuad(fX0, gay0, fX0+gaW, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
+    svg += `<polygon points="${projQuad(fX1-gaW, gay0, fX1, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
+  } else if (currentSport === 'football') {
+    const fbX = (ft) => fX0 + (ft / 360) * fL_ft;
+    const fbY = (ft) => fY0 + (ft / 160) * fW_ft;
+    for (let yd = 0; yd < 360; yd += 10) {
+      svg += `<polygon points="${projQuad(fbX(yd), fY0, fbX(yd+5), fY1)}" fill="rgba(0,0,0,0.06)"/>`;
+    }
+    svg += `<polygon points="${projQuad(fbX(0), fY0, fbX(30), fY1)}" fill="rgba(0,0,0,0.12)"/>`;
+    svg += `<polygon points="${projQuad(fbX(330), fY0, fbX(360), fY1)}" fill="rgba(0,0,0,0.12)"/>`;
+    svg += `<polygon points="${projQuad(fX0, fY0, fX1, fY1)}" fill="none" stroke="${lc}" stroke-width="1"/>`;
+    [30, 330].forEach(x => {
+      const a = proj(fbX(x), fY0), b = proj(fbX(x), fY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.85"/>`;
+    });
+    [45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315].forEach(x => {
+      const a = proj(fbX(x), fY0), b = proj(fbX(x), fY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="0.5" opacity="0.7"/>`;
+    });
+    const hashRows = [[0,2],[69.75,71.75],[88.25,90.25],[158,160]];
+    for (let ftX = 33; ftX <= 327; ftX += 3) {
+      if (ftX % 15 === 0) continue;
+      hashRows.forEach(([y1, y2]) => {
+        const a = proj(fbX(ftX), fbY(y1)), b = proj(fbX(ftX), fbY(y2));
+        svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="${lc}" stroke-width="0.4" opacity="0.6"/>`;
+      });
+    }
+    [[0, 3], [360, 357]].forEach(([gx, ix]) => {
+      const tA = proj(fbX(gx), fbY(71.25)), tB = proj(fbX(ix), fbY(71.25));
+      const bA = proj(fbX(gx), fbY(88.75)), bB = proj(fbX(ix), fbY(88.75));
+      svg += `<line x1="${tA.px.toFixed(1)}" y1="${tA.py.toFixed(1)}" x2="${tB.px.toFixed(1)}" y2="${tB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+      svg += `<line x1="${bA.px.toFixed(1)}" y1="${bA.py.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${bB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+      svg += `<line x1="${tB.px.toFixed(1)}" y1="${tB.py.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${bB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
+    });
+  } else if (currentSport === 'volleyball') {
+    const icW = fL_ft * 0.75, icH = fW_ft * 0.60;
+    const icX0 = fX0 + (fL_ft - icW) / 2, icY0 = fY0 + (fW_ft - icH) / 2;
+    const icX1 = icX0 + icW, icY1 = icY0 + icH;
+    svg += `<polygon points="${projQuad(icX0, icY0, icX1, icY1)}" fill="#c8a050"/>`;
+    svg += `<polygon points="${projQuad(icX0, icY0, icX1, icY1)}" fill="none" stroke="#fff" stroke-width="1.5"/>`;
+    const cl0 = proj(icX0 + icW/2, icY0), cl1 = proj(icX0 + icW/2, icY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="#fff" stroke-width="1.2"/>`;
+    const atk = icW * (3/18);
+    [icX0 + icW/2 - atk, icX0 + icW/2 + atk].forEach(x => {
+      const a = proj(x, icY0), b = proj(x, icY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="#fff" stroke-width="0.8" opacity="0.7" stroke-dasharray="3,2"/>`;
+    });
+    const netA = proj(icX0 + icW/2, icY0 + icH * 0.15);
+    const netB = proj(icX0 + icW/2, icY0 + icH * 0.85);
+    svg += `<line x1="${netA.px.toFixed(1)}" y1="${netA.py.toFixed(1)}" x2="${netB.px.toFixed(1)}" y2="${netB.py.toFixed(1)}" stroke="#ccc" stroke-width="3" opacity="0.6"/>`;
+  } else if (currentSport === 'basketball') {
+    const cl0 = proj(fX0 + fL_ft/2, fY0), cl1 = proj(fX0 + fL_ft/2, fY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="${lc}" stroke-width="1" opacity="0.5"/>`;
+    const cr = fW_ft * 0.25, ccx = fX0 + fL_ft/2, ccy = fY0 + fW_ft/2;
+    let ccPts = [];
+    for (let i=0; i<=24; i++) {
+      const a = (i/24) * Math.PI * 2;
+      const p = proj(ccx + Math.cos(a)*cr, ccy + Math.sin(a)*cr);
+      ccPts.push(`${p.px.toFixed(1)},${p.py.toFixed(1)}`);
+    }
+    svg += `<polyline points="${ccPts.join(' ')}" fill="none" stroke="${lc}" stroke-width="1" opacity="0.5"/>`;
+  } else if (currentSport === 'hockey') {
+    const cl0 = proj(fX0 + fL_ft/2, fY0), cl1 = proj(fX0 + fL_ft/2, fY1);
+    svg += `<line x1="${cl0.px.toFixed(1)}" y1="${cl0.py.toFixed(1)}" x2="${cl1.px.toFixed(1)}" y2="${cl1.py.toFixed(1)}" stroke="#cc0000" stroke-width="2" opacity="0.6"/>`;
+    [0.25, 0.75].forEach(frac => {
+      const a = proj(fX0 + fL_ft*frac, fY0), b = proj(fX0 + fL_ft*frac, fY1);
+      svg += `<line x1="${a.px.toFixed(1)}" y1="${a.py.toFixed(1)}" x2="${b.px.toFixed(1)}" y2="${b.py.toFixed(1)}" stroke="#0055cc" stroke-width="1.4" opacity="0.5"/>`;
+    });
+  }
+
+  // ── COMPLEX SECTIONS — LED panels standing up from the perimeter ────
+  const showLabels = document.getElementById('showDiagramLabels')?.checked !== false;
+  const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
+  const strokeAttr = isoCabStroke ? ' stroke="rgba(0,0,0,0.35)" stroke-width="0.5"' : '';
+  const cabCenters = new Map();
+
+  // Render order: north (back) → east/west → south (front) so the south
+  // touchline overlays the endlines' southern ends at the corners.
+  // Cab numbering is unaffected — getSectionStartCab uses the original index.
+  const sideOrder = { north: 0, east: 1, west: 1, south: 2 };
+  const sectionOrder = complexSections
+    .map((sec, si) => ({ sec, si }))
+    .sort((a, b) => (sideOrder[a.sec.side] ?? 99) - (sideOrder[b.sec.side] ?? 99));
+
+  for (const { sec, si } of sectionOrder) {
+    const scene = computeCxSectionScene(sec, si);
+    if (!scene) continue;
+    const { n, secCf, isTall, dir, startCab, orientation, side } = scene;
+    const sideColor = (typeof SIDE_COLORS !== 'undefined' && SIDE_COLORS[side]) || '#c8a830';
+
+    // Map physIdx i → scene-ft bounds along the run axis + the fixed perpendicular edge.
+    // For H sections: a/b are x bounds (a < b), edge is the field-facing y.
+    // For V sections: a/b are y bounds (a > b, since cabs tile north from south corner), edge is the field-facing x.
+    const physBounds = (i) => {
+      if (orientation === 'H') {
+        return {
+          a:    fX0 + scene.startXft + i * secCf,
+          b:    fX0 + scene.startXft + (i + 1) * secCf,
+          edge: fY0 + scene.edgeYft,
+        };
+      } else {
+        return {
+          a:    fY0 + scene.startYft - i * secCf,        // south end (larger y)
+          b:    fY0 + scene.startYft - (i + 1) * secCf,  // north end (smaller y)
+          edge: fX0 + scene.edgeXft,
+        };
+      }
+    };
+
+    // Pre-compute colors + cab centers. cabNum maps physIdx to path-order via dir.
+    const colors = new Array(n);
+    for (let i=0; i<n; i++) {
+      const cabNum = dir > 0 ? (startCab + i) : (startCab + n - 1 - i);
+      colors[i] = cabColorFromZones(cabNum) || sideColor;
+      const seg = physBounds(i);
+      const cm = orientation === 'H'
+        ? proj((seg.a + seg.b) / 2, seg.edge)
+        : proj(seg.edge, (seg.a + seg.b) / 2);
+      cabCenters.set(cabNum, { px: cm.px, py: cm.py, t: cm.t, strip: side });
+    }
+
+    // Emit a polygon for cabs [runStart..runEnd] inclusive (merged when stroke off).
+    // Stacked sections render at 2x LED height + horizontal divider line at the cab midpoint.
+    const emit = (runStart, runEnd, color) => {
+      const segA = physBounds(runStart);
+      const segB = physBounds(runEnd);
+      let bA, bB;
+      if (orientation === 'H') {
+        bA = proj(segA.a, segA.edge);
+        bB = proj(segB.b, segB.edge);
+      } else {
+        bA = proj(segA.edge, segA.a);  // segA.a = south end of first cab in run
+        bB = proj(segB.edge, segB.b);  // segB.b = north end of last cab in run
+      }
+      const hMul = isTall ? 2 : 1;
+      const hA = ledHeightAt(bA.t) * hMul;
+      const hB = ledHeightAt(bB.t) * hMul;
+      const tA = { px: bA.px, py: bA.py - hA };
+      const tB = { px: bB.px, py: bB.py - hB };
+      svg += `<polygon points="${bA.px.toFixed(1)},${bA.py.toFixed(1)} ${bB.px.toFixed(1)},${bB.py.toFixed(1)} ${tB.px.toFixed(1)},${tB.py.toFixed(1)} ${tA.px.toFixed(1)},${tA.py.toFixed(1)}" fill="${color}"${strokeAttr}/>`;
+      if (isTall) {
+        // Divider at cab midpoint (top edge of the lower cab) reads as "two stacked cabs"
+        const mAy = bA.py - hA / 2;
+        const mBy = bB.py - hB / 2;
+        svg += `<line x1="${bA.px.toFixed(1)}" y1="${mAy.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${mBy.toFixed(1)}" stroke="rgba(0,0,0,0.4)" stroke-width="0.6"/>`;
+      }
+    };
+
+    if (isoCabStroke) {
+      for (let i=0; i<n; i++) emit(i, i, colors[i]);
+    } else {
+      let runStart = 0;
+      for (let i=1; i<=n; i++) {
+        if (i === n || colors[i] !== colors[runStart]) {
+          emit(runStart, i - 1, colors[runStart]);
+          runStart = i;
+        }
+      }
+    }
+  }
+
+  // ── PER-ZONE LABELS — one label per zone, using cabCenters for placement ───
+  if (showLabels && zones.length > 0 && cabCenters.size > 0) {
+    const showLen = document.getElementById('showZoneLength')?.checked;
+    zones.forEach((z, zi) => {
+      const lo = Math.min(z.first, z.last), hi = Math.max(z.first, z.last);
+      const present = [];
+      for (let c = lo; c <= hi; c++) if (cabCenters.has(c)) present.push(c);
+      if (!present.length) return;
+      const medianCab = present[Math.floor(present.length / 2)];
+      const anchor = cabCenters.get(medianCab);
+      // Span footage uses each cab's section cabLen — mixed-cab zones sum correctly
+      let zoneFt = 0;
+      for (let c = lo; c <= hi; c++) {
+        for (let si = 0; si < complexSections.length; si++) {
+          const sStart = getSectionStartCab(si);
+          const sEnd   = sStart + (parseInt(complexSections[si].count) || 0) - 1;
+          if (c >= sStart && c <= sEnd) {
+            zoneFt += getCxSectionCab(complexSections[si]).lengthMm / 304.8;
+            break;
+          }
+        }
+      }
+      const spanFt = zoneFt.toFixed(1);
+      const text = showLen ? `${z.name} · ${spanFt} ft` : z.name;
+      // Use 2x LED height for label clearance — covers both stacked + non-stacked sections
+      const h = ledHeightAt(anchor.t) * 2;
+      let dx, dy, defRot;
+      if (anchor.strip === 'south')      { dx = 0;  dy =  14;       defRot = 0; }
+      else if (anchor.strip === 'north') { dx = 0;  dy = -h - 6;    defRot = 0; }
+      else if (anchor.strip === 'east')  { dx = 12; dy = -h / 2;    defRot = 90; }
+      else                                { dx = -12; dy = -h / 2;   defRot = -90; }
+      svg += renderIsoLabel(`iso_z${zi}`, anchor.px + dx, anchor.py + dy, defRot, lsz, text);
+    });
+  }
+
+  // "*Not to Exact Scale" caption
+  svg += `<text x="${(svgW - padX).toFixed(1)}" y="${(sceneBotY + 14).toFixed(1)}" text-anchor="end" font-size="9" font-style="italic" fill="#888">*Not to Exact Scale</text>`;
+
+  // Compass
+  svg += `<g transform="translate(${svgW - 28},${sceneBotY - 16}) rotate(${compassBearing})">
+    <circle cx="0" cy="0" r="11" fill="white" stroke="#ccc" stroke-width="1"/>
+    <polygon points="0,-7 3,0 0,2 -3,0" fill="#333"/>
+    <polygon points="0,7 3,0 0,-2 -3,0" fill="#bbb"/>
+    <text x="0" y="-9.5" text-anchor="middle" font-size="6" fill="#333" font-weight="800">N</text>
+  </g>`;
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ── MODULAR LED WALL DIAGRAM (Design A — off-state LED look) ─────────────
+// Renders the configured rectangular wall as a flat 2D LED panel: dark
+// background, subtle pixel-grid overlay, faint cabinet seams, soft outer
+// halo, and a fading floor reflection underneath.
+function buildModularLEDDiagram(svgW, svgH) {
+  svgW = svgW || 620; svgH = svgH || 360;
+  const cab = getModularCab();
+  const w = Math.max(1, modularConfig.cabsWide || 1);
+  const h = Math.max(1, modularConfig.cabsTall || 1);
+  const mounting = modularConfig.mounting || 'ground';
+  const aspectRatio = (w * cab.lengthMm) / (h * cab.heightMm);
+
+  // Layout: leave room for chains above (chain mode) or a stand below (ground mode).
+  const padX = 30;
+  const topReserve  = mounting === 'chains' ? 50 : 36;     // chains need vertical room above wall
+  const botReserve  = mounting === 'ground' ? 70 : 60;     // ground stand sits under wall
+  const wallMaxW = svgW - 2 * padX;
+  const wallMaxH = svgH - topReserve - botReserve;
+  let wallW = wallMaxW, wallH = wallMaxW / aspectRatio;
+  if (wallH > wallMaxH) { wallH = wallMaxH; wallW = wallMaxH * aspectRatio; }
+  const wallX = (svgW - wallW) / 2;
+  const wallY = topReserve;
+
+  // Pixel grid pattern density — adapt to cab pixel count
+  // We render a small tile pattern to suggest LED matrix without drawing every pixel.
+  const cabSvgW = wallW / w;
+  const cabSvgH = wallH / h;
+  // Aim for ~6-12 visible "pixels" per cab in screen space
+  const pixelTilePx = Math.max(1.6, Math.min(cabSvgW / 14, cabSvgH / 14, 4));
+
+  // Halo dims
+  const haloRX = wallW * 0.65;
+  const haloRY = wallH * 1.0;
+  const haloCX = svgW / 2;
+  const haloCY = wallY + wallH / 2;
+
+  // Mounting hardware dims
+  const standH = mounting === 'ground' ? Math.min(wallH * 0.16, 38) : 0;
+
+  // Reflection dims — starts below mounting hardware (under stand if ground; under wall if chains)
+  const reflGap = 4;
+  const reflStartY = wallY + wallH + standH + reflGap;
+  const reflMaxH = svgH - reflStartY - 18;
+  const reflH = Math.max(0, Math.min(wallH * 0.4, reflMaxH));
+
+  let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+
+  // Defs
+  svg += `<defs>
+    <radialGradient id="ledHalo" cx="50%" cy="50%" r="60%">
+      <stop offset="0%"   stop-color="#2a3550" stop-opacity="0.55"/>
+      <stop offset="60%"  stop-color="#0e1424" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="reflFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#0a0a0a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0a0a0a" stop-opacity="1"/>
+    </linearGradient>
+    <pattern id="pixelGrid" width="${pixelTilePx}" height="${pixelTilePx}" patternUnits="userSpaceOnUse">
+      <rect width="${pixelTilePx}" height="${pixelTilePx}" fill="#10141c"/>
+      <circle cx="${pixelTilePx/2}" cy="${pixelTilePx/2}" r="${Math.max(0.3, pixelTilePx*0.16)}" fill="rgba(120,170,255,0.22)"/>
+    </pattern>
+    <linearGradient id="bezelTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="rgba(140,180,240,0.18)"/>
+      <stop offset="100%" stop-color="rgba(140,180,240,0)"/>
+    </linearGradient>
+    <linearGradient id="standMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#3a4252"/>
+      <stop offset="55%"  stop-color="#262c38"/>
+      <stop offset="100%" stop-color="#181c25"/>
+    </linearGradient>
+    <linearGradient id="chainShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#4a4f5a"/>
+      <stop offset="50%"  stop-color="#999"/>
+      <stop offset="100%" stop-color="#4a4f5a"/>
+    </linearGradient>
+  </defs>`;
+
+  // Background — deep black with vignette feel
+  svg += `<rect width="${svgW}" height="${svgH}" fill="#070709"/>`;
+  // Halo behind wall
+  svg += `<ellipse cx="${haloCX.toFixed(1)}" cy="${haloCY.toFixed(1)}" rx="${haloRX.toFixed(1)}" ry="${haloRY.toFixed(1)}" fill="url(#ledHalo)"/>`;
+
+  // ── FLOOR REFLECTION (drawn first, behind wall and mount hardware) ──
+  if (reflH > 6) {
+    svg += `<g opacity="0.4" transform="translate(${wallX.toFixed(1)},${(reflStartY+reflH).toFixed(1)}) scale(1,-1)">`;
+    svg += `<rect x="0" y="0" width="${wallW.toFixed(1)}" height="${reflH.toFixed(1)}" fill="url(#pixelGrid)"/>`;
+    // Cab seams (only the ones that fit in the reflection slice)
+    for (let i = 1; i < w; i++) {
+      const x = i * cabSvgW;
+      svg += `<line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${reflH.toFixed(1)}" stroke="#000" stroke-width="0.6" opacity="0.7"/>`;
+    }
+    for (let i = 1; i < h; i++) {
+      const y = i * cabSvgH;
+      if (y <= reflH) {
+        svg += `<line x1="0" y1="${y.toFixed(1)}" x2="${wallW.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#000" stroke-width="0.6" opacity="0.7"/>`;
+      }
+    }
+    svg += `</g>`;
+    // Fade overlay over reflection
+    svg += `<rect x="${wallX.toFixed(1)}" y="${reflStartY.toFixed(1)}" width="${wallW.toFixed(1)}" height="${reflH.toFixed(1)}" fill="url(#reflFade)"/>`;
+  }
+
+  // ── GROUND-SUPPORT STAND (rendered before wall so wall sits on top of stand) ──
+  if (mounting === 'ground' && standH > 0) {
+    const stTopY = wallY + wallH;
+    const stTopW = wallW * 0.94;
+    const stBotW = Math.min(wallW * 1.08, svgW - 2*padX);
+    const stTopX1 = wallX + (wallW - stTopW) / 2;
+    const stTopX2 = wallX + (wallW + stTopW) / 2;
+    const stBotX1 = wallX + (wallW - stBotW) / 2;
+    const stBotX2 = wallX + (wallW + stBotW) / 2;
+    const stBotY = stTopY + standH;
+    // Trapezoidal stand body
+    svg += `<polygon points="${stTopX1.toFixed(1)},${stTopY.toFixed(1)} ${stTopX2.toFixed(1)},${stTopY.toFixed(1)} ${stBotX2.toFixed(1)},${stBotY.toFixed(1)} ${stBotX1.toFixed(1)},${stBotY.toFixed(1)}" fill="url(#standMetal)" stroke="#0a0d14" stroke-width="1"/>`;
+    // Cross-bracing detail (X struts)
+    svg += `<line x1="${stTopX1.toFixed(1)}" y1="${stTopY.toFixed(1)}" x2="${stBotX2.toFixed(1)}" y2="${stBotY.toFixed(1)}" stroke="rgba(0,0,0,0.5)" stroke-width="0.7"/>`;
+    svg += `<line x1="${stTopX2.toFixed(1)}" y1="${stTopY.toFixed(1)}" x2="${stBotX1.toFixed(1)}" y2="${stBotY.toFixed(1)}" stroke="rgba(0,0,0,0.5)" stroke-width="0.7"/>`;
+    // Horizontal mid rail
+    svg += `<line x1="${(stTopX1 + (stBotX1-stTopX1)*0.5).toFixed(1)}" y1="${(stTopY+standH/2).toFixed(1)}" x2="${(stTopX2 + (stBotX2-stTopX2)*0.5).toFixed(1)}" y2="${(stTopY+standH/2).toFixed(1)}" stroke="rgba(0,0,0,0.4)" stroke-width="0.7"/>`;
+    // Bottom feet
+    const footW = 14, footH = 4;
+    svg += `<rect x="${(stBotX1 - footW*0.3).toFixed(1)}" y="${(stBotY-1).toFixed(1)}" width="${footW}" height="${footH}" fill="#0e1119" stroke="#000" stroke-width="0.5"/>`;
+    svg += `<rect x="${(stBotX2 - footW*0.7).toFixed(1)}" y="${(stBotY-1).toFixed(1)}" width="${footW}" height="${footH}" fill="#0e1119" stroke="#000" stroke-width="0.5"/>`;
+  }
+
+  // ── THE LED WALL ──
+  // Dark substrate + subtle pixel grid overlay
+  svg += `<rect x="${wallX.toFixed(1)}" y="${wallY.toFixed(1)}" width="${wallW.toFixed(1)}" height="${wallH.toFixed(1)}" fill="url(#pixelGrid)"/>`;
+  // Cabinet seams
+  for (let i = 1; i < w; i++) {
+    const x = wallX + i * cabSvgW;
+    svg += `<line x1="${x.toFixed(1)}" y1="${wallY.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(wallY+wallH).toFixed(1)}" stroke="#000" stroke-width="0.7" opacity="0.85"/>`;
+  }
+  for (let i = 1; i < h; i++) {
+    const y = wallY + i * cabSvgH;
+    svg += `<line x1="${wallX.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(wallX+wallW).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#000" stroke-width="0.7" opacity="0.85"/>`;
+  }
+  // Outer bezel (slight metallic edge)
+  svg += `<rect x="${wallX.toFixed(1)}" y="${wallY.toFixed(1)}" width="${wallW.toFixed(1)}" height="${wallH.toFixed(1)}" fill="none" stroke="#1c2334" stroke-width="2"/>`;
+  // Top inner highlight (bezel sheen)
+  svg += `<rect x="${(wallX+1).toFixed(1)}" y="${(wallY+1).toFixed(1)}" width="${(wallW-2).toFixed(1)}" height="3" fill="url(#bezelTop)"/>`;
+
+  // ── DIMENSION LABELS ──
+  // Move "cabs wide" label into the empty space above the wall in chains mode
+  // (chains occupy that area, so push label up against the truss bar).
+  const lblColor = '#9aafd8';
+  const labelTopY = mounting === 'chains' ? (wallY - 28) : (wallY - 10);
+  svg += `<text x="${(wallX + wallW/2).toFixed(1)}" y="${labelTopY.toFixed(1)}" text-anchor="middle" font-size="11" fill="${lblColor}" font-weight="700" letter-spacing="2.5">${w} CABS WIDE</text>`;
+  // Side: cabs tall (rotated)
+  const sideX = wallX - 12, sideY = wallY + wallH/2;
+  svg += `<text x="${sideX.toFixed(1)}" y="${sideY.toFixed(1)}" text-anchor="middle" font-size="11" fill="${lblColor}" font-weight="700" letter-spacing="2.5" transform="rotate(-90, ${sideX.toFixed(1)}, ${sideY.toFixed(1)})">${h} CABS TALL</text>`;
+
+  // ── CHAIN MOTORS (rendered on top so they overlay wall edges + label) ──
+  if (mounting === 'chains') {
+    const trussY = 8;
+    const trussX1 = Math.max(padX - 10, wallX - 30);
+    const trussX2 = Math.min(svgW - padX + 10, wallX + wallW + 30);
+    // Truss bar (horizontal beam at top)
+    svg += `<rect x="${trussX1.toFixed(1)}" y="${(trussY-2).toFixed(1)}" width="${(trussX2-trussX1).toFixed(1)}" height="6" fill="url(#standMetal)" stroke="#0a0d14" stroke-width="0.6"/>`;
+    // Two chain points at ~15% and ~85% across the wall
+    const cp1x = wallX + wallW * 0.18;
+    const cp2x = wallX + wallW * 0.82;
+    const motorW = 14, motorH = 10;
+    // Chain links — short alternating segments to read as a chain
+    const drawChain = (x) => {
+      const segs = Math.max(4, Math.floor((wallY - trussY - 2) / 5));
+      const segH = (wallY - 2 - (trussY+4)) / segs;
+      let chainSvg = '';
+      for (let i = 0; i < segs; i++) {
+        const sy = trussY + 4 + i * segH;
+        const ey = sy + segH * 0.85;
+        chainSvg += `<line x1="${x.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${x.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="${i%2===0?'#aaa':'#666'}" stroke-width="${i%2===0?2:1.4}" stroke-linecap="round"/>`;
+      }
+      return chainSvg;
+    };
+    svg += drawChain(cp1x);
+    svg += drawChain(cp2x);
+    // Motor housings just above the wall at each chain anchor
+    [cp1x, cp2x].forEach(cx => {
+      svg += `<rect x="${(cx-motorW/2).toFixed(1)}" y="${(wallY-motorH).toFixed(1)}" width="${motorW}" height="${motorH}" fill="url(#standMetal)" stroke="#0a0d14" stroke-width="0.7" rx="1"/>`;
+      svg += `<circle cx="${cx.toFixed(1)}" cy="${(wallY-motorH/2).toFixed(1)}" r="1.4" fill="#c8a830"/>`;  // status LED on motor
+    });
+  }
 
   svg += '</svg>';
   return svg;
@@ -1879,12 +2816,17 @@ function buildZoneBreakdown() {
     // Use zone definitions for spec sheet
     const total = pathTotal();
     for (const z of zones) {
-      const count = Math.abs(z.last - z.first) + 1;
-      const px = zonePixels(z.first, z.last, z.doubleStacked);
+      // Clip zone range to actual path total \u2014 protects published specs against
+      // stale zone defs whose `last` extends past the physical cab count.
+      const lo = Math.min(z.first, z.last);
+      const hi = Math.min(Math.max(z.first, z.last), total);
+      const count = Math.max(0, hi - lo + 1);
+      if (count === 0) continue;
+      const px = zonePixels(lo, hi, z.doubleStacked);
       totalCabs += z.doubleStacked ? count * 2 : count;
       totalFt   += count * cf;
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${z.color}"></div><span>${z.name} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} \u00d7 ${px.h}px</span></div>`;
-      fileList    += `<li>\u2022 ${z.name}: ${px.w} \u00d7 ${px.h} px</li>`;
+      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${escapeHtml(z.color)}"></div><span>${escapeHtml(z.name)} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} \u00d7 ${px.h}px</span></div>`;
+      fileList    += `<li>\u2022 ${escapeHtml(z.name)}: ${px.w} \u00d7 ${px.h} px</li>`;
       legendCount++;
     }
   } else {
@@ -1950,29 +2892,106 @@ function handleLogoUpload(input) {
 }
 
 function resetForm() {
-  if (!confirm('Reset all fields?')) return;
-  document.querySelectorAll('input[type=text],input[type=date],input[type=url]').forEach(el => el.value = el.defaultValue||'');
-  const sport = getSport();
-  document.getElementById('fieldLength').value   = sport.defaultLength;
-  document.getElementById('fieldWidth').value    = sport.defaultWidth;
-  document.getElementById('totalCabinets').value = '144';
+  if (!confirm('Reset all fields? This clears zones, sections, and all customizations.')) return;
+
+  // ── In-memory state → fresh-project defaults ──
+  layoutMode        = 'u';
+  complexUnit       = 'ft';
+  complexSections   = [];
+  zones             = [];
+  reverseNumbering  = false;
+  compassBearing    = 0;
+  diagramView       = 'topdown';
+  isoCabStroke      = false;
+  isoLabelOverrides = {};
+  currentSport      = 'soccer';
+  currentCabinet    = 'p10';
   clientLogoDataUrl = null;
+  codecSettings = { codec:'H.264', container:'mp4', fps:30, duration:15, bitrate:'', notes:'' };
+  modularConfig = {
+    cabType:  'p391', cabsWide: 4, cabsTall: 3, mounting: 'ground',
+    sdi: { resolution:'1920×1080', fps:'60', format:'3G-SDI', sampling:'4:2:2', bitDepth:'10-bit', colorspace:'Rec. 709' }
+  };
+
+  // ── DOM inputs → cleared / defaults ──
+  document.querySelectorAll('input[type=text],input[type=date],input[type=url],input[type=email],input[type=tel],textarea')
+    .forEach(el => { el.value = el.defaultValue || ''; });
+  document.getElementById('sport').value          = 'soccer';
+  document.getElementById('cabinetType').value    = 'p10';
+  const sport = getSport();
+  document.getElementById('fieldLength').value    = sport.defaultLength;
+  document.getElementById('fieldWidth').value     = sport.defaultWidth;
+  document.getElementById('totalCabinets').value  = '144';
+  const compassInput = document.getElementById('compassBearingInput');
+  if (compassInput) compassInput.value = '0';
+
+  // Codec inputs
+  ['codecName','codecContainer','codecFps','codecDuration','codecBitrate','codecNotes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = el.defaultValue || '';
+  });
+  document.getElementById('codecFps').value      = '30';
+  document.getElementById('codecDuration').value = '15';
+  document.getElementById('codecContainer').value = 'mp4';
+  document.getElementById('codecName').value      = 'H.264';
+
+  // Logo
   document.getElementById('logoPreviewImg').style.display = 'none';
   document.getElementById('logoPlaceholder').style.display = '';
-  currentSport = 'soccer'; currentCabinet = 'p10';
-  document.getElementById('sport').value = 'soccer';
-  document.getElementById('cabinetType').value = 'p10';
+
+  // ── UI sync — match fresh-project state ──
+  // Layout mode → U-config
+  const layoutRadio = document.querySelector('input[name="layoutMode"][value="u"]');
+  if (layoutRadio) layoutRadio.checked = true;
+  const uSection  = document.getElementById('u-config-section');
+  const cxSection = document.getElementById('complex-config-section');
+  const mdSection = document.getElementById('modular-config-section');
+  if (uSection)  uSection.style.display  = '';
+  if (cxSection) cxSection.style.display = 'none';
+  if (mdSection) mdSection.style.display = 'none';
+  // Show all the data-hide-in-modular blocks again
+  document.querySelectorAll('[data-hide-in-modular]').forEach(el => { el.style.display = ''; });
+  // Reset modular inputs to defaults
+  const mCabT = document.getElementById('modularCabType');
+  const mW    = document.getElementById('modularCabsWide');
+  const mH    = document.getElementById('modularCabsTall');
+  if (mCabT) mCabT.value = 'p391';
+  if (mW)    mW.value    = '4';
+  if (mH)    mH.value    = '3';
+  const mGround = document.querySelector('input[name="modularMounting"][value="ground"]');
+  if (mGround) mGround.checked = true;
+
+  // Diagram view → Top-Down
+  const dvRadio = document.querySelector('input[name="diagramView"][value="topdown"]');
+  if (dvRadio) dvRadio.checked = true;
+  const isoStrokeBox = document.getElementById('isoCabStroke');
+  if (isoStrokeBox) isoStrokeBox.checked = false;
+
+  // Reverse numbering button
+  const reverseBtn = document.getElementById('reverseToggleBtn');
+  if (reverseBtn) {
+    reverseBtn.textContent = '← LEFT IS #1';
+    reverseBtn.style.borderColor = 'var(--border)';
+    reverseBtn.style.color = 'var(--text)';
+  }
+
+  // Side toggles + cabinet footprint rebuild from scratch
   buildSideToggles();
   buildCabinetFootprint();
+  renderCodecSidebarSummary();
+  updateCodecSummary();
   update();
 }
 
 // ── PAGE 1 BUILDER ───────────────────────────────────────────────────────
 function buildPage1() {
+  if (layoutMode === 'modular') return buildPage1Modular();
   const cab   = getCab();
   const sport = getSport();
   const { legendItems, fileList, totalCabs, totalFt, zoneCount } = buildZoneBreakdown();
-  const diagram = buildFieldDiagram();
+  const diagram = (diagramView === 'isometric')
+    ? buildIsometricDiagram()
+    : buildFieldDiagram();
   const clientName  = v('clientName')  || 'CLIENT NAME';
   const venueName   = v('venueName')   || 'Venue Name';
   const deadline    = v('contentDeadline');
@@ -1988,8 +3007,8 @@ function buildPage1() {
   return `<div style="display:flex;flex-direction:column;height:100%">
     <div class="p1-header">
       <div class="p1-title-block">
-        <div><span class="p1-client-name">${clientName}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
-        <div class="p1-venue">${venueName}</div>
+        <div><span class="p1-client-name">${escapeHtml(clientName)}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
+        <div class="p1-venue">${escapeHtml(venueName)}</div>
       </div>
       <div class="p1-logos">${logoHtml}<div class="p1-logo-divider"></div>${e360Html}</div>
     </div>
@@ -2004,7 +3023,7 @@ function buildPage1() {
         ${codecSpecLines()}
         <div class="spec-section-title">File Submissions Needed</div>
         <ul class="file-list" style="list-style:none;padding:0">${fileList}</ul>
-        ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${deadline}</div>`:''}
+        ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
       </div>
       <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%">
         <div class="field-diagram-wrap">
@@ -2022,22 +3041,22 @@ function buildPage1() {
       <div class="p1-footer-col">
         <div class="footer-section-title">Contact Info</div>
         <div class="contact-block">
-          <div class="contact-role">Content Manager</div>
-          <div class="contact-name">${cmName.toUpperCase()}</div>
-          <div class="contact-detail">${cmPhone}</div>
-          <div class="contact-detail">${cmEmail.toUpperCase()}</div>
+          <div class="contact-role">Creative Director</div>
+          <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(cmPhone)}</div>
+          <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
         </div>
         <div class="contact-block">
           <div class="contact-role">Technical Director</div>
-          <div class="contact-name">${tdName.toUpperCase()}</div>
-          <div class="contact-detail">${tdPhone}</div>
-          <div class="contact-detail">${tdEmail.toUpperCase()}</div>
+          <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(tdPhone)}</div>
+          <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
         </div>
       </div>
       <div class="p1-footer-col">
         <div class="footer-section-title">File Submission</div>
         <div style="font-size:12px;color:#333;margin-bottom:8px">SUBMITTING FILES TO e360 SPORT</div>
-        <a href="${submitUrl}" class="submission-link">${submitUrl}</a>
+        <a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>
         <div class="submission-step" style="margin-top:8px">STEP 1: OPEN LINK</div>
         <div class="submission-step">STEP 2: DRAG/DROP FILES</div>
         <div class="submission-step">STEP 3: ENTER YOUR NAME AND EMAIL</div>
@@ -2045,9 +3064,135 @@ function buildPage1() {
     </div>
     <div class="page-copyright">
       <span>\u00a9 Copyright ${new Date().getFullYear()}. E360 Sport. All rights Reserved.</span>
-      <span>${releaseDate!=='\u2014'?'Release Date: '+releaseDate:''}</span>
+      <span>${releaseDate!=='\u2014'?'Release Date: '+escapeHtml(releaseDate):''}</span>
       <span>Pg 1 of 1</span>
     </div>
+  </div>`;
+}
+
+// \u2500\u2500 PAGE 1 BUILDER \u2014 MODULAR LED MODE \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Single-rectangle wall, no field/perimeter. Hero diagram renders the wall;
+// spec block lists cab type / dims / pixels; SDI specs show live-input format.
+function buildPage1Modular() {
+  const cab = getModularCab();
+  const w   = Math.max(1, modularConfig.cabsWide || 1);
+  const h   = Math.max(1, modularConfig.cabsTall || 1);
+  const pxW = w * cab.pxW;
+  const pxH = h * cab.pxH;
+  const ftW = (w * cab.lengthMm) / 304.8;
+  const ftH = (h * cab.heightMm) / 304.8;
+  const aspect = pxH > 0 ? (pxW / pxH).toFixed(2) : '\u2014';
+  const ftStr = (ft) => {
+    const totalIn = ft * 12;
+    const f = Math.floor(totalIn / 12);
+    const i = (totalIn - f * 12).toFixed(1);
+    return `${f}' ${i}"`;
+  };
+
+  const clientName  = v('clientName')  || 'CLIENT NAME';
+  const venueName   = v('venueName')   || 'Venue Name';
+  const deadline    = v('contentDeadline');
+  const releaseDate = fmtDate(v('releaseDate'));
+  const cmName=v('cm_name')||'\u2014'; const cmPhone=v('cm_phone')||'\u2014'; const cmEmail=v('cm_email')||'\u2014';
+  const tdName=v('td_name')||'\u2014'; const tdPhone=v('td_phone')||'\u2014'; const tdEmail=v('td_email')||'\u2014';
+  const submitUrl = v('submitUrl') || '\u2014';
+  const logoHtml = clientLogoDataUrl
+    ? `<img src="${clientLogoDataUrl}" class="p1-client-logo" alt="Client Logo">`
+    : `<div style="width:100px;height:70px;border:1px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa">LOGO</div>`;
+  const e360Html = `<img src="${E360_LOGO}" style="height:52px;object-fit:contain;" alt="e360 Sport">`;
+
+  const diagram = buildModularLEDDiagram(620, 360);
+  const sdiLines = buildSdiSpecLines();
+
+  return `<div style="display:flex;flex-direction:column;height:100%">
+    <div class="p1-header">
+      <div class="p1-title-block">
+        <div><span class="p1-client-name">${escapeHtml(clientName)}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
+        <div class="p1-venue">${escapeHtml(venueName)}</div>
+      </div>
+      <div class="p1-logos">${logoHtml}<div class="p1-logo-divider"></div>${e360Html}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:270px 1fr;flex:1;overflow:hidden">
+      <div style="padding:10px 16px;border-right:1px solid #ddd;font-size:12px">
+        <div class="spec-section-title">General Guidelines</div>
+        <div class="spec-item">Files must conform to the specifications provided. Failure to match these specs may result in a file that does not display as intended.</div>
+        <div class="spec-section-title">Wall Specifications</div>
+        <div class="spec-item"><strong>Cabinet:</strong> ${escapeHtml(cab.name)}</div>
+        <div class="spec-item"><strong>Layout:</strong> ${w} \u00d7 ${h} cabs (${w*h} total)</div>
+        <div class="spec-item"><strong>Pixel Canvas:</strong> ${pxW} \u00d7 ${pxH} px</div>
+        <div class="spec-item"><strong>Physical:</strong> ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}</div>
+        <div class="spec-item"><strong>Aspect:</strong> ${aspect} : 1</div>
+        <div class="spec-item">Color: RGB \u00b7 Audio: None</div>
+        <div class="spec-item">Static File: JPEG/PNG</div>
+        ${codecSpecLines()}
+        <div class="spec-section-title">File Submission</div>
+        <ul class="file-list" style="list-style:none;padding:0">
+          <li>\u2022 Full Canvas: ${pxW} \u00d7 ${pxH} px</li>
+        </ul>
+        ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
+      </div>
+      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;gap:10px">
+        <div class="field-diagram-wrap" style="background:#070709;border-radius:4px">
+          ${diagram}
+        </div>
+        <div style="width:100%">
+          <div style="background:#1a1a1a;color:#fff;padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;width:100%;text-align:center">
+            ${escapeHtml(cab.name)} \u00b7 ${w}\u00d7${h} CABS \u00b7 ${pxW}\u00d7${pxH} PX \u00b7 ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}
+          </div>
+          ${sdiLines}
+        </div>
+      </div>
+    </div>
+    <div class="p1-footer">
+      <div class="p1-footer-col">
+        <div class="footer-section-title">Contact Info</div>
+        <div class="contact-block">
+          <div class="contact-role">Creative Director</div>
+          <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(cmPhone)}</div>
+          <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-role">Technical Director</div>
+          <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(tdPhone)}</div>
+          <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
+        </div>
+      </div>
+      <div class="p1-footer-col">
+        <div class="footer-section-title">File Submission</div>
+        <div style="font-size:12px;color:#333;margin-bottom:8px">SUBMITTING FILES TO e360 SPORT</div>
+        <a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>
+        <div class="submission-step" style="margin-top:8px">STEP 1: OPEN LINK</div>
+        <div class="submission-step">STEP 2: DRAG/DROP FILES</div>
+        <div class="submission-step">STEP 3: ENTER YOUR NAME AND EMAIL</div>
+      </div>
+    </div>
+    <div class="page-copyright">
+      <span>\u00a9 Copyright ${new Date().getFullYear()}. E360 Sport. All rights Reserved.</span>
+      <span>${releaseDate!=='\u2014'?'Release Date: '+escapeHtml(releaseDate):''}</span>
+      <span>Pg 1 of 1</span>
+    </div>
+  </div>`;
+}
+
+// SDI live-input spec block \u2014 printed on the modular spec sheet under the diagram.
+function buildSdiSpecLines() {
+  const sdi = modularConfig.sdi || {};
+  const rows = [
+    ['Resolution',  sdi.resolution || '\u2014'],
+    ['Frame Rate',  (sdi.fps ? sdi.fps + ' fps' : '\u2014')],
+    ['Format',      sdi.format     || '\u2014'],
+    ['Sampling',    sdi.sampling   || '\u2014'],
+    ['Bit Depth',   sdi.bitDepth   || '\u2014'],
+    ['Colorspace',  sdi.colorspace || '\u2014'],
+  ];
+  const cells = rows.map(([k, val]) =>
+    `<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #2a2a2a;font-size:11px"><span style="color:#aaa">${k}</span><span style="color:#fff;font-weight:700">${escapeHtml(val)}</span></div>`
+  ).join('');
+  return `<div style="background:#1a1a1a;color:#fff;width:100%;font-family:'Barlow Condensed',sans-serif;margin-top:6px;border:1px solid #2a2a2a">
+    <div style="padding:6px 14px;background:#0a0a0a;font-size:11px;font-weight:800;letter-spacing:2px;text-align:center;border-bottom:1px solid #2a2a2a">LIVE INPUT (SDI)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr">${cells}</div>
   </div>`;
 }
 
@@ -2097,6 +3242,10 @@ function saveProject() {
     complexSections,
     reverseNumbering,
     compassBearing,
+    diagramView,
+    isoCabStroke,
+    isoLabelOverrides,
+    modularConfig,
     zones,
     clientLogoDataUrl: typeof clientLogoDataUrl !== 'undefined' ? clientLogoDataUrl : null,
   };
@@ -2129,11 +3278,9 @@ function loadProject() {
           if (el) el.value = val;
         });
 
-        // Restore side toggles
-        Object.entries(p.sideStates || {}).forEach(([s, checked]) => {
-          const el = document.getElementById(`side_${s}`);
-          if (el) el.checked = checked;
-        });
+        // NOTE: side toggles are restored AFTER onSportChange() below — that
+        // call rebuilds the side-toggle checkboxes from scratch, which would
+        // wipe any state restored here.
 
         // Restore JS state
         layoutMode      = p.layoutMode      ?? 'u';
@@ -2141,27 +3288,63 @@ function loadProject() {
         complexSections = p.complexSections ?? [];
         reverseNumbering= p.reverseNumbering?? false;
         compassBearing  = p.compassBearing  ?? 0;
+        diagramView     = p.diagramView     ?? 'topdown';
+        isoCabStroke    = p.isoCabStroke    ?? false;
+        isoLabelOverrides = p.isoLabelOverrides ?? {};
+        if (p.modularConfig) {
+          modularConfig = {
+            cabType:  p.modularConfig.cabType  ?? 'p391',
+            cabsWide: p.modularConfig.cabsWide ?? 4,
+            cabsTall: p.modularConfig.cabsTall ?? 3,
+            mounting: p.modularConfig.mounting ?? 'ground',
+            sdi: { ...modularConfig.sdi, ...(p.modularConfig.sdi || {}) },
+          };
+        }
         zones           = p.zones           ?? [];
 
-        // Restore logo
-        if (p.clientLogoDataUrl) {
+        // Sync modular UI inputs to restored state
+        const mCabT = document.getElementById('modularCabType');
+        const mW    = document.getElementById('modularCabsWide');
+        const mH    = document.getElementById('modularCabsTall');
+        if (mCabT) mCabT.value = modularConfig.cabType;
+        if (mW)    mW.value    = modularConfig.cabsWide;
+        if (mH)    mH.value    = modularConfig.cabsTall;
+        const mMount = document.querySelector(`input[name="modularMounting"][value="${modularConfig.mounting}"]`);
+        if (mMount) mMount.checked = true;
+
+        // Sync cabinet-outlines checkbox to restored state.
+        const isoStrokeBox = document.getElementById('isoCabStroke');
+        if (isoStrokeBox) isoStrokeBox.checked = isoCabStroke;
+
+        // Sync diagram-view radio so the UI reflects the loaded state.
+        const dvRadio = document.querySelector(`input[name="diagramView"][value="${diagramView}"]`);
+        if (dvRadio) dvRadio.checked = true;
+
+        // Restore logo — strict MIME gate so a malicious .e360 cannot smuggle
+        // data:image/svg+xml,<svg onload=...> or other non-bitmap formats.
+        if (p.clientLogoDataUrl &&
+            /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p.clientLogoDataUrl)) {
           clientLogoDataUrl = p.clientLogoDataUrl;
           const previewImg  = document.getElementById('logoPreviewImg');
           const placeholder = document.getElementById('logoPlaceholder');
           if (previewImg)  { previewImg.src = clientLogoDataUrl; previewImg.style.display = ''; }
           if (placeholder)   placeholder.style.display = 'none';
+        } else if (p.clientLogoDataUrl) {
+          console.warn('Logo data URL rejected: unsupported MIME type or format');
         }
 
-        // Sync UI state
+        // Sync UI state — show only the relevant config section for the loaded mode
+        // and hide non-applicable sidebar sections (sport/zones/etc) in modular mode.
         const uSection  = document.getElementById('u-config-section');
         const cxSection = document.getElementById('complex-config-section');
-        if (layoutMode === 'complex') {
-          if (uSection)  uSection.style.display  = 'none';
-          if (cxSection) cxSection.style.display = '';
-        } else {
-          if (uSection)  uSection.style.display  = '';
-          if (cxSection) cxSection.style.display = 'none';
-        }
+        const mdSection = document.getElementById('modular-config-section');
+        if (uSection)  uSection.style.display  = layoutMode === 'u'       ? '' : 'none';
+        if (cxSection) cxSection.style.display = layoutMode === 'complex' ? '' : 'none';
+        if (mdSection) mdSection.style.display = layoutMode === 'modular' ? '' : 'none';
+        const inModular = layoutMode === 'modular';
+        document.querySelectorAll('[data-hide-in-modular]').forEach(el => {
+          el.style.display = inModular ? 'none' : '';
+        });
 
         // Sync layout mode radio button
         const layoutRadio = document.querySelector(`input[name="layoutMode"][value="${layoutMode}"]`);
@@ -2193,6 +3376,13 @@ function loadProject() {
         if (savedWidth  && document.getElementById('fieldWidth'))  document.getElementById('fieldWidth').value  = savedWidth;
         onCabinetChange();
         updateCodecSummary();
+
+        // Restore side toggles AFTER onSportChange() (which rebuilt them).
+        Object.entries(p.sideStates || {}).forEach(([s, checked]) => {
+          const el = document.getElementById(`side_${s}`);
+          if (el) el.checked = checked;
+        });
+
         update();
       } catch(err) {
         alert('Could not load project file: ' + err.message);
@@ -2207,12 +3397,107 @@ function loadProject() {
 function update() {
   if (layoutMode === 'u') {
     updateDistributionDisplay();
-  } else {
+  } else if (layoutMode === 'complex') {
     updateComplexSidebarSummary();
+  } else if (layoutMode === 'modular') {
+    updateModularSidebarSummary();
   }
   updateZoneSummary();
   document.getElementById('page1').innerHTML = buildPage1();
+  attachIsoLabelHandlers();  // works for both top-down and iso draggable labels
+}
 
+function updateModularSidebarSummary() {
+  const el = document.getElementById('modular-summary');
+  if (!el) return;
+  const cab = getModularCab();
+  const w = Math.max(1, modularConfig.cabsWide || 1);
+  const h = Math.max(1, modularConfig.cabsTall || 1);
+  const pxW = w * cab.pxW, pxH = h * cab.pxH;
+  const ftW = (w * cab.lengthMm) / 304.8;
+  const ftH = (h * cab.heightMm) / 304.8;
+  const aspect = pxH > 0 ? (pxW / pxH).toFixed(2) : '—';
+  el.innerHTML = `
+    <div><strong style="color:var(--text)">${w*h} cabs</strong> (${w}×${h})</div>
+    <div><strong style="color:var(--text)">${pxW} × ${pxH}</strong> px</div>
+    <div>${ftW.toFixed(1)}' × ${ftH.toFixed(1)}' · ${aspect}:1</div>`;
+}
+
+// Wire pointer interactions on iso labels — drag to move, wheel to rotate,
+// double-click to reset. The override is stored in `isoLabelOverrides[key]`
+// and applied on next render via renderIsoLabel().
+function attachIsoLabelHandlers() {
+  document.querySelectorAll('.iso-label').forEach(g => {
+    if (g._isoHandlersAttached) return;
+    g._isoHandlersAttached = true;
+
+    let dragging = false;
+    let startCX = 0, startCY = 0, startDx = 0, startDy = 0, sx = 1, sy = 1;
+
+    const ensureOverride = (key) => {
+      if (!isoLabelOverrides[key]) isoLabelOverrides[key] = { dx: 0, dy: 0, rot: 0 };
+      return isoLabelOverrides[key];
+    };
+    const applyTransform = (key) => {
+      const defX = parseFloat(g.dataset.defaultX);
+      const defY = parseFloat(g.dataset.defaultY);
+      const defRot = parseFloat(g.dataset.defaultRot);
+      const o = isoLabelOverrides[key];
+      g.setAttribute('transform', `translate(${(defX + o.dx).toFixed(2)},${(defY + o.dy).toFixed(2)}) rotate(${(defRot + o.rot).toFixed(2)})`);
+    };
+
+    g.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;  // only left-button drags
+      e.preventDefault();
+      e.stopPropagation();
+      const svg = g.ownerSVGElement;
+      const r = svg.getBoundingClientRect();
+      // Convert client-pixel deltas → SVG-user-unit deltas (handles CSS scaling).
+      sx = svg.width.baseVal.value / Math.max(r.width, 1);
+      sy = svg.height.baseVal.value / Math.max(r.height, 1);
+      const o = ensureOverride(g.dataset.labelKey);
+      startDx = o.dx; startDy = o.dy;
+      startCX = e.clientX; startCY = e.clientY;
+      dragging = true;
+      g.style.cursor = 'grabbing';
+      g.setPointerCapture(e.pointerId);
+    });
+
+    g.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const key = g.dataset.labelKey;
+      const o = isoLabelOverrides[key];
+      o.dx = startDx + (e.clientX - startCX) * sx;
+      o.dy = startDy + (e.clientY - startCY) * sy;
+      applyTransform(key);
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      g.style.cursor = 'grab';
+      try { g.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    g.addEventListener('pointerup', endDrag);
+    g.addEventListener('pointercancel', endDrag);
+
+    g.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = g.dataset.labelKey;
+      const o = ensureOverride(key);
+      // 5° per wheel notch; deltaY > 0 = scroll down = rotate clockwise (+5)
+      o.rot += e.deltaY > 0 ? 5 : -5;
+      applyTransform(key);
+    }, { passive: false });
+
+    g.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      delete isoLabelOverrides[g.dataset.labelKey];
+      update();
+    });
+  });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────
@@ -2266,13 +3551,24 @@ const CODEC_PRESETS = {
 };
 
 function openCodecModal() {
-  // Populate fields from current state
+  // Populate codec fields from current state
   document.getElementById('codecName').value      = codecSettings.codec;
   document.getElementById('codecContainer').value = codecSettings.container;
   document.getElementById('codecFps').value       = codecSettings.fps;
   document.getElementById('codecDuration').value  = codecSettings.duration;
   document.getElementById('codecBitrate').value   = codecSettings.bitrate;
   document.getElementById('codecNotes').value     = codecSettings.notes;
+  // Populate SDI fields and only show them in modular layout mode
+  const sdiSec = document.getElementById('sdi-section');
+  if (sdiSec) sdiSec.style.display = (layoutMode === 'modular') ? '' : 'none';
+  const sdi = modularConfig.sdi || {};
+  const setSel = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  setSel('sdiResolution', sdi.resolution);
+  setSel('sdiFps',        sdi.fps);
+  setSel('sdiFormat',     sdi.format);
+  setSel('sdiSampling',   sdi.sampling);
+  setSel('sdiBitDepth',   sdi.bitDepth);
+  setSel('sdiColorspace', sdi.colorspace);
   updateCodecPresetHighlight();
   updateCodecPreview();
   document.getElementById('codecModal').classList.add('open');
@@ -2358,12 +3654,12 @@ function codecSpecLines() {
   const durStr = mins > 0 ? `${mins}:${String(secs).padStart(2,'0')}` : `0:${String(secs).padStart(2,'0')}`;
   const durationLabel = `${durStr} (${duration} second${duration !== 1 ? 's' : ''})`;
 
-  let lines = `<div class="spec-item" style="margin-top:4px"><strong>Video File Format: .${ext}</strong></div>`;
-  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Duration: ${durationLabel}</div>`;
-  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Frame Rate: ${fps} fps</div>`;
+  let lines = `<div class="spec-item" style="margin-top:4px"><strong>Video File Format: .${escapeHtml(ext)}</strong></div>`;
+  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Duration: ${escapeHtml(durationLabel)}</div>`;
+  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Frame Rate: ${escapeHtml(fps)} fps</div>`;
   lines += `<div class="spec-item" style="padding-left:8px">\u2014 Aspect Ratio: Square Pixels</div>`;
-  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Video Codec: ${codec}${bitrate ? ' \u2014 ' + bitrate : ''}</div>`;
-  if (notes) lines += `<div class="spec-item" style="padding-left:8px"><strong>\u2014 ${notes}</strong></div>`;
+  lines += `<div class="spec-item" style="padding-left:8px">\u2014 Video Codec: ${escapeHtml(codec)}${bitrate ? ' \u2014 ' + escapeHtml(bitrate) : ''}</div>`;
+  if (notes) lines += `<div class="spec-item" style="padding-left:8px"><strong>\u2014 ${escapeHtml(notes)}</strong></div>`;
   return lines;
 }
 
@@ -2377,19 +3673,19 @@ function codecExportBlock(app) {
 
   let steps = '';
   if (isAE) {
-    steps += `<span style="color:#888">1.</span><span>Format: <strong>.${ext} (${codec})</strong></span>`;
-    if (bitrate) steps += `<span style="color:#888">2.</span><span>Format Options: <strong>${bitrate}</strong></span>`;
+    steps += `<span style="color:#888">1.</span><span>Format: <strong>.${escapeHtml(ext)} (${escapeHtml(codec)})</strong></span>`;
+    if (bitrate) steps += `<span style="color:#888">2.</span><span>Format Options: <strong>${escapeHtml(bitrate)}</strong></span>`;
     steps += `<span style="color:#888">${bitrate?'3':'2'}.</span><span>Resize to correct dimensions, <strong>no crop</strong></span>`;
     steps += `<span style="color:#888">${bitrate?'4':'3'}.</span><span>Audio Output: <strong>Off</strong></span>`;
   } else {
     steps += `<span style="color:#888">1.</span><span>Select export settings</span>`;
-    steps += `<span style="color:#888">2.</span><span>Format: <strong>.${ext} (${codec})</strong></span>`;
+    steps += `<span style="color:#888">2.</span><span>Format: <strong>.${escapeHtml(ext)} (${escapeHtml(codec)})</strong></span>`;
     steps += `<span style="color:#888">3.</span><span>Export Video only \u2014 <strong>no audio</strong></span>`;
-    steps += `<span style="color:#888">4.</span><span>Frame Rate: <strong>${fps}</strong></span>`;
+    steps += `<span style="color:#888">4.</span><span>Frame Rate: <strong>${escapeHtml(fps)}</strong></span>`;
   }
 
-  const aeNote = `After Effects won\u2019t save export settings \u2014 must be adjusted for each file. All files must be ${codec} (.${container}). Ensure dimensions match exactly and <strong>audio output is off</strong>.`;
-  const meNote = `For larger batches, a preset can be saved in Media Encoder. All files must be ${codec} (.${container}). Ensure dimensions match exactly and <strong>audio output is off</strong>.`;
+  const aeNote = `After Effects won\u2019t save export settings \u2014 must be adjusted for each file. All files must be ${escapeHtml(codec)} (.${escapeHtml(container)}). Ensure dimensions match exactly and <strong>audio output is off</strong>.`;
+  const meNote = `For larger batches, a preset can be saved in Media Encoder. All files must be ${escapeHtml(codec)} (.${escapeHtml(container)}). Ensure dimensions match exactly and <strong>audio output is off</strong>.`;
 
   return { title, subTitle, steps, note: isAE ? aeNote : meNote, codec, container, fps };
 }
@@ -2412,10 +3708,10 @@ function buildPage2Body() {
         <div class="p2-section-title" style="margin-top:16px">Common Errors</div>
         <ul class="p2-list">
           <li>Audio channel in file</li>
-          <li>Frame rate not ${fps}fps</li>
+          <li>Frame rate not ${escapeHtml(fps)}fps</li>
           <li>Wrong dimensions or canvas size</li>
-          <li>Wrong container (.${container} required)</li>
-          <li>Wrong codec (${codec} required)</li>
+          <li>Wrong container (.${escapeHtml(container)} required)</li>
+          <li>Wrong codec (${escapeHtml(codec)} required)</li>
           <li>Content not filling entire canvas</li>
         </ul>
       </div>
@@ -2430,9 +3726,9 @@ function buildPage2Body() {
         <div class="p2-faq-q">Q: What happens if there is an audio channel but no sound in the file?</div>
         <div class="p2-faq-a">A: The system shows an error message detecting an audio channel even when silent.</div>
         <div class="p2-faq-q">Q: Can I use a different codec or container?</div>
-        <div class="p2-faq-a">A: No. Files must be ${codec} (.${container}) to display correctly on our system.</div>
+        <div class="p2-faq-a">A: No. Files must be ${escapeHtml(codec)} (.${escapeHtml(container)}) to display correctly on our system.</div>
         <div class="p2-faq-q">Q: Can I use a different frame rate?</div>
-        <div class="p2-faq-a">A: No. Files must be exactly ${fps}fps to display correctly.</div>
+        <div class="p2-faq-a">A: No. Files must be exactly ${escapeHtml(fps)}fps to display correctly.</div>
       </div>
     </div>`;
 }
@@ -2441,9 +3737,30 @@ function buildPage2Body() {
 // COMPLEX LAYOUT SYSTEM
 // ══════════════════════════════════════════════════════════════════════════
 
-let layoutMode    = 'u';   // 'u' | 'complex'
+let layoutMode    = 'u';   // 'u' | 'complex' | 'modular'
 let complexUnit   = 'ft';  // 'ft' | 'yd' | 'm'
 let compassBearing = 0;    // degrees, 0 = N up
+let diagramView   = 'topdown';  // 'topdown' | 'isometric'
+let isoCabStroke  = false;       // iso-view cabinet outlines on/off (default off → solid blocks)
+// Iso-view per-strip/section label overrides — { 'south': {dx, dy, rot}, ... }
+// Populated when user drags / scrolls labels in iso view; persisted with project.
+let isoLabelOverrides = {};
+// Modular LED state — single rectangular wall, no field/perimeter metaphor.
+let modularConfig = {
+  cabType:  'p391',     // any key from CABINETS
+  cabsWide: 4,
+  cabsTall: 3,
+  mounting: 'ground',   // 'ground' | 'chains' — affects wall diagram rendering only
+  sdi: {
+    resolution: '1920×1080',
+    fps:        '60',
+    format:     '3G-SDI',
+    sampling:   '4:2:2',
+    bitDepth:   '10-bit',
+    colorspace: 'Rec. 709',
+  }
+};
+function getModularCab() { return CABINETS[modularConfig.cabType] || getCab(); }
 let complexSections = [];
 // Section shape: { name, side, count, offset, direction }
 //   side:      'south'|'north'|'east'|'west'
@@ -2473,8 +3790,15 @@ function setLayoutMode(mode) {
   layoutMode = mode;
   const uSec  = document.getElementById('u-config-section');
   const cxSec = document.getElementById('complex-config-section');
-  if (uSec)  uSec.style.display  = mode === 'u' ? '' : 'none';
+  const mdSec = document.getElementById('modular-config-section');
+  if (uSec)  uSec.style.display  = mode === 'u'       ? '' : 'none';
   if (cxSec) cxSec.style.display = mode === 'complex' ? '' : 'none';
+  if (mdSec) mdSec.style.display = mode === 'modular' ? '' : 'none';
+  // Modular has no field/sport/zone metaphor — hide those sidebar blocks too.
+  const inModular = mode === 'modular';
+  document.querySelectorAll('[data-hide-in-modular]').forEach(el => {
+    el.style.display = inModular ? 'none' : '';
+  });
   zones = []; // clear zones when switching layout modes
   updateComplexSidebarSummary();
   update();
@@ -2544,6 +3868,40 @@ function applyComplexLayout() {
   update();
 }
 
+// ── CREATE ZONES FROM SECTIONS ────────────────────────────────────────────
+// One-click utility: build a zone for each complex section, using the section's
+// name + start/end cab numbers. Cycles through ZONE_COLORS for distinct colors.
+// If zones already exist, prompts before replacing.
+function createZonesFromSections() {
+  if (!complexSections || complexSections.length === 0) {
+    alert('No sections defined. Add complex sections first.');
+    return;
+  }
+  if (zones.length > 0) {
+    if (!confirm(`This will replace your existing ${zones.length} zone(s) with one zone per section. Continue?`)) return;
+  }
+  const newZones = [];
+  for (let si = 0; si < complexSections.length; si++) {
+    const sec = complexSections[si];
+    const n = parseInt(sec.count) || 0;
+    if (n <= 0) continue;
+    const startCab = getSectionStartCab(si);
+    const endCab   = startCab + n - 1;
+    newZones.push({
+      name: sec.name || `Section ${si + 1}`,
+      color: ZONE_COLORS[newZones.length % ZONE_COLORS.length],
+      first: startCab,
+      last:  endCab,
+      doubleStacked: false,
+    });
+  }
+  zones = newZones;
+  // Reset any iso/td label overrides since zone keys change with new zone set
+  isoLabelOverrides = {};
+  update();
+  updateZoneSummary();
+}
+
 // ── SECTION CRUD ──────────────────────────────────────────────────────────
 function addCxSection() {
   const idx = complexSections.length;
@@ -2591,6 +3949,17 @@ function moveCxSection(idx, dir) {
   renderCxDiagram();
 }
 
+// Move a section to position 0 → its cabs get path indices starting at #1.
+// Direction (fwd/rev) is preserved: cab #1 lands at the start (fwd) or end (rev)
+// of the moved section based on the user's existing direction setting.
+function setSectionAsPathStart(idx) {
+  if (idx <= 0 || idx >= complexSections.length) return;
+  const sec = complexSections.splice(idx, 1)[0];
+  complexSections.unshift(sec);
+  renderCxSections();
+  renderCxDiagram();
+}
+
 // ── RENDER SECTION LIST (left panel) ─────────────────────────────────────
 function renderCxSections() {
   const container = document.getElementById('cx-section-list');
@@ -2616,9 +3985,10 @@ function renderCxSections() {
         <div class="cxs-order-btns">
           <button onclick="moveCxSection(${i},-1)" title="Move up" ${i===0?'disabled':''}>▲</button>
           <button onclick="moveCxSection(${i},1)"  title="Move down" ${i===complexSections.length-1?'disabled':''}>▼</button>
+          <button onclick="setSectionAsPathStart(${i})" title="Make this section the path start (cab #1 lands in this section based on its direction setting)" ${i===0?'disabled':''}>⏫</button>
         </div>
         <div class="cxs-number">${i+1}</div>
-        <input class="cxs-name-input" value="${sec.name}" onchange="updateCxSection(${i},'name',this.value)">
+        <input class="cxs-name-input" value="${escapeHtml(sec.name)}" onchange="updateCxSection(${i},'name',this.value)">
         <button class="cxs-delete-btn" onclick="removeCxSection(${i})" title="Remove">✕</button>
       </div>
       <div class="two-col" style="margin-bottom:6px">
@@ -2672,32 +4042,71 @@ function renderCxSections() {
 }
 
 // ── COMPLEX SECTION SVG GEOMETRY ─────────────────────────────────────────
-function computeCxSectionSvg(sec, sc, fieldX, fieldY, fieldW_svg, fieldH_svg, cabLen_svg, strip) {
-  const fieldDistFt = complexToFt(sec.fieldDist !== undefined ? sec.fieldDist : 10);
-  const offsetFt = complexToFt(sec.offset || 0);
+// Single source of truth for complex-section geometry.
+// Returns scene-space ft positioning + per-section cab length + isTall flag.
+// Frame: field's top-left at (0, 0); field's bottom-right at (fL_ft, fW_ft).
+// Both top-down (via computeCxSectionSvg wrapper) and iso (directly) consume this
+// — keeping the math in one place prevents drift between the two views.
+function computeCxSectionScene(sec, sectionIdx) {
   const n = parseInt(sec.count) || 0;
+  if (n <= 0 || !sec.side) return null;
+  const offsetFt    = complexToFt(sec.offset || 0);
+  const fieldDistFt = complexToFt(sec.fieldDist !== undefined ? sec.fieldDist : 10);
+  const fL_ft       = vn('fieldLength');
+  const fW_ft       = vn('fieldWidth');
+  const secCab      = getCxSectionCab(sec);
+  const secCf       = secCab.lengthMm / 304.8;
+  const dir         = sec.direction === 'rev' ? -1 : 1;
+
+  // Stacked detection: any zone overlapping this section's cab range with doubleStacked?
+  const startCab = getSectionStartCab(sectionIdx);
+  const endCab   = startCab + n - 1;
+  const isTall = zones.some(z => z.doubleStacked &&
+    Math.max(Math.min(z.first, z.last), startCab) <= Math.min(Math.max(z.first, z.last), endCab));
+
+  const base = { sec, sectionIdx, n, secCf, secCab, isTall, dir, startCab, endCab };
 
   if (sec.side === 'south') {
-    const cy = fieldY + fieldH_svg + fieldDistFt * sc;
-    const startX = fieldX + offsetFt * sc;
-    return { orientation: 'H', cy, startX, n, strip };
+    return { ...base, orientation: 'H', side: 'south',
+             startXft: offsetFt, edgeYft: fW_ft + fieldDistFt };
   }
   if (sec.side === 'north') {
-    const cy = fieldY - fieldDistFt * sc;
-    const startX = fieldX + offsetFt * sc;
-    return { orientation: 'H', cy, startX, n, strip };
+    return { ...base, orientation: 'H', side: 'north',
+             startXft: offsetFt, edgeYft: -fieldDistFt };
   }
   if (sec.side === 'east') {
-    const cx = fieldX + fieldW_svg + fieldDistFt * sc;
-    const startY = fieldY + fieldH_svg - offsetFt * sc;
-    return { orientation: 'V', cx, startY, n, strip };
+    // Run anchored at south corner (offset measured from south edge going north).
+    return { ...base, orientation: 'V', side: 'east',
+             edgeXft: fL_ft + fieldDistFt, startYft: fW_ft - offsetFt };
   }
   if (sec.side === 'west') {
-    const cx = fieldX - fieldDistFt * sc;
-    const startY = fieldY + fieldH_svg - offsetFt * sc;
-    return { orientation: 'V', cx, startY, n, strip };
+    return { ...base, orientation: 'V', side: 'west',
+             edgeXft: -fieldDistFt, startYft: fW_ft - offsetFt };
   }
   return null;
+}
+
+// SVG-pixel wrapper around computeCxSectionScene — preserves existing API.
+function computeCxSectionSvg(sec, sectionIdx, sc, fieldX, fieldY, fieldW_svg, fieldH_svg, cabLen_svg, strip) {
+  const scene = computeCxSectionScene(sec, sectionIdx);
+  if (!scene) return null;
+  if (scene.orientation === 'H') {
+    return {
+      orientation: 'H',
+      cy: fieldY + scene.edgeYft * sc,
+      startX: fieldX + scene.startXft * sc,
+      n: scene.n,
+      strip,
+    };
+  } else {
+    return {
+      orientation: 'V',
+      cx: fieldX + scene.edgeXft * sc,
+      startY: fieldY + scene.startYft * sc,
+      n: scene.n,
+      strip,
+    };
+  }
 }
 
 // For a physical index in the strip, return the cab number
@@ -2712,7 +4121,6 @@ function cxPhysToCab(sec, sectionIdx, physIdx) {
 function computeCxScenePadding() {
   const fL = vn('fieldLength');
   const fW = vn('fieldWidth');
-  const cf = cabLenFt();
   const PAD = 6; // minimum padding ft beyond outermost section
 
   let extraLeft = 10, extraRight = 10, extraTop = 10, extraBottom = 10;
@@ -2722,7 +4130,9 @@ function computeCxScenePadding() {
     if (!n) continue;
     const fd  = complexToFt(sec.fieldDist !== undefined ? sec.fieldDist : 10);
     const off = complexToFt(sec.offset || 0);
-    const len = n * cf;
+    // Use the SECTION's cab length, not the global, so mixed-cab layouts size scene correctly.
+    const secCf = getCxSectionCab(sec).lengthMm / 304.8;
+    const len = n * secCf;
 
     if (sec.side === 'south') {
       extraBottom = Math.max(extraBottom, fd + PAD);
@@ -2775,7 +4185,9 @@ function buildComplexFieldDiagram(svgW, svgH) {
 
   const SIDE_COLORS = { south:'#c8a830', north:'#c8a830', east:'#5588bb', west:'#5588bb' };
 
-  let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+  // Data attributes expose the scene→SVG transform for the modal preview's
+  // drag-handler code (attachCxSectionHandlers). Harmless on the published spec sheet.
+  let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif" data-cx-sc="${sc}" data-cx-fieldx="${fieldX}" data-cx-fieldy="${fieldY}" data-cx-fieldw="${fieldW}" data-cx-fieldh="${fieldH}">`;
 
   // Field base — volleyball uses green free zone as outer color; football draws its own grass
   const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : sport.fieldColor;
@@ -2823,10 +4235,17 @@ function buildComplexFieldDiagram(svgW, svgH) {
     const secCf         = secCab.lengthMm / 304.8;
     const secCabLen_svg = secCf * sc;
     const secStrip      = Math.max(6, Math.min(secCabLen_svg * 0.35, 14));
-    const pos = computeCxSectionSvg(sec, sc, fieldX, fieldY, fieldW, fieldH, secCabLen_svg, secStrip);
+    const pos = computeCxSectionSvg(sec, si, sc, fieldX, fieldY, fieldW, fieldH, secCabLen_svg, secStrip);
     if (!pos) continue;
     const defaultColor = SIDE_COLORS[sec.side] || '#c8a830';
     const startCab = getSectionStartCab(si);
+
+    // Per-section SVG — wrapped in a <g class="cx-sec-group"> so the modal
+    // preview's drag handlers (attachCxSectionHandlers) can target it.
+    // Cab number labels go INSIDE the group so they translate with the section
+    // during a drag, instead of snapping into place only after pointerup.
+    let secSvg = '';
+    const showCabNums = document.getElementById('showCabNumbers')?.checked !== false;
 
     for (let physIdx = 0; physIdx < n; physIdx++) {
       const cabNum = cxPhysToCab(sec, si, physIdx);
@@ -2835,22 +4254,22 @@ function buildComplexFieldDiagram(svgW, svgH) {
       if (pos.orientation === 'H') {
         const x = pos.startX + physIdx * secCabLen_svg;
         const y = pos.cy - secStrip / 2;
-        svg += `<rect x="${(x+0.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen_svg-0.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
-        if (cabNum === startCab || cabNum === startCab + n - 1) {
+        secSvg += `<rect x="${(x+0.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen_svg-0.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        if (showCabNums && (cabNum === startCab || cabNum === startCab + n - 1)) {
           const cx2 = x + secCabLen_svg / 2;
           const isEnd = (cabNum===1||cabNum===totalCabs);
-          labelsSvg += `<text x="${cx2.toFixed(1)}" y="${(y+secStrip+11).toFixed(1)}" text-anchor="middle" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#333'}" font-weight="${isEnd?'800':'600'}" font-family="Barlow Condensed,sans-serif">${cabNum}</text>`;
+          secSvg += `<text x="${cx2.toFixed(1)}" y="${(y+secStrip+11).toFixed(1)}" text-anchor="middle" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#333'}" font-weight="${isEnd?'800':'600'}" font-family="Barlow Condensed,sans-serif">${cabNum}</text>`;
         }
       } else {
         const x = pos.cx - secStrip / 2;
         const y = pos.startY - (physIdx + 1) * secCabLen_svg;
-        svg += `<rect x="${x.toFixed(1)}" y="${(y+0.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen_svg-0.6).toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
-        if (cabNum === startCab || cabNum === startCab + n - 1) {
+        secSvg += `<rect x="${x.toFixed(1)}" y="${(y+0.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen_svg-0.6).toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        if (showCabNums && (cabNum === startCab || cabNum === startCab + n - 1)) {
           const cy2 = y + secCabLen_svg / 2;
           const isEnd = (cabNum===1||cabNum===totalCabs);
           const tx = sec.side === 'east' ? pos.cx + secStrip/2 + 10 : pos.cx - secStrip/2 - 10;
           const anchor = sec.side === 'east' ? 'start' : 'end';
-          labelsSvg += `<text x="${tx.toFixed(1)}" y="${(cy2+3).toFixed(1)}" text-anchor="${anchor}" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#333'}" font-weight="${isEnd?'800':'600'}" font-family="Barlow Condensed,sans-serif">${cabNum}</text>`;
+          secSvg += `<text x="${tx.toFixed(1)}" y="${(cy2+3).toFixed(1)}" text-anchor="${anchor}" font-size="${isEnd?9:7}" fill="${isEnd?'#00c8f0':'#333'}" font-weight="${isEnd?'800':'600'}" font-family="Barlow Condensed,sans-serif">${cabNum}</text>`;
         }
       }
     }
@@ -2871,21 +4290,22 @@ function buildComplexFieldDiagram(svgW, svgH) {
         const labelY = sec.side === 'south'
           ? pos.cy + secStrip/2 + 12
           : pos.cy - secStrip/2 - 4;
-        svg += `<text x="${midX.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+        secSvg += `<text x="${midX.toFixed(1)}" y="${labelY.toFixed(1)}" text-anchor="middle" font-size="${lsz}" fill="#1a1a1a" font-weight="700" font-family="Barlow Condensed,sans-serif">${escapeHtml(label)}</text>`;
       } else {
         const midY = pos.startY - (n * secCabLen_svg) / 2;
         const labelX = sec.side === 'east'
           ? pos.cx + secStrip/2 + 26
           : pos.cx - secStrip/2 - 26;
         const anchor = sec.side === 'east' ? 'start' : 'end';
-        svg += `<text x="${labelX.toFixed(1)}" y="${(midY+3).toFixed(1)}" text-anchor="${anchor}" font-size="${lsz}" fill="#1a1a1a" font-weight="700" font-family="Barlow Condensed,sans-serif">${label}</text>`;
+        secSvg += `<text x="${labelX.toFixed(1)}" y="${(midY+3).toFixed(1)}" text-anchor="${anchor}" font-size="${lsz}" fill="#1a1a1a" font-weight="700" font-family="Barlow Condensed,sans-serif">${escapeHtml(label)}</text>`;
       }
     }
+
+    svg += `<g class="cx-sec-group" id="svgSec_${si}">${secSvg}</g>`;
   }
 
 
-  if (document.getElementById('showCabNumbers')?.checked !== false)
-    svg += labelsSvg;
+  // (cab number labels now live inside each section's <g> so they translate with the section during drag)
 
   // Compass
   const cx2 = svgW - 20, cy2 = svgH - 20;
@@ -2961,7 +4381,7 @@ function renderComplexZoneDiagram() {
     const secCf         = secCab.lengthMm / 304.8;
     const secCabLen_svg = secCf * sc;
     const secSTRIP      = Math.max(8, Math.min(secCabLen_svg * 0.4, 20));
-    const pos = computeCxSectionSvg(sec, sc, fieldX, fieldY, fieldW, fieldH, secCabLen_svg, secSTRIP);
+    const pos = computeCxSectionSvg(sec, si, sc, fieldX, fieldY, fieldW, fieldH, secCabLen_svg, secSTRIP);
     if (!pos) continue;
     const defaultColor = SIDE_COLORS[sec.side] || '#c8a830';
 
@@ -3066,6 +4486,171 @@ function renderCxDiagram() {
     return;
   }
   el.innerHTML = buildComplexFieldDiagram(700, 440);
+  attachCxSectionHandlers();
+}
+
+// Drag-to-position + hover-side-picker handlers for sections in the complex
+// modal preview. Drag = move along the current side (offset along the edge +
+// fieldDist toward/away from field). Hover = show a small side-picker popup
+// to move the section to a different edge. Double-click = reset offset/fieldDist.
+// Disabled in cab-pick mode.
+let cxSidePickerSecIdx = -1;
+let cxSidePickerHideTimer = null;
+
+function ensureCxSidePicker() {
+  if (document.getElementById('cx-side-picker')) return;
+  const div = document.createElement('div');
+  div.id = 'cx-side-picker';
+  div.style.cssText = 'position:absolute;display:none;background:#1a1a1a;border:1px solid #444;border-radius:4px;padding:5px 6px;z-index:10000;font-family:Barlow Condensed,sans-serif;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.5)';
+  div.innerHTML = `
+    <div style="font-size:9px;color:#888;letter-spacing:1.5px;text-align:center;margin-bottom:4px">MOVE TO SIDE</div>
+    <div style="display:grid;grid-template-columns:repeat(4,28px);gap:3px">
+      <button data-side="north" style="background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:3px;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">N</button>
+      <button data-side="east"  style="background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:3px;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">E</button>
+      <button data-side="south" style="background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:3px;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">S</button>
+      <button data-side="west"  style="background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:3px;padding:5px 0;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">W</button>
+    </div>`;
+  document.body.appendChild(div);
+  div.addEventListener('mouseenter', () => { if (cxSidePickerHideTimer) { clearTimeout(cxSidePickerHideTimer); cxSidePickerHideTimer = null; } });
+  div.addEventListener('mouseleave', scheduleHideCxSidePicker);
+  div.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-side]');
+    if (!btn) return;
+    const idx = cxSidePickerSecIdx;
+    if (idx < 0 || !complexSections[idx]) return;
+    complexSections[idx].side = btn.dataset.side;
+    hideCxSidePicker();
+    renderCxSections();
+    renderCxDiagram();
+  });
+}
+function showCxSidePicker(idx, gEl) {
+  cxSidePickerSecIdx = idx;
+  if (cxSidePickerHideTimer) { clearTimeout(cxSidePickerHideTimer); cxSidePickerHideTimer = null; }
+  const div = document.getElementById('cx-side-picker');
+  if (!div || !gEl) return;
+  const sec = complexSections[idx];
+  if (!sec) return;
+  // Highlight the current side button
+  div.querySelectorAll('button[data-side]').forEach(b => {
+    const isCur = b.dataset.side === sec.side;
+    b.style.background  = isCur ? '#c8a830' : '#2a2a2a';
+    b.style.color       = isCur ? '#000'    : '#fff';
+    b.style.borderColor = isCur ? '#c8a830' : '#555';
+  });
+  const bbox = gEl.getBoundingClientRect();
+  // Position above the section's bounding box, centered horizontally.
+  // If clipped at the top, flip to below.
+  const pickerW = 130, pickerH = 50;
+  let left = bbox.left + bbox.width/2 - pickerW/2 + window.scrollX;
+  let top  = bbox.top - pickerH - 6 + window.scrollY;
+  if (top < window.scrollY + 4) top = bbox.bottom + 6 + window.scrollY;
+  div.style.left = `${Math.round(left)}px`;
+  div.style.top  = `${Math.round(top)}px`;
+  div.style.display = 'block';
+}
+function scheduleHideCxSidePicker() {
+  if (cxSidePickerHideTimer) clearTimeout(cxSidePickerHideTimer);
+  cxSidePickerHideTimer = setTimeout(hideCxSidePicker, 250);
+}
+function hideCxSidePicker() {
+  if (cxSidePickerHideTimer) { clearTimeout(cxSidePickerHideTimer); cxSidePickerHideTimer = null; }
+  const div = document.getElementById('cx-side-picker');
+  if (div) div.style.display = 'none';
+  cxSidePickerSecIdx = -1;
+}
+
+function attachCxSectionHandlers() {
+  if (typeof pickMode !== 'undefined' && pickMode !== null) { hideCxSidePicker(); return; }
+  const groups = document.querySelectorAll('#cx-diagram-area .cx-sec-group');
+  if (!groups.length) { hideCxSidePicker(); return; }
+  const svg = groups[0].ownerSVGElement;
+  if (!svg) return;
+  const sc = parseFloat(svg.dataset.cxSc || '0');
+  if (!sc) return;
+  ensureCxSidePicker();
+
+  groups.forEach(g => {
+    const idx = parseInt(g.id.replace('svgSec_', ''));
+    if (isNaN(idx) || !complexSections[idx]) return;
+    const sec = complexSections[idx];
+    g.style.cursor = 'move';
+    // Each cab rect inside has inline cursor:pointer baked in by buildComplexFieldDiagram
+    // for the spec-sheet output. Override here so the modal preview shows the drag cursor.
+    g.querySelectorAll('rect').forEach(r => { r.style.cursor = 'move'; });
+
+    let dragging = false;
+    let startCX = 0, startCY = 0;
+    let startOffsetFt = 0, startFieldDistFt = 0;
+    let svgScaleX = 1, svgScaleY = 1;
+    let liveOffsetFt = 0, liveFieldDistFt = 0;
+
+    g.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hideCxSidePicker();
+      const r = svg.getBoundingClientRect();
+      svgScaleX = svg.width.baseVal.value  / Math.max(r.width, 1);
+      svgScaleY = svg.height.baseVal.value / Math.max(r.height, 1);
+      startCX = e.clientX; startCY = e.clientY;
+      startOffsetFt    = complexToFt(sec.offset || 0);
+      startFieldDistFt = complexToFt(sec.fieldDist !== undefined ? sec.fieldDist : 10);
+      liveOffsetFt    = startOffsetFt;
+      liveFieldDistFt = startFieldDistFt;
+      dragging = true;
+      g.setPointerCapture(e.pointerId);
+    });
+
+    g.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dxPx = (e.clientX - startCX) * svgScaleX;
+      const dyPx = (e.clientY - startCY) * svgScaleY;
+      const dxFt = dxPx / sc;
+      const dyFt = dyPx / sc;
+      // Drag is constrained to the section's CURRENT side. Mapping (Δx,Δy) →
+      // (Δoffset, ΔfieldDist) depends on which edge the section sits on.
+      let dOff = 0, dDist = 0;
+      if (sec.side === 'south')      { dOff =  dxFt; dDist =  dyFt; }
+      else if (sec.side === 'north') { dOff =  dxFt; dDist = -dyFt; }
+      else if (sec.side === 'east')  { dOff = -dyFt; dDist =  dxFt; }
+      else                            { dOff = -dyFt; dDist = -dxFt; }
+      liveOffsetFt    = startOffsetFt    + dOff;
+      liveFieldDistFt = Math.max(0, startFieldDistFt + dDist);
+      // Live preview: just translate the group by raw mouse delta. The persisted
+      // offset/fieldDist gets applied on pointerup via a re-render.
+      g.setAttribute('transform', `translate(${dxPx},${dyPx})`);
+    });
+
+    const endDrag = e => {
+      if (!dragging) return;
+      dragging = false;
+      try { g.releasePointerCapture(e.pointerId); } catch(_) {}
+      g.removeAttribute('transform');
+      sec.offset    = parseFloat(ftToComplex(liveOffsetFt));
+      sec.fieldDist = parseFloat(ftToComplex(liveFieldDistFt));
+      renderCxSections();
+      renderCxDiagram();
+    };
+    g.addEventListener('pointerup', endDrag);
+    g.addEventListener('pointercancel', endDrag);
+
+    // Hover → show side picker dropdown above the section
+    g.addEventListener('mouseenter', () => {
+      if (dragging) return;
+      showCxSidePicker(idx, g);
+    });
+    g.addEventListener('mouseleave', scheduleHideCxSidePicker);
+
+    g.addEventListener('dblclick', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      sec.offset = 0;
+      sec.fieldDist = parseFloat(ftToComplex(10));
+      renderCxSections();
+      renderCxDiagram();
+    });
+  });
 }
 
 // ── COMPLEX SIDEBAR SUMMARY ───────────────────────────────────────────────
@@ -3097,12 +4682,17 @@ function buildComplexZoneBreakdown() {
 
   if (zones.length > 0) {
     for (const z of zones) {
-      const count = Math.abs(z.last - z.first) + 1;
-      const px = zonePixelsComplex(z.first, z.last, z.doubleStacked);
+      // Clip zone range to actual path total — protects published specs against
+      // stale zone defs whose `last` extends past the physical cab count.
+      const lo = Math.min(z.first, z.last);
+      const hi = Math.min(Math.max(z.first, z.last), total);
+      const count = Math.max(0, hi - lo + 1);
+      if (count === 0) continue;
+      const px = zonePixelsComplex(lo, hi, z.doubleStacked);
       totalCabs += z.doubleStacked ? count * 2 : count;
       totalFt   += count * cf;
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${z.color}"></div><span>${z.name} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} × ${px.h}px</span></div>`;
-      fileList    += `<li>• ${z.name}: ${px.w} × ${px.h} px</li>`;
+      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${escapeHtml(z.color)}"></div><span>${escapeHtml(z.name)} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} × ${px.h}px</span></div>`;
+      fileList    += `<li>• ${escapeHtml(z.name)}: ${px.w} × ${px.h} px</li>`;
     }
   } else {
     // Fall back to section-by-section
@@ -3114,8 +4704,8 @@ function buildComplexZoneBreakdown() {
       totalCabs += n;
       totalFt   += n * cf;
       const color = SIDE_COLORS[sec.side] || '#c8a830';
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${color}"></div><span>${sec.name} // ${n} CABINETS // ${px.w} × ${px.h}px</span></div>`;
-      fileList    += `<li>• ${sec.name}: ${px.w} × ${px.h} px</li>`;
+      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${color}"></div><span>${escapeHtml(sec.name)} // ${n} CABINETS // ${px.w} × ${px.h}px</span></div>`;
+      fileList    += `<li>• ${escapeHtml(sec.name)}: ${px.w} × ${px.h} px</li>`;
     });
   }
   const zoneCount = legendItems.split('zone-legend-row').length - 1;
@@ -3356,8 +4946,8 @@ function renderZoneEntries() {
     <div class="zone-entry${(isPickingStart||isPickingEnd)?' active-zone':''}" id="ze_${i}">
       <button class="zone-delete-btn" onclick="removeZone(${i})" title="Remove zone">✕</button>
       <div class="zone-entry-header">
-        <input type="color" class="zone-color-picker" value="${z.color}" oninput="updateZoneField(${i},'color',this.value)" title="Zone color">
-        <input type="text" class="zone-name-input" value="${z.name}" oninput="updateZoneField(${i},'name',this.value)" placeholder="Zone name">
+        <input type="color" class="zone-color-picker" value="${escapeHtml(z.color)}" oninput="updateZoneField(${i},'color',this.value)" title="Zone color">
+        <input type="text" class="zone-name-input" value="${escapeHtml(z.name)}" oninput="updateZoneField(${i},'name',this.value)" placeholder="Zone name">
       </div>
       <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:5px;align-items:start;margin-bottom:6px">
         <div style="display:flex;flex-direction:column;gap:3px">
@@ -3419,7 +5009,7 @@ function updateZoneSummary() {
   if (zones.length === 0) { el.textContent = 'No zones defined'; return; }
   el.innerHTML = zones.map(z => {
     const px = zonePixels(z.first, z.last, z.doubleStacked);
-    return `<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${z.color};margin-right:4px;vertical-align:middle"></span>${z.name}: ${px.w}×${px.h}px${z.doubleStacked?' ×2':''}</div>`;
+    return `<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${escapeHtml(z.color)};margin-right:4px;vertical-align:middle"></span>${escapeHtml(z.name)}: ${px.w}×${px.h}px${z.doubleStacked?' ×2':''}</div>`;
   }).join('');
 }
 
@@ -3654,8 +5244,8 @@ function renderMappingModal() {
         const lo = Math.min(z.first, z.last), hi = Math.max(z.first, z.last);
         const count = hi - lo + 1;
         return `<div class="mapping-zone-chip">
-          <div class="mapping-zone-dot" style="background:${z.color}"></div>
-          <span>${z.name}</span>
+          <div class="mapping-zone-dot" style="background:${escapeHtml(z.color)}"></div>
+          <span>${escapeHtml(z.name)}</span>
           <span style="color:var(--muted);font-weight:400">cabs ${lo}–${hi} (${count})</span>
         </div>`;
       }).join('');
