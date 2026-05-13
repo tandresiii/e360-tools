@@ -2087,8 +2087,8 @@ function importE360(event) {
   event.target.value = '';
 }
 
-function saveSheet() {
-  const data = {
+function collectNsfData() {
+  return {
     _version: 1,
     _app: 'NovaSpec',
     fields: collectFormFields(),
@@ -2102,6 +2102,10 @@ function saveSheet() {
     ports,
     fiberBoxes,
   };
+}
+
+function saveSheet() {
+  const data = collectNsfData();
   const job = document.getElementById('jobName').value.trim() || 'novaspec';
   const date = new Date().toISOString().slice(0,10);
   const filename = `${job.replace(/[^a-z0-9_-]/gi,'_')}_${date}.nsf`;
@@ -2263,6 +2267,70 @@ window.addEventListener('message', (e) => {
     e.source.postMessage({ type: 'render-spec-result', id: msg.id, error: String(err.message || err) }, e.origin);
   }
 });
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD EMBED MODE (?embed=dashboard)
+// When loaded as an iframe by the staffing dashboard with this query
+// flag, hide the editor chrome and show just the spec sheet plus a
+// Save/Cancel toolbar. Dashboard posts current JSON in; we post the
+// updated state back on Save.
+// ════════════════════════════════════════════════════════════════
+(function setupDashboardEmbedMode() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('embed') !== 'dashboard') return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    body > *:not(#sheetWrap):not(#embed-toolbar):not(script) { display: none !important; }
+    body { margin: 0 !important; padding: 0 !important; background: #2a2a2a !important; }
+    #sheetWrap { margin: 60px auto 24px !important; }
+    #embed-toolbar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 99999;
+      display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.85);
+      padding: 8px 14px; border-radius: 6px; border: 1px solid #555;
+      font-family: 'Barlow Condensed',sans-serif; }
+    #embed-toolbar .hint { color: #999; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding-right: 8px; border-right: 1px solid #444; }
+    #embed-toolbar button { padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 700;
+      border: 1px solid; letter-spacing: 1px; text-transform: uppercase; font-family: inherit; }
+    #embed-toolbar .embed-save { background: #00c6ff; color: #000; border-color: #00c6ff; }
+    #embed-toolbar .embed-save:hover { background: #00a8d8; border-color: #00a8d8; }
+    #embed-toolbar .embed-cancel { background: transparent; color: #ccc; border-color: #555; }
+    #embed-toolbar .embed-cancel:hover { color: #fff; border-color: #888; }
+  `;
+  document.head.appendChild(style);
+
+  const toolbar = document.createElement('div');
+  toolbar.id = 'embed-toolbar';
+  toolbar.innerHTML = `
+    <span class="hint">Edit labels / ports · save when done</span>
+    <button class="embed-cancel" id="embed-cancel-btn">✕ Cancel</button>
+    <button class="embed-save" id="embed-save-btn">💾 Save</button>
+  `;
+  document.body.appendChild(toolbar);
+
+  document.getElementById('embed-cancel-btn').addEventListener('click', () => {
+    window.parent.postMessage({ type: 'edit-cancel' }, '*');
+  });
+  document.getElementById('embed-save-btn').addEventListener('click', () => {
+    try {
+      const json = collectNsfData();
+      window.parent.postMessage({ type: 'edit-save', json }, '*');
+    } catch (err) {
+      alert('Failed to gather sheet data: ' + err.message);
+    }
+  });
+
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'edit-load' && e.data.json) {
+      try {
+        applyNsfData(e.data.json);
+      } catch (err) {
+        console.error('embed-load failed:', err);
+      }
+    }
+  });
+
+  setTimeout(() => window.parent.postMessage({ type: 'edit-ready' }, '*'), 0);
+})();
 </script>
 </body>
 </html>

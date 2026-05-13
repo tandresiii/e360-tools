@@ -3212,7 +3212,7 @@ function buildPage2() {
 }
 
 // ── SAVE / LOAD PROJECT ──────────────────────────────────────────────────
-function saveProject() {
+function collectProjectData() {
   const fieldIds = [
     'clientName','venueName','contentDeadline','releaseDate',
     'sport','cabinetType','fieldLength','fieldWidth','totalCabinets',
@@ -3233,7 +3233,7 @@ function saveProject() {
     if (el) sideStates[s] = el.checked;
   });
 
-  const project = {
+  return {
     version: 1,
     fields,
     sideStates,
@@ -3249,7 +3249,10 @@ function saveProject() {
     zones,
     clientLogoDataUrl: typeof clientLogoDataUrl !== 'undefined' ? clientLogoDataUrl : null,
   };
+}
 
+function saveProject() {
+  const project = collectProjectData();
   const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -5622,6 +5625,76 @@ window.addEventListener('message', (e) => {
     e.source.postMessage({ type: 'render-spec-result', id: msg.id, error: String(err.message || err) }, e.origin);
   }
 });
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD EMBED MODE (?embed=dashboard)
+// When loaded as an iframe by the staffing dashboard with this query
+// flag, hide the editor chrome and show just the rendered page plus
+// a Save/Cancel toolbar. The dashboard posts the current JSON via
+// {type:'edit-load',json:...}; we post the updated state back via
+// {type:'edit-save',json:...} when the user clicks Save. Drag/wheel
+// label adjustments still work because the page-level handlers are
+// attached normally.
+// ════════════════════════════════════════════════════════════════
+(function setupDashboardEmbedMode() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('embed') !== 'dashboard') return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    body > *:not(#page1):not(#embed-toolbar):not(script) { display: none !important; }
+    body { margin: 0 !important; padding: 0 !important; background: #2a2a2a !important; }
+    #page1 { margin: 60px auto 24px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; }
+    #embed-toolbar { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 99999;
+      display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.85);
+      padding: 8px 14px; border-radius: 6px; border: 1px solid #555;
+      font-family: 'Barlow Condensed',sans-serif; }
+    #embed-toolbar .hint { color: #999; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding-right: 8px; border-right: 1px solid #444; }
+    #embed-toolbar button { padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 700;
+      border: 1px solid; letter-spacing: 1px; text-transform: uppercase; font-family: inherit; }
+    #embed-toolbar .embed-save { background: #00c6ff; color: #000; border-color: #00c6ff; }
+    #embed-toolbar .embed-save:hover { background: #00a8d8; border-color: #00a8d8; }
+    #embed-toolbar .embed-cancel { background: transparent; color: #ccc; border-color: #555; }
+    #embed-toolbar .embed-cancel:hover { color: #fff; border-color: #888; }
+  `;
+  document.head.appendChild(style);
+
+  const toolbar = document.createElement('div');
+  toolbar.id = 'embed-toolbar';
+  toolbar.innerHTML = `
+    <span class="hint">Drag labels · scroll-wheel rotates · double-click resets</span>
+    <button class="embed-cancel" id="embed-cancel-btn">✕ Cancel</button>
+    <button class="embed-save" id="embed-save-btn">💾 Save</button>
+  `;
+  document.body.appendChild(toolbar);
+
+  document.getElementById('embed-cancel-btn').addEventListener('click', () => {
+    window.parent.postMessage({ type: 'edit-cancel' }, '*');
+  });
+  document.getElementById('embed-save-btn').addEventListener('click', () => {
+    try {
+      const json = collectProjectData();
+      window.parent.postMessage({ type: 'edit-save', json }, '*');
+    } catch (err) {
+      alert('Failed to gather project data: ' + err.message);
+    }
+  });
+
+  // Receive the initial JSON from the dashboard
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'edit-load' && e.data.json) {
+      try {
+        applyProjectData(e.data.json);
+      } catch (err) {
+        console.error('embed-load failed:', err);
+      }
+    }
+  });
+
+  // Signal we're ready to receive the JSON
+  // setTimeout ensures the parent's message listener is attached before we fire
+  setTimeout(() => window.parent.postMessage({ type: 'edit-ready' }, '*'), 0);
+})();
 
 </script>
 </body>
