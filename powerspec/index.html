@@ -1046,7 +1046,18 @@ async function _waitForRender(timeoutMs = 4000) {
 async function _captureCurrentSvg() {
   await _waitForRender();
   const svg = document.querySelector('#root svg');
-  return svg ? svg.outerHTML : '';
+  if (!svg) return '';
+  let s = svg.outerHTML;
+  // React renders SVGs in the SVG namespace internally but does NOT
+  // serialize the xmlns attribute via outerHTML. Without it, the captured
+  // string won't parse as SVG when loaded standalone (e.g. into an <img>
+  // for PNG rasterization), which silently fails to a stripped SVG in
+  // Gmail. The other two source apps build their SVGs as template
+  // literals with explicit xmlns and don't hit this.
+  if (!/<svg\b[^>]*\sxmlns\s*=/.test(s)) {
+    s = s.replace(/^<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  return s;
 }
 
 async function _capturePageHtml() {
