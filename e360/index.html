@@ -3259,6 +3259,123 @@ function saveProject() {
   URL.revokeObjectURL(a.href);
 }
 
+function applyProjectData(p) {
+  if (!p.version) throw new Error('Invalid file');
+
+  // Restore simple fields
+  Object.entries(p.fields || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+
+  // NOTE: side toggles are restored AFTER onSportChange() below — that
+  // call rebuilds the side-toggle checkboxes from scratch, which would
+  // wipe any state restored here.
+
+  // Restore JS state
+  layoutMode      = p.layoutMode      ?? 'u';
+  complexUnit     = p.complexUnit     ?? 'ft';
+  complexSections = p.complexSections ?? [];
+  reverseNumbering= p.reverseNumbering?? false;
+  compassBearing  = p.compassBearing  ?? 0;
+  diagramView     = p.diagramView     ?? 'topdown';
+  isoCabStroke    = p.isoCabStroke    ?? false;
+  isoLabelOverrides = p.isoLabelOverrides ?? {};
+  if (p.modularConfig) {
+    modularConfig = {
+      cabType:  p.modularConfig.cabType  ?? 'p391',
+      cabsWide: p.modularConfig.cabsWide ?? 4,
+      cabsTall: p.modularConfig.cabsTall ?? 3,
+      mounting: p.modularConfig.mounting ?? 'ground',
+      sdi: { ...modularConfig.sdi, ...(p.modularConfig.sdi || {}) },
+    };
+  }
+  zones           = p.zones           ?? [];
+
+  // Sync modular UI inputs to restored state
+  const mCabT = document.getElementById('modularCabType');
+  const mW    = document.getElementById('modularCabsWide');
+  const mH    = document.getElementById('modularCabsTall');
+  if (mCabT) mCabT.value = modularConfig.cabType;
+  if (mW)    mW.value    = modularConfig.cabsWide;
+  if (mH)    mH.value    = modularConfig.cabsTall;
+  const mMount = document.querySelector(`input[name="modularMounting"][value="${modularConfig.mounting}"]`);
+  if (mMount) mMount.checked = true;
+
+  // Sync cabinet-outlines checkbox to restored state.
+  const isoStrokeBox = document.getElementById('isoCabStroke');
+  if (isoStrokeBox) isoStrokeBox.checked = isoCabStroke;
+
+  // Sync diagram-view radio so the UI reflects the loaded state.
+  const dvRadio = document.querySelector(`input[name="diagramView"][value="${diagramView}"]`);
+  if (dvRadio) dvRadio.checked = true;
+
+  // Restore logo — strict MIME gate so a malicious .e360 cannot smuggle
+  // data:image/svg+xml,<svg onload=...> or other non-bitmap formats.
+  if (p.clientLogoDataUrl &&
+      /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p.clientLogoDataUrl)) {
+    clientLogoDataUrl = p.clientLogoDataUrl;
+    const previewImg  = document.getElementById('logoPreviewImg');
+    const placeholder = document.getElementById('logoPlaceholder');
+    if (previewImg)  { previewImg.src = clientLogoDataUrl; previewImg.style.display = ''; }
+    if (placeholder)   placeholder.style.display = 'none';
+  } else if (p.clientLogoDataUrl) {
+    console.warn('Logo data URL rejected: unsupported MIME type or format');
+  }
+
+  // Sync UI state — show only the relevant config section for the loaded mode
+  // and hide non-applicable sidebar sections (sport/zones/etc) in modular mode.
+  const uSection  = document.getElementById('u-config-section');
+  const cxSection = document.getElementById('complex-config-section');
+  const mdSection = document.getElementById('modular-config-section');
+  if (uSection)  uSection.style.display  = layoutMode === 'u'       ? '' : 'none';
+  if (cxSection) cxSection.style.display = layoutMode === 'complex' ? '' : 'none';
+  if (mdSection) mdSection.style.display = layoutMode === 'modular' ? '' : 'none';
+  const inModular = layoutMode === 'modular';
+  document.querySelectorAll('[data-hide-in-modular]').forEach(el => {
+    el.style.display = inModular ? 'none' : '';
+  });
+
+  // Sync layout mode radio button
+  const layoutRadio = document.querySelector(`input[name="layoutMode"][value="${layoutMode}"]`);
+  if (layoutRadio) layoutRadio.checked = true;
+
+  const reverseBtn = document.getElementById('reverseToggleBtn');
+  if (reverseBtn) {
+    reverseBtn.textContent = reverseNumbering ? '→ RIGHT IS #1' : '← LEFT IS #1';
+    reverseBtn.style.borderColor = reverseNumbering ? 'var(--accent)' : 'var(--border)';
+    reverseBtn.style.color = reverseNumbering ? 'var(--accent)' : 'var(--text)';
+  }
+
+  // Sync codecSettings object from restored DOM values
+  // (applyCodec() is the normal path; on load we do it manually)
+  codecSettings.codec     = document.getElementById('codecName')?.value      || codecSettings.codec;
+  codecSettings.container = document.getElementById('codecContainer')?.value || codecSettings.container;
+  codecSettings.fps       = parseInt(document.getElementById('codecFps')?.value)      || codecSettings.fps;
+  codecSettings.duration  = parseInt(document.getElementById('codecDuration')?.value) || codecSettings.duration;
+  codecSettings.bitrate   = document.getElementById('codecBitrate')?.value   ?? codecSettings.bitrate;
+  codecSettings.notes     = document.getElementById('codecNotes')?.value     ?? codecSettings.notes;
+
+  // Trigger dependent updates
+  // onSportChange resets fieldLength/fieldWidth to sport defaults,
+  // so capture the saved values first and re-apply them after.
+  const savedLength = document.getElementById('fieldLength') ? document.getElementById('fieldLength').value : null;
+  const savedWidth  = document.getElementById('fieldWidth')  ? document.getElementById('fieldWidth').value  : null;
+  onSportChange();
+  if (savedLength && document.getElementById('fieldLength')) document.getElementById('fieldLength').value = savedLength;
+  if (savedWidth  && document.getElementById('fieldWidth'))  document.getElementById('fieldWidth').value  = savedWidth;
+  onCabinetChange();
+  updateCodecSummary();
+
+  // Restore side toggles AFTER onSportChange() (which rebuilt them).
+  Object.entries(p.sideStates || {}).forEach(([s, checked]) => {
+    const el = document.getElementById(`side_${s}`);
+    if (el) el.checked = checked;
+  });
+
+  update();
+}
+
 function loadProject() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -3269,121 +3386,7 @@ function loadProject() {
     const reader = new FileReader();
     reader.onload = ev => {
       try {
-        const p = JSON.parse(ev.target.result);
-        if (!p.version) throw new Error('Invalid file');
-
-        // Restore simple fields
-        Object.entries(p.fields || {}).forEach(([id, val]) => {
-          const el = document.getElementById(id);
-          if (el) el.value = val;
-        });
-
-        // NOTE: side toggles are restored AFTER onSportChange() below — that
-        // call rebuilds the side-toggle checkboxes from scratch, which would
-        // wipe any state restored here.
-
-        // Restore JS state
-        layoutMode      = p.layoutMode      ?? 'u';
-        complexUnit     = p.complexUnit     ?? 'ft';
-        complexSections = p.complexSections ?? [];
-        reverseNumbering= p.reverseNumbering?? false;
-        compassBearing  = p.compassBearing  ?? 0;
-        diagramView     = p.diagramView     ?? 'topdown';
-        isoCabStroke    = p.isoCabStroke    ?? false;
-        isoLabelOverrides = p.isoLabelOverrides ?? {};
-        if (p.modularConfig) {
-          modularConfig = {
-            cabType:  p.modularConfig.cabType  ?? 'p391',
-            cabsWide: p.modularConfig.cabsWide ?? 4,
-            cabsTall: p.modularConfig.cabsTall ?? 3,
-            mounting: p.modularConfig.mounting ?? 'ground',
-            sdi: { ...modularConfig.sdi, ...(p.modularConfig.sdi || {}) },
-          };
-        }
-        zones           = p.zones           ?? [];
-
-        // Sync modular UI inputs to restored state
-        const mCabT = document.getElementById('modularCabType');
-        const mW    = document.getElementById('modularCabsWide');
-        const mH    = document.getElementById('modularCabsTall');
-        if (mCabT) mCabT.value = modularConfig.cabType;
-        if (mW)    mW.value    = modularConfig.cabsWide;
-        if (mH)    mH.value    = modularConfig.cabsTall;
-        const mMount = document.querySelector(`input[name="modularMounting"][value="${modularConfig.mounting}"]`);
-        if (mMount) mMount.checked = true;
-
-        // Sync cabinet-outlines checkbox to restored state.
-        const isoStrokeBox = document.getElementById('isoCabStroke');
-        if (isoStrokeBox) isoStrokeBox.checked = isoCabStroke;
-
-        // Sync diagram-view radio so the UI reflects the loaded state.
-        const dvRadio = document.querySelector(`input[name="diagramView"][value="${diagramView}"]`);
-        if (dvRadio) dvRadio.checked = true;
-
-        // Restore logo — strict MIME gate so a malicious .e360 cannot smuggle
-        // data:image/svg+xml,<svg onload=...> or other non-bitmap formats.
-        if (p.clientLogoDataUrl &&
-            /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p.clientLogoDataUrl)) {
-          clientLogoDataUrl = p.clientLogoDataUrl;
-          const previewImg  = document.getElementById('logoPreviewImg');
-          const placeholder = document.getElementById('logoPlaceholder');
-          if (previewImg)  { previewImg.src = clientLogoDataUrl; previewImg.style.display = ''; }
-          if (placeholder)   placeholder.style.display = 'none';
-        } else if (p.clientLogoDataUrl) {
-          console.warn('Logo data URL rejected: unsupported MIME type or format');
-        }
-
-        // Sync UI state — show only the relevant config section for the loaded mode
-        // and hide non-applicable sidebar sections (sport/zones/etc) in modular mode.
-        const uSection  = document.getElementById('u-config-section');
-        const cxSection = document.getElementById('complex-config-section');
-        const mdSection = document.getElementById('modular-config-section');
-        if (uSection)  uSection.style.display  = layoutMode === 'u'       ? '' : 'none';
-        if (cxSection) cxSection.style.display = layoutMode === 'complex' ? '' : 'none';
-        if (mdSection) mdSection.style.display = layoutMode === 'modular' ? '' : 'none';
-        const inModular = layoutMode === 'modular';
-        document.querySelectorAll('[data-hide-in-modular]').forEach(el => {
-          el.style.display = inModular ? 'none' : '';
-        });
-
-        // Sync layout mode radio button
-        const layoutRadio = document.querySelector(`input[name="layoutMode"][value="${layoutMode}"]`);
-        if (layoutRadio) layoutRadio.checked = true;
-
-        const reverseBtn = document.getElementById('reverseToggleBtn');
-        if (reverseBtn) {
-          reverseBtn.textContent = reverseNumbering ? '→ RIGHT IS #1' : '← LEFT IS #1';
-          reverseBtn.style.borderColor = reverseNumbering ? 'var(--accent)' : 'var(--border)';
-          reverseBtn.style.color = reverseNumbering ? 'var(--accent)' : 'var(--text)';
-        }
-
-        // Sync codecSettings object from restored DOM values
-        // (applyCodec() is the normal path; on load we do it manually)
-        codecSettings.codec     = document.getElementById('codecName')?.value      || codecSettings.codec;
-        codecSettings.container = document.getElementById('codecContainer')?.value || codecSettings.container;
-        codecSettings.fps       = parseInt(document.getElementById('codecFps')?.value)      || codecSettings.fps;
-        codecSettings.duration  = parseInt(document.getElementById('codecDuration')?.value) || codecSettings.duration;
-        codecSettings.bitrate   = document.getElementById('codecBitrate')?.value   ?? codecSettings.bitrate;
-        codecSettings.notes     = document.getElementById('codecNotes')?.value     ?? codecSettings.notes;
-
-        // Trigger dependent updates
-        // onSportChange resets fieldLength/fieldWidth to sport defaults,
-        // so capture the saved values first and re-apply them after.
-        const savedLength = document.getElementById('fieldLength') ? document.getElementById('fieldLength').value : null;
-        const savedWidth  = document.getElementById('fieldWidth')  ? document.getElementById('fieldWidth').value  : null;
-        onSportChange();
-        if (savedLength && document.getElementById('fieldLength')) document.getElementById('fieldLength').value = savedLength;
-        if (savedWidth  && document.getElementById('fieldWidth'))  document.getElementById('fieldWidth').value  = savedWidth;
-        onCabinetChange();
-        updateCodecSummary();
-
-        // Restore side toggles AFTER onSportChange() (which rebuilt them).
-        Object.entries(p.sideStates || {}).forEach(([s, checked]) => {
-          const el = document.getElementById(`side_${s}`);
-          if (el) el.checked = checked;
-        });
-
-        update();
+        applyProjectData(JSON.parse(ev.target.result));
       } catch(err) {
         alert('Could not load project file: ' + err.message);
       }
@@ -5552,6 +5555,45 @@ function renderMappingDiagram() {
 
   inner.innerHTML = svg;
 }
+
+// ════════════════════════════════════════════════════════════════
+// HEADLESS RENDER ENTRYPOINT (E360 staffing dashboard)
+// Loaded in a hidden iframe by the staffing dashboard. The dashboard
+// posts a .e360 JSON; we hydrate state via applyProjectData() and
+// return top-down SVG via postMessage. Iso views and modular layouts
+// are intentionally not rendered here — the dashboard preview is
+// top-down U / complex only.
+// ════════════════════════════════════════════════════════════════
+
+function renderTopdownSvg() {
+  if (layoutMode === 'modular') {
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 370" width="620" height="370" style="background:#1a1a1a">
+  <text x="310" y="185" text-anchor="middle" fill="#888" font-family="sans-serif" font-size="14">Modular layouts are not rendered in the dashboard preview</text>
+</svg>`;
+  }
+  if (layoutMode === 'complex') {
+    return buildComplexFieldDiagram(620, 370);
+  }
+  return buildFieldDiagram();
+}
+
+window.E360Render = {
+  renderTopdownFromJson(json) {
+    applyProjectData(json);
+    return renderTopdownSvg();
+  }
+};
+
+window.addEventListener('message', (e) => {
+  const msg = e.data;
+  if (!msg || msg.type !== 'render-spec') return;
+  try {
+    const svg = window.E360Render.renderTopdownFromJson(msg.json);
+    e.source.postMessage({ type: 'render-spec-result', id: msg.id, svg }, e.origin);
+  } catch (err) {
+    e.source.postMessage({ type: 'render-spec-result', id: msg.id, error: String(err.message || err) }, e.origin);
+  }
+});
 
 </script>
 </body>
