@@ -5640,6 +5640,15 @@ window.addEventListener('message', (e) => {
   const params = new URLSearchParams(location.search);
   if (params.get('embed') !== 'dashboard') return;
 
+  // #page1 lives inside <main class="preview-pane"> — a CSS rule that hides
+  // every body child except #page1 would hide the wrapping <main> too,
+  // taking #page1 down with it. Lift the element up to be a direct child
+  // of <body> so the "hide-all-siblings" CSS works.
+  const pageEl = document.getElementById('page1');
+  if (pageEl && pageEl.parentNode !== document.body) {
+    document.body.appendChild(pageEl);
+  }
+
   const style = document.createElement('style');
   style.textContent = `
     body > *:not(#page1):not(#embed-toolbar):not(script) { display: none !important; }

@@ -2279,6 +2279,14 @@ window.addEventListener('message', (e) => {
   const params = new URLSearchParams(location.search);
   if (params.get('embed') !== 'dashboard') return;
 
+  // #sheetWrap lives inside <main> inside .app — lift it to be a direct
+  // child of <body> so the "hide-all-siblings" CSS doesn't take it down
+  // along with the wrapping containers.
+  const sheetEl = document.getElementById('sheetWrap');
+  if (sheetEl && sheetEl.parentNode !== document.body) {
+    document.body.appendChild(sheetEl);
+  }
+
   const style = document.createElement('style');
   style.textContent = `
     body > *:not(#sheetWrap):not(#embed-toolbar):not(script) { display: none !important; }
