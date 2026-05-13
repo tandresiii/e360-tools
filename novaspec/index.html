@@ -2218,10 +2218,33 @@ render();
 // the print-style cabling diagram SVG via postMessage.
 // ════════════════════════════════════════════════════════════════
 
+// Capture the live #sheetWrap element along with this page's stylesheet/
+// font links and inline <style> tags, so the dashboard can embed the
+// rendering in an <iframe srcdoc> and get exactly what this app prints.
+function captureNsfPageHtml() {
+  const linkTags  = Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'))
+    .map(l => l.outerHTML).join('\n');
+  const styleTags = Array.from(document.head.querySelectorAll('style'))
+    .map(s => s.outerHTML).join('\n');
+  const sheet = document.getElementById('sheetWrap');
+  const sheetInner = sheet
+    ? sheet.outerHTML
+    : '<div style="padding:40px;text-align:center;color:#888;font-family:sans-serif">Sheet render failed</div>';
+  return `<!doctype html>
+<html><head><meta charset="UTF-8">
+${linkTags}
+${styleTags}
+<style>html,body{margin:0;padding:0;background:#fff}</style>
+</head><body>${sheetInner}</body></html>`;
+}
+
 window.NovaSpecRender = {
   renderPrintFromJson(json) {
     applyNsfData(json);
-    return buildFieldDiagramForPrint(920, 610);
+    return {
+      svg: buildFieldDiagramForPrint(920, 610),
+      pageHtml: captureNsfPageHtml()
+    };
   }
 };
 
@@ -2229,8 +2252,13 @@ window.addEventListener('message', (e) => {
   const msg = e.data;
   if (!msg || msg.type !== 'render-spec') return;
   try {
-    const svg = window.NovaSpecRender.renderPrintFromJson(msg.json);
-    e.source.postMessage({ type: 'render-spec-result', id: msg.id, svg }, e.origin);
+    const result = window.NovaSpecRender.renderPrintFromJson(msg.json);
+    e.source.postMessage({
+      type: 'render-spec-result',
+      id: msg.id,
+      svg: result.svg,
+      pageHtml: result.pageHtml
+    }, e.origin);
   } catch (err) {
     e.source.postMessage({ type: 'render-spec-result', id: msg.id, error: String(err.message || err) }, e.origin);
   }

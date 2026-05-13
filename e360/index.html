@@ -5577,10 +5577,33 @@ function renderTopdownSvg() {
   return buildFieldDiagram();
 }
 
+// Capture the live #page1 element along with this page's stylesheet/font
+// links and inline <style> tags, so the dashboard can embed the rendering
+// in an <iframe srcdoc> and get exactly what this app would print.
+function captureE360PageHtml() {
+  const linkTags  = Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'))
+    .map(l => l.outerHTML).join('\n');
+  const styleTags = Array.from(document.head.querySelectorAll('style'))
+    .map(s => s.outerHTML).join('\n');
+  const pageEl = document.getElementById('page1');
+  const pageInner = pageEl
+    ? pageEl.outerHTML
+    : '<div style="padding:40px;text-align:center;color:#888;font-family:sans-serif">Page render failed</div>';
+  return `<!doctype html>
+<html><head><meta charset="UTF-8">
+${linkTags}
+${styleTags}
+<style>html,body{margin:0;padding:0;background:#fff}#page1{box-shadow:none!important}</style>
+</head><body>${pageInner}</body></html>`;
+}
+
 window.E360Render = {
   renderTopdownFromJson(json) {
     applyProjectData(json);
-    return renderTopdownSvg();
+    return {
+      svg: renderTopdownSvg(),
+      pageHtml: captureE360PageHtml()
+    };
   }
 };
 
@@ -5588,8 +5611,13 @@ window.addEventListener('message', (e) => {
   const msg = e.data;
   if (!msg || msg.type !== 'render-spec') return;
   try {
-    const svg = window.E360Render.renderTopdownFromJson(msg.json);
-    e.source.postMessage({ type: 'render-spec-result', id: msg.id, svg }, e.origin);
+    const result = window.E360Render.renderTopdownFromJson(msg.json);
+    e.source.postMessage({
+      type: 'render-spec-result',
+      id: msg.id,
+      svg: result.svg,
+      pageHtml: result.pageHtml
+    }, e.origin);
   } catch (err) {
     e.source.postMessage({ type: 'render-spec-result', id: msg.id, error: String(err.message || err) }, e.origin);
   }
