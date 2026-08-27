@@ -35,12 +35,6 @@ window.E360_TARGETS = {
   // Dashboard Event"; unchanged.
   dashboard: 'https://web-production-f9d318.up.railway.app',
 
-  // ⚠ PLACEHOLDER — Showrunner (the PM app) has no public host yet.
-  //   Railway has not assigned one. Until it does, this points at a local dev
-  //   server so the flow can be exercised end to end; "Bind to PM Show" will
-  //   simply fail to open a popup for anyone else, which is the honest
-  //   behaviour for a target that does not exist.
-  //   WHEN THE REAL HOST LANDS: change this ONE line and bump the ?v= in the
-  //   three <script src="/config.js?v=N"> tags.
-  showrunner: 'http://localhost:3100'
+  // Showrunner (the PM app) — live on Railway as of 2026-08-27.
+  showrunner: 'https://e360-showrunner-production.up.railway.app'
 };

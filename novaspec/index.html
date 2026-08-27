@@ -1,10 +1,10 @@
-<!-- NovaSpec Tech Cabling Sheet Generator -->
+﻿<!-- NovaSpec Tech Cabling Sheet Generator -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NovaSpec — Tech Cabling Sheet</title>
+<title>NovaSpec â€” Tech Cabling Sheet</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -187,7 +187,7 @@ textarea{resize:vertical;min-height:54px}
   /* Force background colors */
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
 
-  /* Infobar — grid for predictable wrapping across print drivers */
+  /* Infobar â€” grid for predictable wrapping across print drivers */
   .ss-infobar{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:4px 20px}
 
   /* Diagram */
@@ -204,12 +204,12 @@ textarea{resize:vertical;min-height:54px}
   .ss-table .total-row{page-break-before:avoid}
 }
 </style>
-<script src="/config.js?v=1"></script>
+<script src="/config.js?v=2"></script>
 </head>
 <body>
 <div class="app">
 
-<!-- ══ SIDEBAR ══ -->
+<!-- â•â• SIDEBAR â•â• -->
 <aside class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">NOVA<span>SPEC</span></div>
@@ -231,9 +231,9 @@ textarea{resize:vertical;min-height:54px}
       <div class="form-group"><label class="form-label">Sheet Rev</label><input type="text" id="revision" placeholder="v1" oninput="render()"></div>
       <div class="form-group"><label class="form-label">Cabinet Type</label>
         <select id="cabType" onchange="onCabChange()">
-          <option value="p10">P10 — 160×90px</option>
-          <option value="p391">P3.91 — 128×128px</option>
-          <option value="p12">P12 — 128×72px</option>
+          <option value="p10">P10 â€” 160Ã—90px</option>
+          <option value="p391">P3.91 â€” 128Ã—128px</option>
+          <option value="p12">P12 â€” 128Ã—72px</option>
         </select>
       </div>
     </div>
@@ -255,11 +255,11 @@ textarea{resize:vertical;min-height:54px}
       <div id="layout-summary-body"><span class="lsc-empty">No sections defined yet</span></div>
     </div>
     <div class="form-group" style="display:flex;align-items:center;gap:10px">
-      <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px">Compass °N</label>
+      <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px">Compass Â°N</label>
       <input type="range" id="compassSidebar" min="0" max="359" value="0" step="1"
-        oninput="compassBearing=parseInt(this.value);document.getElementById('compassDeg').value=this.value;document.getElementById('compassSidebarVal').textContent=this.value+'°';renderCxDiagram();render()"
+        oninput="compassBearing=parseInt(this.value);document.getElementById('compassDeg').value=this.value;document.getElementById('compassSidebarVal').textContent=this.value+'Â°';renderCxDiagram();render()"
         style="flex:1;accent-color:var(--accent)">
-      <span id="compassSidebarVal" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:right">0°</span>
+      <span id="compassSidebarVal" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--accent);min-width:32px;text-align:right">0Â°</span>
     </div>
     <div class="form-group" style="display:flex;align-items:center;gap:8px;padding:2px 0">
       <label style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none">
@@ -270,9 +270,9 @@ textarea{resize:vertical;min-height:54px}
     <div class="form-group" style="display:flex;align-items:center;gap:8px;padding:2px 0">
       <label class="form-label" style="margin:0;white-space:nowrap;min-width:90px;font-size:11px">Field Style</label>
       <select id="fieldTypeSelect" onchange="fieldType=this.value;document.getElementById('fieldColorRow').style.display=fieldType==='custom'?'flex':'none';renderCxDiagram();render()" style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:11px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:3px;padding:2px 4px">
-        <option value="soccer">⚽ Soccer / Football</option>
-        <option value="volleyball">🏐 Volleyball Court</option>
-        <option value="custom">🎨 Custom Color</option>
+        <option value="soccer">âš½ Soccer / Football</option>
+        <option value="volleyball">ðŸ Volleyball Court</option>
+        <option value="custom">ðŸŽ¨ Custom Color</option>
       </select>
     </div>
     <div id="fieldColorRow" class="form-group" style="display:none;align-items:center;gap:8px;padding:2px 0">
@@ -280,9 +280,9 @@ textarea{resize:vertical;min-height:54px}
       <input type="color" id="fieldColorPicker" value="#3a6b2a" oninput="fieldColor=this.value;renderCxDiagram();render()" style="flex:1;height:26px;border:1px solid var(--border);border-radius:3px;background:none;cursor:pointer">
     </div>
     <div id="status-bar" class="status-bar" style="display:none">
-      <div class="status-item"><div class="si-label">Sections</div><div class="si-val" id="sb-secs">—</div></div>
-      <div class="status-item"><div class="si-label">Total Cabs</div><div class="si-val" id="sb-cabs">—</div></div>
-      <div class="status-item"><div class="si-label">Total Pixels</div><div class="si-val" id="sb-px">—</div></div>
+      <div class="status-item"><div class="si-label">Sections</div><div class="si-val" id="sb-secs">â€”</div></div>
+      <div class="status-item"><div class="si-label">Total Cabs</div><div class="si-val" id="sb-cabs">â€”</div></div>
+      <div class="status-item"><div class="si-label">Total Pixels</div><div class="si-val" id="sb-px">â€”</div></div>
     </div>
 
     <!-- PORT ASSIGNMENTS -->
@@ -306,37 +306,37 @@ textarea{resize:vertical;min-height:54px}
 
     <div style="margin-top:8px;display:flex;gap:8px">
       <button class="btn btn-outline btn-sm" onclick="resetAll()" style="flex:1">Reset All</button>
-      <button class="btn btn-primary btn-sm" onclick="window.print()" style="flex:1">🖨 Print</button>
+      <button class="btn btn-primary btn-sm" onclick="window.print()" style="flex:1">ðŸ–¨ Print</button>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px">
-      <button class="btn btn-outline btn-sm" onclick="saveSheet()" style="flex:1;border-color:var(--gold);color:var(--gold)">💾 Save</button>
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('loadInput').click()" style="flex:1;border-color:var(--gold);color:var(--gold)">📂 Load</button>
+      <button class="btn btn-outline btn-sm" onclick="saveSheet()" style="flex:1;border-color:var(--gold);color:var(--gold)">ðŸ’¾ Save</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('loadInput').click()" style="flex:1;border-color:var(--gold);color:var(--gold)">ðŸ“‚ Load</button>
       <input type="file" id="loadInput" accept=".nsf,.json" style="display:none" onchange="loadSheet(event)">
     </div>
     <div style="margin-top:8px">
-      <button class="btn btn-outline btn-sm" onclick="bindToDashboardEvent()" style="width:100%;border-color:#00c6ff;color:#00c6ff">📤 Bind to Dashboard Event</button>
-      <button class="btn btn-outline btn-sm" onclick="bindToShowrunnerShow()" style="width:100%;border-color:#35E0A1;color:#35E0A1;margin-top:8px">📤 Bind to PM Show</button>
+      <button class="btn btn-outline btn-sm" onclick="bindToDashboardEvent()" style="width:100%;border-color:#00c6ff;color:#00c6ff">ðŸ“¤ Bind to Dashboard Event</button>
+      <button class="btn btn-outline btn-sm" onclick="bindToShowrunnerShow()" style="width:100%;border-color:#35E0A1;color:#35E0A1;margin-top:8px">ðŸ“¤ Bind to PM Show</button>
     </div>
     <div style="margin-top:8px">
-      <button class="btn btn-outline btn-sm" onclick="document.getElementById('e360Input').click()" style="width:100%;border-color:#7c6ef7;color:#7c6ef7">⬇ Import from Client Spec (.e360)</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('e360Input').click()" style="width:100%;border-color:#7c6ef7;color:#7c6ef7">â¬‡ Import from Client Spec (.e360)</button>
       <input type="file" id="e360Input" accept=".e360,.json" style="display:none" onchange="importE360(event)">
     </div>
 
   </div>
 </aside>
 
-<!-- ══ PREVIEW ══ -->
+<!-- â•â• PREVIEW â•â• -->
 <main class="preview-pane" id="previewPane">
   <div class="preview-actions no-print">
-    <button class="btn btn-primary" onclick="window.print()">🖨 Print / Save PDF</button>
-    <button class="btn btn-outline" onclick="copyText()">📋 Copy Summary</button>
+    <button class="btn btn-primary" onclick="window.print()">ðŸ–¨ Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="copyText()">ðŸ“‹ Copy Summary</button>
   </div>
   <div id="sheetWrap"></div>
 </main>
 
 </div><!-- .app -->
 
-<!-- ══ LAYOUT EDITOR MODAL ══ -->
+<!-- â•â• LAYOUT EDITOR MODAL â•â• -->
 <div class="modal-overlay" id="layoutModal">
   <div class="modal">
     <div class="modal-header">
@@ -347,7 +347,7 @@ textarea{resize:vertical;min-height:54px}
         <button class="cx-unit-btn" id="unitBtn_yd" onclick="setCxUnit('yd')">YD</button>
         <button class="cx-unit-btn" id="unitBtn_m" onclick="setCxUnit('m')">M</button>
       </div>
-      <button class="modal-close" onclick="closeLayoutModal()">✕</button>
+      <button class="modal-close" onclick="closeLayoutModal()">âœ•</button>
     </div>
     <div class="modal-body">
       <!-- LEFT: section list -->
@@ -356,7 +356,7 @@ textarea{resize:vertical;min-height:54px}
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:4px">
           <div><label class="form-label">Field Length (ft)</label><input type="number" id="fieldLength" value="360" min="50" max="1200" step="1" oninput="renderCxDiagram()"></div>
           <div><label class="form-label">Field Width (ft)</label><input type="number" id="fieldWidth" value="160" min="30" max="800" step="1" oninput="renderCxDiagram()"></div>
-          <div><label class="form-label">Compass (°N)</label><input type="number" id="compassDeg" value="0" min="0" max="359" step="1" oninput="compassBearing=parseInt(this.value)||0;document.getElementById('compassSidebar').value=this.value;document.getElementById('compassSidebarVal').textContent=(parseInt(this.value)||0)+'°';renderCxDiagram();render()"></div>
+          <div><label class="form-label">Compass (Â°N)</label><input type="number" id="compassDeg" value="0" min="0" max="359" step="1" oninput="compassBearing=parseInt(this.value)||0;document.getElementById('compassSidebar').value=this.value;document.getElementById('compassSidebarVal').textContent=(parseInt(this.value)||0)+'Â°';renderCxDiagram();render()"></div>
         </div>
         <div id="cx-section-list"></div>
         <button class="cx-add-btn" onclick="addCxSection()">+ Add Section</button>
@@ -375,14 +375,14 @@ textarea{resize:vertical;min-height:54px}
   </div>
 </div>
 
-<!-- ══ PORT ASSIGNMENT MODAL ══ -->
+<!-- â•â• PORT ASSIGNMENT MODAL â•â• -->
 <div class="modal-overlay" id="portModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Port Assignment</div>
       <div id="port-modal-meta" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--muted)"></div>
-      <button id="reverseToggleBtn" class="btn btn-outline btn-xs" onclick="toggleReverse()" style="margin-left:auto">← CAB #1 LEFT</button>
-      <button class="modal-close" onclick="closePortModal()">✕</button>
+      <button id="reverseToggleBtn" class="btn btn-outline btn-xs" onclick="toggleReverse()" style="margin-left:auto">â† CAB #1 LEFT</button>
+      <button class="modal-close" onclick="closePortModal()">âœ•</button>
     </div>
     <div class="modal-body">
       <!-- LEFT: port entries -->
@@ -394,7 +394,7 @@ textarea{resize:vertical;min-height:54px}
       </div>
       <!-- RIGHT: interactive diagram -->
       <div class="modal-diagram" style="overflow:auto">
-        <div style="font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-family:'Barlow Condensed',sans-serif">Click cabinets to assign ports — hover to see number</div>
+        <div style="font-size:10px;color:#444;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-family:'Barlow Condensed',sans-serif">Click cabinets to assign ports â€” hover to see number</div>
         <div id="port-diagram"></div>
       </div>
     </div>
@@ -406,13 +406,13 @@ textarea{resize:vertical;min-height:54px}
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // CABINET DATA
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const CAB = {
-  p10:  { name:'P10',   mm:'1600×900mm', pxW:160, pxH:90,  lenFt:5.25 },
-  p391: { name:'P3.91', mm:'500×500mm',  pxW:128, pxH:128, lenFt:1.64 },
-  p12:  { name:'P12',   mm:'1600×900mm', pxW:128, pxH:72,  lenFt:5.25 },
+  p10:  { name:'P10',   mm:'1600Ã—900mm', pxW:160, pxH:90,  lenFt:5.25 },
+  p391: { name:'P3.91', mm:'500Ã—500mm',  pxW:128, pxH:128, lenFt:1.64 },
+  p12:  { name:'P12',   mm:'1600Ã—900mm', pxW:128, pxH:72,  lenFt:5.25 },
 };
 const PORT_COLORS = [
   '#00c8f0','#f0a500','#22c55e','#e05858','#a855f7','#f97316','#14b8a6','#ec4899',
@@ -420,9 +420,9 @@ const PORT_COLORS = [
   '#34d399','#f87171','#c084fc','#67e8f9','#fcd34d','#6ee7b7','#fca5a5','#a5b4fc'
 ];
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STATE
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let complexSections = [];
 let complexUnit = 'ft';
 let compassBearing = 0;
@@ -458,9 +458,9 @@ function getSectionStartCab(idx) {
   let s=1; for(let i=0;i<idx;i++){ const n=parseInt(complexSections[i].count)||0; s+=(complexSections[i].doubleStacked?n*2:n); } return s;
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // LAYOUT MODAL
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function openLayoutModal() {
   document.getElementById('layoutModal').classList.add('open');
   renderCxSections(); renderCxDiagram();
@@ -533,18 +533,18 @@ function renderCxSections() {
       s==='south'?'South':s==='north'?'North':s==='east'?'East':'West'
     }</option>`).join('');
     const isH = sec.side==='south'||sec.side==='north';
-    const fwdLabel = isH ? 'W→E' : 'S→N';
-    const revLabel = isH ? 'E→W' : 'N→S';
+    const fwdLabel = isH ? 'Wâ†’E' : 'Sâ†’N';
+    const revLabel = isH ? 'Eâ†’W' : 'Nâ†’S';
     const offLabel = isH ? 'Offset from W corner' : 'Offset from S corner';
     return `<div class="cx-section-card" id="cxs_${i}" onmouseenter="hoverCxSection(${i})" onmouseleave="unhoverCxSection()">
       <div class="cxs-header">
         <div class="cxs-order-btns">
-          <button onclick="moveCxSection(${i},-1)" ${i===0?'disabled':''}>▲</button>
-          <button onclick="moveCxSection(${i},1)"  ${i===complexSections.length-1?'disabled':''}>▼</button>
+          <button onclick="moveCxSection(${i},-1)" ${i===0?'disabled':''}>â–²</button>
+          <button onclick="moveCxSection(${i},1)"  ${i===complexSections.length-1?'disabled':''}>â–¼</button>
         </div>
         <div class="cxs-number">${i+1}</div>
         <input class="cxs-name-input" value="${esc(sec.name)}" onchange="updateCxSection(${i},'name',this.value)">
-        <button class="cxs-delete-btn" onclick="removeCxSection(${i})">✕</button>
+        <button class="cxs-delete-btn" onclick="removeCxSection(${i})">âœ•</button>
       </div>
       <div class="two-col" style="margin-bottom:6px">
         <div class="form-group" style="margin:0"><label class="form-label">Side</label><select onchange="updateCxSection(${i},'side',this.value)">${sideOpts}</select></div>
@@ -564,29 +564,29 @@ function renderCxSections() {
       <div class="form-group" style="margin:0 0 4px">
         <label class="form-label">Cabinet Override</label>
         <select onchange="updateCxSection(${i},'cabOverride',this.value)" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;background:var(--surface2);color:${sec.cabOverride?'var(--accent)':'var(--muted)'};border:1px solid ${sec.cabOverride?'var(--accent)':'var(--border)'};border-radius:3px;padding:3px 5px">
-          <option value="">— Default (${getCab().name})</option>
-          ${Object.entries(CAB).map(([k,c])=>`<option value="${k}"${sec.cabOverride===k?' selected':''}>${c.name} · ${c.mm} · ${c.pxW}×${c.pxH}px</option>`).join('')}
+          <option value="">â€” Default (${getCab().name})</option>
+          ${Object.entries(CAB).map(([k,c])=>`<option value="${k}"${sec.cabOverride===k?' selected':''}>${c.name} Â· ${c.mm} Â· ${c.pxW}Ã—${c.pxH}px</option>`).join('')}
         </select>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${sec.doubleStacked?'var(--accent)':'var(--muted)'}">
           <input type="checkbox" ${sec.doubleStacked?'checked':''} onchange="updateCxSection(${i},'doubleStacked',this.checked)" style="width:auto;margin:0;accent-color:var(--accent)">
-          Double Stacked ${sec.doubleStacked?`<span style="background:var(--accent);color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:2px">×2</span>`:''}
+          Double Stacked ${sec.doubleStacked?`<span style="background:var(--accent);color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:2px">Ã—2</span>`:''}
         </label>
         ${sec.doubleStacked?`<select onchange="updateCxSection(${i},'stackFlow',this.value)" style="flex:1;font-size:10px;font-family:'Barlow Condensed',sans-serif;padding:2px 4px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:3px">
           <option value="snake"${(sec.stackFlow||'snake')==='snake'?' selected':''}>Snake (row 2 reverses)</option>
           <option value="parallel"${sec.stackFlow==='parallel'?' selected':''}>Parallel (row 2 same dir)</option>
         </select>`:''}
       </div>
-      <div class="cxs-info-row">Cabs #${startCab}–#${endCab} · ${totalN} total${sec.doubleStacked?` (${n}×2)`:''} · ${pxW}×${cab.pxH}px${sec.cabOverride?` · <span style="color:var(--accent);font-weight:800">${cab.name}</span>`:''}</div>
+      <div class="cxs-info-row">Cabs #${startCab}â€“#${endCab} Â· ${totalN} total${sec.doubleStacked?` (${n}Ã—2)`:''} Â· ${pxW}Ã—${cab.pxH}px${sec.cabOverride?` Â· <span style="color:var(--accent);font-weight:800">${cab.name}</span>`:''}</div>
     </div>`;
   }).join('');
   const total = cxPathTotal();
   const sumEl = document.getElementById('cx-section-summary');
-  if(sumEl) sumEl.innerHTML = `<strong style="color:var(--text)">${complexSections.length} sections · ${total} cabinets total</strong>`;
+  if(sumEl) sumEl.innerHTML = `<strong style="color:var(--text)">${complexSections.length} sections Â· ${total} cabinets total</strong>`;
 }
 
-// ── LAYOUT DIAGRAM ──────────────────────────────────────────────
+// â”€â”€ LAYOUT DIAGRAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function computeCxScenePadding() {
   const fL=getFieldL(), fW=getFieldW(), PAD=6;
   let eL=10,eR=10,eT=10,eB=10;
@@ -605,8 +605,8 @@ function computeCxScenePadding() {
   }
 
   // If any fiber box is in a top corner, reserve extra space above for approach rails
-  // FB_TOP_MARGIN px box position + FB_BOX_H + 10 rails × 8px = ~190px needed above cabinets
-  // We add this as a minimum eT/eB in feet using a rough 1ft≈5px estimate (corrected at render time)
+  // FB_TOP_MARGIN px box position + FB_BOX_H + 10 rails Ã— 8px = ~190px needed above cabinets
+  // We add this as a minimum eT/eB in feet using a rough 1ftâ‰ˆ5px estimate (corrected at render time)
   // Actually we just set a generous minimum in the result directly
   const hasTopBox = fiberBoxes.some(b => b.cabNum && ((b.cornerPos??0) >= 2));
   const hasBottomBox = fiberBoxes.some(b => b.cabNum && ((b.cornerPos??0) < 2));
@@ -619,7 +619,7 @@ function computeCxScenePadding() {
   };
 }
 
-// Fiber boxes are now rendered at fixed SVG corners — no scene padding needed for them
+// Fiber boxes are now rendered at fixed SVG corners â€” no scene padding needed for them
 
 // Compute the Y position for top/bottom fiber boxes based on actual cabinet strip positions
 function computeFiberBoxYPositions(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip) {
@@ -670,9 +670,9 @@ function drawField(fX, fY, fW, fH, type, color) {
     // Sandy court base
     s += `<rect x="${fX.toFixed(1)}" y="${fY.toFixed(1)}" width="${fW.toFixed(1)}" height="${fH.toFixed(1)}" fill="#c8a060" rx="1"/>`;
     const lw = '0.8', lc = 'rgba(255,255,255,0.85)';
-    // Net (center line — thick)
+    // Net (center line â€” thick)
     s += `<line x1="${(fX+fW/2).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="1.8"/>`;
-    // Attack lines at 3m from net (≈30% of half-court each side)
+    // Attack lines at 3m from net (â‰ˆ30% of half-court each side)
     const att = fW * 0.167; // 3m out of ~18m total width
     s += `<line x1="${(fX+fW/2-att).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2-att).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="${lw}" stroke-dasharray="3,2"/>`;
     s += `<line x1="${(fX+fW/2+att).toFixed(1)}" y1="${fY.toFixed(1)}" x2="${(fX+fW/2+att).toFixed(1)}" y2="${(fY+fH).toFixed(1)}" stroke="${lc}" stroke-width="${lw}" stroke-dasharray="3,2"/>`;
@@ -771,17 +771,17 @@ function buildFieldDiagram(svgW, svgH, interactive) {
     const secCab=getSectionCab(sec);
     const pxW=n*secCab.pxW;
     const spanFt=(n*getSectionLenFt(sec)).toFixed(1);
-    const stackLabel=sec.doubleStacked?` ×2`:'';
-    const cabLabel=sec.cabOverride?` · ${secCab.name}`:'';
+    const stackLabel=sec.doubleStacked?` Ã—2`:'';
+    const cabLabel=sec.cabOverride?` Â· ${secCab.name}`:'';
     if(pos.orientation==='H'){
       const midX=pos.startX+(n*secCabLen)/2;
       const lY=sec.side==='south'?pos.cy+secStrip*stacks/2+12:pos.cy-secStrip*stacks/2-4;
-      labelsSvg+=`<text x="${midX.toFixed(1)}" y="${lY.toFixed(1)}" text-anchor="middle" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} · ${spanFt}ft · ${pxW}×${secCab.pxH}px${cabLabel}</text>`;
+      labelsSvg+=`<text x="${midX.toFixed(1)}" y="${lY.toFixed(1)}" text-anchor="middle" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} Â· ${spanFt}ft Â· ${pxW}Ã—${secCab.pxH}px${cabLabel}</text>`;
     } else {
       const midY=pos.startY-(n*secCabLen)/2;
       const lX=sec.side==='east'?pos.cx+secStrip*stacks/2+28:pos.cx-secStrip*stacks/2-28;
       const anchor=sec.side==='east'?'start':'end';
-      labelsSvg+=`<text x="${lX.toFixed(1)}" y="${(midY+3).toFixed(1)}" text-anchor="${anchor}" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} · ${spanFt}ft${cabLabel}</text>`;
+      labelsSvg+=`<text x="${lX.toFixed(1)}" y="${(midY+3).toFixed(1)}" text-anchor="${anchor}" font-size="7.5" fill="#ccc" font-weight="700">${n} cabs${stackLabel} Â· ${spanFt}ft${cabLabel}</text>`;
     }
     if(interactive) {
       svg+=`<g id="svgSec_${si}" class="cx-sec-group" onmouseenter="hoverCxSection(${si})" onmouseleave="unhoverCxSection()">${secSvg}</g>`;
@@ -816,14 +816,14 @@ function renderCxDiagram() {
   el.innerHTML=buildFieldDiagram(720,600,false);
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PORT ASSIGNMENT MODAL
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function openPortModal() {
   if(complexSections.length===0){ alert('Define cabinet sections first (Edit Layout), then assign ports.'); return; }
   const meta=document.getElementById('port-modal-meta');
   const cab=getCab(); const total=cxPathTotal();
-  if(meta) meta.textContent=cab.name+' · '+total+' cabinets total';
+  if(meta) meta.textContent=cab.name+' Â· '+total+' cabinets total';
   document.getElementById('portModal').classList.add('open');
   renderPortEntries();
   renderPortDiagram();
@@ -892,7 +892,7 @@ function showCabTT(evt,cabNum) {
   const ttTxt=document.getElementById('tt-text');
   if(!tt||!ttBg||!ttTxt) return;
   const port=ports.find(p=>cabNum>=Math.min(p.first,p.last)&&cabNum<=Math.max(p.first,p.last));
-  const label=port?`CAB #${cabNum}  ·  ${port.label}`:`CAB #${cabNum}  ·  unassigned`;
+  const label=port?`CAB #${cabNum}  Â·  ${port.label}`:`CAB #${cabNum}  Â·  unassigned`;
   const w=Math.max(160,label.length*9+24), h=30;
   ttBg.setAttribute('width',w); ttBg.setAttribute('height',h);
   ttBg.setAttribute('x',svgP.x-w/2); ttBg.setAttribute('y',svgP.y-h-10);
@@ -909,7 +909,7 @@ function toggleReverse() {
   });
   reverseNumbering=!reverseNumbering;
   const btn=document.getElementById('reverseToggleBtn');
-  if(btn){ btn.textContent=reverseNumbering?'→ CAB #1 RIGHT':'← CAB #1 LEFT'; btn.style.borderColor=reverseNumbering?'var(--accent)':'var(--border)'; btn.style.color=reverseNumbering?'var(--accent)':'var(--text)'; }
+  if(btn){ btn.textContent=reverseNumbering?'â†’ CAB #1 RIGHT':'â† CAB #1 LEFT'; btn.style.borderColor=reverseNumbering?'var(--accent)':'var(--border)'; btn.style.color=reverseNumbering?'var(--accent)':'var(--text)'; }
   renderPortEntries(); renderPortDiagram();
 }
 
@@ -928,27 +928,27 @@ function renderPortEntries() {
         <input type="number" min="1" max="48" value="${p.portNum||i+1}" onchange="updatePortField(${i},'portNum',this.value)" title="Physical port number on processor" style="width:44px;flex-shrink:0;text-align:center;padding:4px 4px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid var(--border);color:var(--accent);border-radius:3px">
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
           <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:'Barlow Condensed',sans-serif;white-space:nowrap">BKP</span>
-          <input type="number" min="1" max="48" value="${p.backupPort||''}" onchange="updatePortField(${i},'backupPort',this.value)" placeholder="—" title="Backup port number" style="width:44px;flex-shrink:0;text-align:center;padding:4px 4px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:3px">
+          <input type="number" min="1" max="48" value="${p.backupPort||''}" onchange="updatePortField(${i},'backupPort',this.value)" placeholder="â€”" title="Backup port number" style="width:44px;flex-shrink:0;text-align:center;padding:4px 4px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:3px">
         </div>
         <input class="port-name-input" value="${esc(p.label)}" oninput="ports[${i}].label=this.value;render()" placeholder="Zone / Label">
-        <button class="port-delete-btn" title="Delete this port" onclick="confirmRemovePort(${i})">🗑</button>
+        <button class="port-delete-btn" title="Delete this port" onclick="confirmRemovePort(${i})">ðŸ—‘</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:5px;align-items:start;margin-bottom:6px">
         <div style="display:flex;flex-direction:column;gap:3px">
-          <button class="pick-btn${isPStart?' picking':p.first?' set':''}" onclick="startPick(${i},'first')" style="width:100%">${isPStart?'⊕ Clicking...':'Set Start'}</button>
+          <button class="pick-btn${isPStart?' picking':p.first?' set':''}" onclick="startPick(${i},'first')" style="width:100%">${isPStart?'âŠ• Clicking...':'Set Start'}</button>
           <input type="number" min="1" max="${total}" value="${p.first||''}" onchange="updatePortField(${i},'first',this.value)" style="text-align:center;padding:3px 4px;font-size:13px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid ${isPStart?'var(--accent)':'var(--border)'};color:var(--text);border-radius:3px" placeholder="Start">
         </div>
-        <span style="color:var(--muted);font-size:13px;padding-top:18px;text-align:center">→</span>
+        <span style="color:var(--muted);font-size:13px;padding-top:18px;text-align:center">â†’</span>
         <div style="display:flex;flex-direction:column;gap:3px">
-          <button class="pick-btn${isPEnd?' picking':p.last?' set':''}" onclick="startPick(${i},'last')" style="width:100%">${isPEnd?'⊕ Clicking...':'Set End'}</button>
+          <button class="pick-btn${isPEnd?' picking':p.last?' set':''}" onclick="startPick(${i},'last')" style="width:100%">${isPEnd?'âŠ• Clicking...':'Set End'}</button>
           <input type="number" min="1" max="${total}" value="${p.last||''}" onchange="updatePortField(${i},'last',this.value)" style="text-align:center;padding:3px 4px;font-size:13px;font-weight:700;font-family:'Barlow Condensed',sans-serif;background:var(--surface);border:1px solid ${isPEnd?'var(--accent)':'var(--border)'};color:var(--text);border-radius:3px" placeholder="End">
         </div>
       </div>
       <div class="form-group" style="margin:0 0 4px">
         <label class="form-label">Cable Run / Chain Direction</label>
-        <input type="text" value="${esc(p.run||'')}" oninput="ports[${i}].run=this.value;render()" placeholder="e.g. Stage-L → Stage-R">
+        <input type="text" value="${esc(p.run||'')}" oninput="ports[${i}].run=this.value;render()" placeholder="e.g. Stage-L â†’ Stage-R">
       </div>
-      <div class="port-dims">${n} cabs · ${pxW}×${portCab.pxH}px${getMaxPx()?` · ${(n*portCab.pxW*portCab.pxH/getMaxPx()*100).toFixed(1)}% load`:''}</div>
+      <div class="port-dims">${n} cabs Â· ${pxW}Ã—${portCab.pxH}px${getMaxPx()?` Â· ${(n*portCab.pxW*portCab.pxH/getMaxPx()*100).toFixed(1)}% load`:''}</div>
     </div>`;
   }).join('');
   const addBtn=document.getElementById('port-add-btn');
@@ -971,14 +971,14 @@ function updatePortWarning() {
   }
   const uncovered=covered.slice(1).filter(v=>!v).length;
   let msg='';
-  if(overlap) msg+='⚠ Overlapping ports. ';
-  if(uncovered) msg+=`⚠ ${uncovered} cabinet${uncovered>1?'s':''} not assigned.`;
+  if(overlap) msg+='âš  Overlapping ports. ';
+  if(uncovered) msg+=`âš  ${uncovered} cabinet${uncovered>1?'s':''} not assigned.`;
   const el=document.getElementById('port-coverage-warning'); if(el) el.textContent=msg;
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // SIDEBAR SUMMARIES
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function updateLayoutSummary() {
   const el=document.getElementById('layout-summary-body'); if(!el) return;
   const sbEl=document.getElementById('status-bar');
@@ -989,7 +989,7 @@ function updateLayoutSummary() {
   }
   const total=cxPathTotal();
   const totalPx=complexSections.reduce((sum,s)=>{ const sc=getSectionCab(s); return sum+(parseInt(s.count)||0)*(s.doubleStacked?2:1)*sc.pxW*sc.pxH; },0);
-  el.innerHTML=complexSections.map((s,i)=>`<div><strong>Sec ${i+1}:</strong> ${s.name} — ${s.count} cabs (${s.side})</div>`).join('');
+  el.innerHTML=complexSections.map((s,i)=>`<div><strong>Sec ${i+1}:</strong> ${s.name} â€” ${s.count} cabs (${s.side})</div>`).join('');
   if(sbEl){
     sbEl.style.display='flex';
     document.getElementById('sb-secs').textContent=complexSections.length;
@@ -1008,13 +1008,13 @@ function updatePortSummary() {
     const portCab2 = (p.first ? getSectionCab(complexSections.find((_,si)=>{ const s=getSectionStartCab(si),sn=(parseInt(complexSections[si].count)||0)*(complexSections[si].doubleStacked?2:1); return p.first>=s&&p.first<=s+sn-1; })||null) : null) || getCab();
     const pxLoad=n*portCab2.pxW*portCab2.pxH;
     const pct=getMaxPx()?`${(pxLoad/getMaxPx()*100).toFixed(0)}%`:'';
-    return `<div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span><strong>P${p.portNum||i+1}:</strong> ${esc(p.label)||'Unlabeled'} — ${n} cabs${pct?' · '+pct:''}</div>`;
+    return `<div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;flex-shrink:0"></span><strong>P${p.portNum||i+1}:</strong> ${esc(p.label)||'Unlabeled'} â€” ${n} cabs${pct?' Â· '+pct:''}</div>`;
   }).join('');
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // SPEC SHEET RENDER
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function pxForPort(p) {
   const portCab = (p.first ? getSectionCab(complexSections.find((_,si)=>{ const s=getSectionStartCab(si),sn=(parseInt(complexSections[si].count)||0)*(complexSections[si].doubleStacked?2:1); return p.first>=s&&p.first<=s+sn-1; })||null) : null) || getCab();
   const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
@@ -1054,16 +1054,16 @@ function render() {
   if(ports.length>0){
     ports.forEach((p,i)=>{
       const px=pxForPort(p), pct=loadPct(px);
-      const loadTxt=pct!==null?pct+'%':(px>0?fmtPx(px):'—');
+      const loadTxt=pct!==null?pct+'%':(px>0?fmtPx(px):'â€”');
       const loadC=pct!==null?(pct>100?'#cc2020':pct>80?'#b86c00':'#1a8a1a'):'#888';
       portMapHtml+=`<div class="pm-chip" style="background-color:${hexAlpha(p.color,0.15)};border-color:${p.color};color:${p.color}" title="${esc(p.label)}">
         <span class="pc-n">${p.portNum||i+1}</span>
-        <span class="pc-lbl" style="color:#333">${esc(p.label)||'—'}</span>
+        <span class="pc-lbl" style="color:#333">${esc(p.label)||'â€”'}</span>
         <span class="pc-load" style="color:${loadC}">${loadTxt}</span>
       </div>`;
     });
   } else {
-    portMapHtml='<div style="font-size:11px;color:#999;font-family:\'Barlow Condensed\',sans-serif;padding:10px 0">No port assignments yet — use "Assign Ports" to map processor outputs to cabinet runs</div>';
+    portMapHtml='<div style="font-size:11px;color:#999;font-family:\'Barlow Condensed\',sans-serif;padding:10px 0">No port assignments yet â€” use "Assign Ports" to map processor outputs to cabinet runs</div>';
   }
 
   // Diagram SVG for spec sheet
@@ -1079,31 +1079,31 @@ function render() {
     ports.forEach((p,i)=>{
       const px=pxForPort(p), pct=loadPct(px);
       const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
-      const pctStr=pct!==null?pct+'%':'—';
+      const pctStr=pct!==null?pct+'%':'â€”';
       const cls=loadClass(pct);
-      const cabRange=p.first&&p.last?`#${Math.min(p.first,p.last)}–#${Math.max(p.first,p.last)}`:'—';
+      const cabRange=p.first&&p.last?`#${Math.min(p.first,p.last)}â€“#${Math.max(p.first,p.last)}`:'â€”';
       rowsHtml+=`<tr>
         <td class="td-port" style="color:${p.color};border-left:4px solid ${p.color}">${p.portNum||i+1}</td>
         <td class="td-zone"><span class="color-swatch" style="background:${p.color}"></span>${esc(p.label)||'<span style="color:#999;font-weight:400;font-style:italic">Unlabeled</span>'}</td>
-        <td class="r" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#555">${p.backupPort||'—'}</td>
-        <td style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700">${(()=>{ const fb=fiberBoxForPort(i); return fb?`<span style="background:#f9731622;color:#f97316;border:1px solid #f9731644;padding:1px 5px;border-radius:3px">◈ ${esc(fb.name)}</span>`:'—'; })()}</td>
+        <td class="r" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#555">${p.backupPort||'â€”'}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700">${(()=>{ const fb=fiberBoxForPort(i); return fb?`<span style="background:#f9731622;color:#f97316;border:1px solid #f9731644;padding:1px 5px;border-radius:3px">â—ˆ ${esc(fb.name)}</span>`:'â€”'; })()}</td>
         <td class="r">${cabRange}</td>
-        <td class="r" style="font-weight:600">${n||'—'}</td>
-        <td class="r" style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px">${px>0?fmtPx(px):'—'}</td>
+        <td class="r" style="font-weight:600">${n||'â€”'}</td>
+        <td class="r" style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px">${px>0?fmtPx(px):'â€”'}</td>
         <td class="td-load r ${cls}">${pctStr}</td>
-        <td class="td-run">${esc(p.run)||'—'}</td>
+        <td class="td-run">${esc(p.run)||'â€”'}</td>
       </tr>`;
     });
     const totalPortPx=ports.reduce((a,p)=>a+pxForPort(p),0);
     const avgPct=maxPx&&ports.length?loadPct(totalPortPx/ports.length):null;
     rowsHtml+=`<tr class="total-row">
-      <td colspan="2" class="big">TOTAL — ${ports.length} Output${ports.length!==1?'s':''}</td>
+      <td colspan="2" class="big">TOTAL â€” ${ports.length} Output${ports.length!==1?'s':''}</td>
       <td></td>
       <td></td>
       <td></td>
-      <td class="r big">${ports.reduce((a,p)=>a+Math.max(0,Math.abs((p.last||0)-(p.first||0))+1),0)||'—'}</td>
-      <td class="r big">${fmtPx(totalPortPx)||'—'}</td>
-      <td class="r big ${loadClass(avgPct)}" style="color:${avgPct!==null?(avgPct>100?'#f87171':avgPct>80?'#fbbf24':'#4ade80'):'rgba(255,255,255,.5)'}">${avgPct!==null?avgPct+'% avg':'—'}</td>
+      <td class="r big">${ports.reduce((a,p)=>a+Math.max(0,Math.abs((p.last||0)-(p.first||0))+1),0)||'â€”'}</td>
+      <td class="r big">${fmtPx(totalPortPx)||'â€”'}</td>
+      <td class="r big ${loadClass(avgPct)}" style="color:${avgPct!==null?(avgPct>100?'#f87171':avgPct>80?'#fbbf24':'#4ade80'):'rgba(255,255,255,.5)'}">${avgPct!==null?avgPct+'% avg':'â€”'}</td>
       <td></td>
     </tr>`;
   } else {
@@ -1113,12 +1113,12 @@ function render() {
   document.getElementById('sheetWrap').innerHTML=`
   <div class="spec-sheet">
 
-    <!-- ═══ PAGE 1: Header + Infobar + Port Table + Notes ═══ -->
+    <!-- â•â•â• PAGE 1: Header + Infobar + Port Table + Notes â•â•â• -->
     <div class="ss-page">
       <div class="ss-header">
         <div>
           <div class="ss-title">${job||'TECH CABLING SHEET'}</div>
-          <div class="ss-sub">LED Processor Port Assignment · ${rev}</div>
+          <div class="ss-sub">LED Processor Port Assignment Â· ${rev}</div>
         </div>
         <div class="ss-meta">
           ${venue?`<div><strong>${esc(venue)}</strong></div>`:''}
@@ -1128,17 +1128,17 @@ function render() {
         </div>
       </div>
       <div class="ss-infobar">
-        <div class="ic"><div class="ic-l">Field Size</div><div class="ic-v"><em>${getFieldL()}</em><span style="color:rgba(255,255,255,.3);font-size:11px"> × </span><em>${getFieldW()}</em><span style="font-size:11px;color:rgba(255,255,255,.4)"> ft</span></div></div>
-        <div class="ic"><div class="ic-l">Processor</div><div class="ic-v"><em>${esc(proc)||'—'}</em></div></div>
+        <div class="ic"><div class="ic-l">Field Size</div><div class="ic-v"><em>${getFieldL()}</em><span style="color:rgba(255,255,255,.3);font-size:11px"> Ã— </span><em>${getFieldW()}</em><span style="font-size:11px;color:rgba(255,255,255,.4)"> ft</span></div></div>
+        <div class="ic"><div class="ic-l">Processor</div><div class="ic-v"><em>${esc(proc)||'â€”'}</em></div></div>
         <div class="ic"><div class="ic-l">Ports Assigned</div><div class="ic-v"><em>${ports.length}</em></div></div>
         <div class="ic"><div class="ic-l">Cabinet Type</div><div class="ic-v">${cab.name} <em style="font-size:12px;color:#aaa">${cab.mm}</em></div></div>
-        <div class="ic"><div class="ic-l">Px / Cabinet</div><div class="ic-v"><em>${cab.pxW}×${cab.pxH}</em></div></div>
-        <div class="ic"><div class="ic-l">Total Cabinets</div><div class="ic-v"><em>${totalCabs||'—'}</em></div></div>
+        <div class="ic"><div class="ic-l">Px / Cabinet</div><div class="ic-v"><em>${cab.pxW}Ã—${cab.pxH}</em></div></div>
+        <div class="ic"><div class="ic-l">Total Cabinets</div><div class="ic-v"><em>${totalCabs||'â€”'}</em></div></div>
         ${maxPx?`<div class="ic"><div class="ic-l">Max Px / Port</div><div class="ic-v"><em>${fmtPx(maxPx)}</em></div></div>`:''}
       </div>
       <div class="ss-body">
         ${fiberBoxes.length>0?`<div class="ss-diagram" style="padding-top:14px">
-          <div class="ss-diag-title">Fiber Converters — ${fiberBoxes.length} Box${fiberBoxes.length!==1?'es':''}</div>
+          <div class="ss-diag-title">Fiber Converters â€” ${fiberBoxes.length} Box${fiberBoxes.length!==1?'es':''}</div>
           <table class="ss-table" style="margin-top:8px">
             <thead><tr>
               <th style="width:100px">Box</th>
@@ -1157,8 +1157,8 @@ function render() {
               }).join('');
               const allPorts = (primaryList||'') + (backupList||'');
               return `<tr>
-                <td style="font-weight:700;font-family:'Barlow Condensed',sans-serif"><span style="color:#f97316">◈</span> ${esc(box.name)}</td>
-                <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700">${box.cabNum?`Cab #${box.cabNum}`:'—'}</td>
+                <td style="font-weight:700;font-family:'Barlow Condensed',sans-serif"><span style="color:#f97316">â—ˆ</span> ${esc(box.name)}</td>
+                <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700">${box.cabNum?`Cab #${box.cabNum}`:'â€”'}</td>
                 <td>${allPorts||'<span style="color:#999;font-style:italic;font-size:12px">No ports assigned</span>'}</td>
               </tr>`;
             }).join('')}</tbody>
@@ -1183,16 +1183,16 @@ function render() {
         ${notes?`<div class="ss-notes"><div class="ss-notes-title">Tech Notes</div><div class="ss-notes-body">${esc(notes)}</div></div>`:''}
       </div>
       <div class="ss-footer">
-        <span>NOVASPEC · Tech Cabling Sheet · ${rev} · Page 1 of 2</span>
-        <span>${job?esc(job)+' · ':''}${date||nowStr}</span>
+        <span>NOVASPEC Â· Tech Cabling Sheet Â· ${rev} Â· Page 1 of 2</span>
+        <span>${job?esc(job)+' Â· ':''}${date||nowStr}</span>
       </div>
     </div>
 
-    <!-- ═══ PAGE 2: Field Diagram ═══ -->
+    <!-- â•â•â• PAGE 2: Field Diagram â•â•â• -->
     <div class="ss-page">
       <div class="ss-page2-header">
-        <div class="ss-page2-title">${esc(job)||'TECH CABLING SHEET'} <span style="color:#00c8f0;font-weight:400">· Layout Diagram</span></div>
-        <div class="ss-page2-meta">${esc(proc)||''} ${venue?'· '+esc(venue):''} · ${rev}</div>
+        <div class="ss-page2-title">${esc(job)||'TECH CABLING SHEET'} <span style="color:#00c8f0;font-weight:400">Â· Layout Diagram</span></div>
+        <div class="ss-page2-meta">${esc(proc)||''} ${venue?'Â· '+esc(venue):''} Â· ${rev}</div>
         <div style="display:flex;align-items:center;gap:12px;font-size:11px;font-family:'Barlow Condensed',sans-serif;color:rgba(255,255,255,.6)">
           <span style="display:inline-block;width:12px;height:8px;border-radius:2px;background:#00c8f0"></span><span style="color:#ccc">Primary</span>
           <span style="display:inline-block;width:12px;height:8px;border-radius:2px;background:#b0b8c8"></span><span style="color:#ccc">Backup</span>
@@ -1200,11 +1200,11 @@ function render() {
         </div>
       </div>
       <div class="ss-body">
-        ${diagramHtml?`<div class="ss-diagram" style="border-bottom:none;padding-top:4px"><div class="ss-diagram-frame">${diagramHtml}</div></div>`:'<div style="padding:40px 28px;color:#999;font-style:italic;text-align:center">No layout defined — use Edit Layout in sidebar</div>'}
+        ${diagramHtml?`<div class="ss-diagram" style="border-bottom:none;padding-top:4px"><div class="ss-diagram-frame">${diagramHtml}</div></div>`:'<div style="padding:40px 28px;color:#999;font-style:italic;text-align:center">No layout defined â€” use Edit Layout in sidebar</div>'}
       </div>
       <div class="ss-footer">
-        <span>NOVASPEC · Tech Cabling Sheet · ${rev} · Page 2 of 2</span>
-        <span>${job?esc(job)+' · ':''}${date||nowStr}</span>
+        <span>NOVASPEC Â· Tech Cabling Sheet Â· ${rev} Â· Page 2 of 2</span>
+        <span>${job?esc(job)+' Â· ':''}${date||nowStr}</span>
       </div>
     </div>
 
@@ -1280,7 +1280,7 @@ function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
   // These exit toward the FIELD (inward) so they never conflict with the backup
   const drawL = !isBackup && (fromPos.stacks||1) > 1 && (fromPos.row||0) === 0;
 
-  // Inward side (toward the field) — opposite of outsideSide
+  // Inward side (toward the field) â€” opposite of outsideSide
   const inwardSide = { below:'above', above:'below', right:'left', left:'right' }[outsideSide];
 
   const SHORT_STEM = 3;
@@ -1292,7 +1292,7 @@ function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
   let svg = '';
 
   if(isH){
-    const realCabCX = fromPos.x + fromPos.w/2;   // true cabinet center — stem touches here
+    const realCabCX = fromPos.x + fromPos.w/2;   // true cabinet center â€” stem touches here
     const pillCX    = realCabCX + lateralOffset;  // pill is offset laterally
 
     if(drawL){
@@ -1307,7 +1307,7 @@ function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
       const jogX = arrowRight ? pillCX - L_JOG : pillCX + L_JOG;
       const pillX = arrowRight ? jogX - pillW/2 : jogX - pillW/2;
 
-      // Stem: real cab center → vertical → jog to offset pill X
+      // Stem: real cab center â†’ vertical â†’ jog to offset pill X
       svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${stemStartY.toFixed(1)}" x2="${realCabCX.toFixed(1)}" y2="${stemEndY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
       if(lateralOffset !== 0){
         svg+=`<line x1="${realCabCX.toFixed(1)}" y1="${stemEndY.toFixed(1)}" x2="${pillCX.toFixed(1)}" y2="${stemEndY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".7"/>`;
@@ -1375,7 +1375,7 @@ function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
       svg+=`<line x1="${stemEndX.toFixed(1)}" y1="${pillCY.toFixed(1)}" x2="${stemEndX.toFixed(1)}" y2="${jogY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
       const pillX = inwardSide==='left' ? stemEndX - pillW : stemEndX;
       svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}"/>`;
-      const arrowGlyph = arrowDown ? '↓' : '↑';
+      const arrowGlyph = arrowDown ? 'â†“' : 'â†‘';
       svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="rgba(0,0,0,0.55)" font-weight="900" font-family="Barlow Condensed,sans-serif">${arrowGlyph}</text>`;
       svg+=`<text x="${(pillX+PAD+ARROW_CHAR_W+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="#000" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
 
@@ -1396,7 +1396,7 @@ function drawPortAnnotation(fromPos, toPos, color, label, role, lateralOffset) {
         svg+=`<line x1="${stemX2.toFixed(1)}" y1="${realCabCY.toFixed(1)}" x2="${(outsideSide==='right'?pillX:pillX+pillW).toFixed(1)}" y2="${realCabCY.toFixed(1)}" stroke="${color}" stroke-width="1.8" opacity=".85"/>`;
       }
       svg+=`<rect x="${pillX.toFixed(1)}" y="${pillY.toFixed(1)}" width="${pillW.toFixed(1)}" height="${pillH.toFixed(1)}" fill="${color}" rx="${RX}" opacity="${isBackup?'.85':'1'}"/>`;
-      const arrowGlyph = arrowDown ? '↓' : '↑';
+      const arrowGlyph = arrowDown ? 'â†“' : 'â†‘';
       svg+=`<text x="${(pillX+PAD).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="rgba(0,0,0,0.55)" font-weight="900" font-family="Barlow Condensed,sans-serif">${arrowGlyph}</text>`;
       svg+=`<text x="${(pillX+PAD+ARROW_CHAR_W+2).toFixed(1)}" y="${(pillY+pillH-PAD).toFixed(1)}" font-size="${FONT}" fill="${isBackup?'#444':'#000'}" font-weight="800" font-family="Barlow Condensed,sans-serif">${label}</text>`;
     }
@@ -1511,7 +1511,7 @@ function drawFiberConnectors(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, 
     });
   });
 
-  // Build a lateralOffset map keyed by pill label — built in annotation block above
+  // Build a lateralOffset map keyed by pill label â€” built in annotation block above
   const STAGGER = 9;
   const boxRouteCounts = {};
   allRoutes.forEach(r => { boxRouteCounts[r.boxIdx] = (boxRouteCounts[r.boxIdx]||0) + 1; });
@@ -1533,7 +1533,7 @@ function drawFiberConnectors(sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip, 
     if(!pPt) return;
 
     // Each circle gets its own dedicated approach rail based purely on input number.
-    // Circle 1 = closest to box, circle 10 = furthest — always visible, always distinct.
+    // Circle 1 = closest to box, circle 10 = furthest â€” always visible, always distinct.
     const STEP = 8;
     const inputNum = parseInt(Object.entries(fiberBoxes[r.boxIdx].portInputNums||{})
       .find(([k]) => r.isBackup ? k===`b_${r.portIdx}` : k===`p_${r.portIdx}`)?.[1]) || 1;
@@ -1604,7 +1604,7 @@ function buildFieldDiagramForPrint(svgW, svgH) {
     }
   }
 
-  // Port entry / backup annotations — detect overlaps and offset colliding pills
+  // Port entry / backup annotations â€” detect overlaps and offset colliding pills
   // Collect all annotations with their natural stem center positions
   const annotItems = [];
   ports.forEach((p,i)=>{
@@ -1625,7 +1625,7 @@ function buildFieldDiagramForPrint(svgW, svgH) {
   const pillH = FONT+PAD*2;
 
   // Detect proximity: two annotations on same side and orientation whose stem centers are within threshold
-  const THRESH = 28; // px — if stem centers are closer than this, offset them
+  const THRESH = 28; // px â€” if stem centers are closer than this, offset them
   const PILL_OFFSET = 18; // px lateral offset to apply
 
   // Build list with natural stem center positions
@@ -1636,7 +1636,7 @@ function buildFieldDiagramForPrint(svgW, svgH) {
     return { ...a, isH, stemCX: cx, stemCY: cy, lateralOffset: 0 };
   });
 
-  // Find collisions on same side — sort by stem position, then stagger
+  // Find collisions on same side â€” sort by stem position, then stagger
   for(let i=0; i<annotWithPos.length; i++){
     for(let j=i+1; j<annotWithPos.length; j++){
       const a=annotWithPos[i], b=annotWithPos[j];
@@ -1653,7 +1653,7 @@ function buildFieldDiagramForPrint(svgW, svgH) {
   }
 
   let annotSvg='';
-  const annotLateralMap = {};  // label → lateralOffset, for fiber connector lookup
+  const annotLateralMap = {};  // label â†’ lateralOffset, for fiber connector lookup
   annotWithPos.forEach(a => {
     annotLateralMap[a.label] = a.lateralOffset;
     annotSvg += drawPortAnnotation(a.pos, a.toPos, a.color, a.label, a.role, a.lateralOffset);
@@ -1666,7 +1666,7 @@ function buildFieldDiagramForPrint(svgW, svgH) {
     fiberSvg+=drawFiberBoxMarker(boxIdx, box, svgW, svgH, sc, fieldX, fieldY, fieldW, fieldH, cabLen, strip);
   });
 
-  // Legend — white panel centered inside the field
+  // Legend â€” white panel centered inside the field
   let legendSvg='';
   if(ports.length>0){
     const ROW=13, PAD=8, SWATCH=9, GAP=4;
@@ -1699,9 +1699,9 @@ function buildFieldDiagramForPrint(svgW, svgH) {
   return svg;
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // UTILS
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function esc(s){
   if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1712,9 +1712,9 @@ function hexAlpha(hex,alpha){
 }
 function onCabChange(){ render(); }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // FIBER BOXES
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const FIBER_BOX_NAMES = ['OPT1','OPT2','OPT3','OPT4'];
 
 function addFiberBox(){
@@ -1830,18 +1830,18 @@ function renderFiberBoxes(){
         <div class="fiber-box-icon">F</div>
         <input type="text" value="${esc(box.name)}" onchange="updateFiberBox(${i},'name',this.value)" style="flex:1;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:13px" placeholder="Box name">
         <span style="font-size:10px;color:var(--muted);white-space:nowrap;margin-right:2px">@ Cab</span>
-        <input type="number" min="1" value="${box.cabNum||''}" onchange="updateFiberBox(${i},'cabNum',this.value)" placeholder="—" style="width:52px;text-align:center;font-weight:700;color:#f97316;padding:4px 4px">
+        <input type="number" min="1" value="${box.cabNum||''}" onchange="updateFiberBox(${i},'cabNum',this.value)" placeholder="â€”" style="width:52px;text-align:center;font-weight:700;color:#f97316;padding:4px 4px">
         <select onchange="fiberBoxes[${i}].cornerPos=parseInt(this.value);render()" title="Diagram position" style="font-size:10px;font-family:'Barlow Condensed',sans-serif;background:var(--surface2);color:#f97316;border:1px solid #f97316;border-radius:3px;padding:2px 3px;font-weight:700">
-          <option value="0"${(box.cornerPos??i%4)===0?' selected':''}>↙ BL</option>
-          <option value="1"${(box.cornerPos??i%4)===1?' selected':''}>↘ BR</option>
-          <option value="2"${(box.cornerPos??i%4)===2?' selected':''}>↖ TL</option>
-          <option value="3"${(box.cornerPos??i%4)===3?' selected':''}>↗ TR</option>
+          <option value="0"${(box.cornerPos??i%4)===0?' selected':''}>â†™ BL</option>
+          <option value="1"${(box.cornerPos??i%4)===1?' selected':''}>â†˜ BR</option>
+          <option value="2"${(box.cornerPos??i%4)===2?' selected':''}>â†– TL</option>
+          <option value="3"${(box.cornerPos??i%4)===3?' selected':''}>â†— TR</option>
         </select>
-        <button onclick="removeFiberBox(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px">✕</button>
+        <button onclick="removeFiberBox(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px">âœ•</button>
       </div>
-      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Primary ports → input #:</div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Primary ports â†’ input #:</div>
       <div class="fiber-port-checks" style="margin-bottom:8px">${primaryChecks}</div>
-      ${ports.some(p=>p.backupPort)?`<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Backup ports → input #:</div>
+      ${ports.some(p=>p.backupPort)?`<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Backup ports â†’ input #:</div>
       <div class="fiber-port-checks">${backupChecks}</div>`:''}
     </div>`;
   }).join('');
@@ -1852,7 +1852,7 @@ function fiberBoxForPort(portIdx){
 }
 
 // Fiber box SVG geometry constants
-// Fiber box SVG geometry — fixed corner positions, stable regardless of cabinet location
+// Fiber box SVG geometry â€” fixed corner positions, stable regardless of cabinet location
 const FB_R=7, FB_SP=18, FB_N=10, FB_HPAD=6, FB_CPAD=5;
 const FB_LABEL_W=30;
 const FB_BOX_W = FB_LABEL_W + FB_HPAD + (FB_N-1)*FB_SP + FB_R*2 + FB_HPAD;
@@ -1880,7 +1880,7 @@ function drawFiberBoxMarker(boxIdx, box, svgW, svgH, sc, fieldX, fieldY, fieldW,
   const {px, py} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
   let svg='';
 
-  // Label: "Place at cabinet: N" — above box for bottom corners, below for top corners
+  // Label: "Place at cabinet: N" â€” above box for bottom corners, below for top corners
   if(box.cabNum){
     const {corner} = getFiberBoxFixedPos(box, boxIdx, svgW, svgH);
     const isBottom = corner < 2;
@@ -1894,7 +1894,7 @@ function drawFiberBoxMarker(boxIdx, box, svgW, svgH, sc, fieldX, fieldY, fieldW,
   svg+=`<line x1="${(px+FB_LABEL_W).toFixed(1)}" y1="${py.toFixed(1)}" x2="${(px+FB_LABEL_W).toFixed(1)}" y2="${(py+FB_BOX_H).toFixed(1)}" stroke="#f97316" stroke-width="1" opacity=".6"/>`;
   svg+=`<text x="${(px+FB_LABEL_W/2).toFixed(1)}" y="${(py+FB_BOX_H/2+3.5).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="900" fill="#f97316" font-family="Barlow Condensed,sans-serif">${box.name}</text>`;
 
-  // Circles — build inputNum→color map
+  // Circles â€” build inputNumâ†’color map
   const nums = box.portInputNums||{};
   const inputMap = {};
   (box.portIdxs||[]).forEach(pi=>{ const n=nums[`p_${pi}`]; if(n&&ports[pi]) inputMap[n]=ports[pi].color; });
@@ -1929,9 +1929,9 @@ function getFiberCircleCenter(box, boxIdx, inputNum, svgW, svgH) {
   };
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // SAVE / LOAD
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function collectFormFields() {
   const ids = ['jobName','venue','showDate','techName','revision','procModel','maxPixels','techNotes','cabType','fieldLength','fieldWidth'];
   const out = {};
@@ -1946,9 +1946,9 @@ function applyFormFields(fields) {
   });
 }
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // IMPORT FROM .e360 CLIENT SPEC
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function importE360(event) {
   const file = event.target.files[0]; if(!file) return;
   const reader = new FileReader();
@@ -1957,7 +1957,7 @@ function importE360(event) {
       const data = JSON.parse(e.target.result);
       const f = data.fields || {};
 
-      // ── Project fields ──────────────────────────────────────────
+      // â”€â”€ Project fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const jobEl    = document.getElementById('jobName');
       const venueEl  = document.getElementById('venue');
       const dateEl   = document.getElementById('showDate');
@@ -1973,21 +1973,21 @@ function importE360(event) {
         }
       }
 
-      // Map client name → job name (only if blank)
+      // Map client name â†’ job name (only if blank)
       if(!jobEl.value.trim() && f.clientName) jobEl.value = f.clientName;
       if(f.venueName)  venueEl.value  = f.venueName;
       if(f.releaseDate) dateEl.value  = f.releaseDate;
 
-      // Cabinet type — keys match exactly
+      // Cabinet type â€” keys match exactly
       if(f.cabinetType && CAB[f.cabinetType]) cabEl.value = f.cabinetType;
 
       // Field dimensions
       if(f.fieldLength) fLenEl.value = f.fieldLength;
       if(f.fieldWidth)  fWidEl.value = f.fieldWidth;
 
-      // ── Layout ──────────────────────────────────────────────────
+      // â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if(Array.isArray(data.complexSections) && data.complexSections.length > 0) {
-        // Complex layout — import directly
+        // Complex layout â€” import directly
         complexSections = data.complexSections.map(s=>({
           doubleStacked: false, stackFlow: 'snake', ...s
         }));
@@ -2004,7 +2004,7 @@ function importE360(event) {
           });
         }
       } else if(data.layoutMode === 'u' || !data.layoutMode) {
-        // Simple U layout — reconstruct complexSections from sideStates + fields
+        // Simple U layout â€” reconstruct complexSections from sideStates + fields
         const cabType = (f.cabinetType && CAB[f.cabinetType]) ? f.cabinetType : (document.getElementById('cabType').value);
         const cab = CAB[cabType] || CAB['p10'];
         const cf = cab.lenFt;
@@ -2038,7 +2038,7 @@ function importE360(event) {
           west:  westOn  ? endCabs : 0,
         };
 
-        // Path order matches e360: west → south → east, north is separate
+        // Path order matches e360: west â†’ south â†’ east, north is separate
         // fieldDist = distance from field edge to cabinet strip center
         const touchFieldDist = actualTurnDist;
         const endFieldDist   = actualTurnDist; // end lines anchor at turn point
@@ -2066,12 +2066,12 @@ function importE360(event) {
       if(typeof data.compassBearing === 'number') {
         compassBearing = data.compassBearing;
         document.getElementById('compassSidebar').value = compassBearing;
-        document.getElementById('compassSidebarVal').textContent = compassBearing + '°';
+        document.getElementById('compassSidebarVal').textContent = compassBearing + 'Â°';
         document.getElementById('compassDeg').value = compassBearing;
       }
       if(typeof data.reverseNumbering === 'boolean') reverseNumbering = data.reverseNumbering;
 
-      // ── Sync UI ──────────────────────────────────────────────────
+      // â”€â”€ Sync UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       renderCxSections();
       renderCxDiagram();
       renderPortEntries();
@@ -2084,7 +2084,7 @@ function importE360(event) {
       // Brief confirmation flash on the button
       const btn = document.getElementById('e360Input').previousElementSibling;
       const orig = btn.textContent;
-      btn.textContent = '✓ Imported!';
+      btn.textContent = 'âœ“ Imported!';
       btn.style.borderColor = '#4ade80'; btn.style.color = '#4ade80';
       setTimeout(()=>{ btn.textContent=orig; btn.style.borderColor='#7c6ef7'; btn.style.color='#7c6ef7'; }, 2000);
 
@@ -2139,7 +2139,7 @@ function applyNsfData(data) {
   const compassSbV = document.getElementById('compassSidebarVal');
   const compassDg  = document.getElementById('compassDeg');
   if(compassSb)  compassSb.value  = compassBearing;
-  if(compassSbV) compassSbV.textContent = compassBearing+'°';
+  if(compassSbV) compassSbV.textContent = compassBearing+'Â°';
   if(compassDg)  compassDg.value  = compassBearing;
   reverseNumbering = data.reverseNumbering  || false;
   showConnectors   = data.showConnectors !== false;
@@ -2187,7 +2187,7 @@ function loadSheet(event) {
   reader.onload = e => {
     try {
       applyNsfData(JSON.parse(e.target.result));
-      alert('✅ Loaded successfully!');
+      alert('âœ… Loaded successfully!');
     } catch(err) {
       console.error('NovaSpec load error:', err);
       alert('Failed to load file:\n' + err.message + '\n\nCheck browser console for details.');
@@ -2212,12 +2212,12 @@ function resetAll(){
 function copyText(){
   const job=document.getElementById('jobName').value.trim()||'Tech Sheet';
   const proc=document.getElementById('procModel').value.trim()||'Processor';
-  let lines=[`${job} — ${proc} Cabling Sheet\n`];
+  let lines=[`${job} â€” ${proc} Cabling Sheet\n`];
   ports.forEach((p,i)=>{
     const n=Math.max(0,Math.abs((p.last||0)-(p.first||0))+1);
     const px=pxForPort(p);
     const pct=getMaxPx()?` | ${(px/getMaxPx()*100).toFixed(1)}%`:'';
-    lines.push(`Port ${p.portNum||i+1}: ${p.label||'Unlabeled'} | Cabs #${Math.min(p.first,p.last)}–#${Math.max(p.first,p.last)} (${n}) | ${fmtPx(px)}px${pct}${p.run?' | '+p.run:''}`);
+    lines.push(`Port ${p.portNum||i+1}: ${p.label||'Unlabeled'} | Cabs #${Math.min(p.first,p.last)}â€“#${Math.max(p.first,p.last)} (${n}) | ${fmtPx(px)}px${pct}${p.run?' | '+p.run:''}`);
   });
   navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Copied!'));
 }
@@ -2225,12 +2225,12 @@ function copyText(){
 // INIT
 render();
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // HEADLESS RENDER ENTRYPOINT (E360 staffing dashboard)
 // Loaded in a hidden iframe by the staffing dashboard. The dashboard
 // posts a .nsf JSON; we hydrate state via applyNsfData() and return
 // the print-style cabling diagram SVG via postMessage.
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 // Capture the live #sheetWrap element along with this page's stylesheet/
 // font links and inline <style> tags, so the dashboard can embed the
@@ -2278,13 +2278,13 @@ window.addEventListener('message', (e) => {
   }
 });
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BIND TO DASHBOARD EVENT
-// Sidebar button → opens dashboard URL in a popup with ?bind-spec=1.
+// Sidebar button â†’ opens dashboard URL in a popup with ?bind-spec=1.
 // Dashboard popup signals ready, we postMessage the current sheet
 // state, dashboard shows event picker, user picks, dashboard POSTs to
 // its own API and signals completion back to us.
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 // /config.js is preferred but never required: fall back to the value this file
 // used to hardcode, so a missing or stale config.js breaks nothing (retires T5).
@@ -2344,7 +2344,7 @@ function bindToDashboardEvent() {
         cleanup();
       });
     } else if (msg.type === 'bind-complete') {
-      alert('✓ Bound to: ' + (msg.eventName || 'event'));
+      alert('âœ“ Bound to: ' + (msg.eventName || 'event'));
       cleanup();
     }
   }
@@ -2364,19 +2364,19 @@ function bindToDashboardEvent() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BIND TO PM SHOW (Showrunner)
 // Same popup pattern as bindToDashboardEvent(), a different target and a
-// slightly richer payload. This is ADDITIVE — the dashboard bind above is
+// slightly richer payload. This is ADDITIVE â€” the dashboard bind above is
 // untouched. Both targets are legitimate and both stay while Tom transitions.
 //
 // Why a popup and not an API call: these tools are static files on a public
 // file-server, so anything embedded in them is world-readable. The popup is a
 // first-party Showrunner page carrying the operator's own session; the tools
 // never hold a credential and make zero cross-origin XHR.
-// ═══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-// /config.js is preferred but never required — fall back to the value this
+// /config.js is preferred but never required â€” fall back to the value this
 // file used to hardcode so a missing config.js breaks nothing.
 const SHOWRUNNER_URL    = (window.E360_TARGETS && window.E360_TARGETS.showrunner) || 'http://localhost:3100';
 const SHOWRUNNER_ORIGIN = new URL(SHOWRUNNER_URL).origin;
@@ -2392,9 +2392,9 @@ function _srBound(v) {
   return v || null;
 }
 
-// §9.3.3: `stale` on bind-complete is the ARRAY of node names the bind
-// invalidated. Senders older than that addition — and binds this browser
-// persisted before it — hand over the 200 response's stale MAP instead, so
+// Â§9.3.3: `stale` on bind-complete is the ARRAY of node names the bind
+// invalidated. Senders older than that addition â€” and binds this browser
+// persisted before it â€” hand over the 200 response's stale MAP instead, so
 // accept either. Absent or empty means "nothing to say": the caller renders
 // no stale line at all.
 function _srStaleNodes(stale) {
@@ -2403,7 +2403,7 @@ function _srStaleNodes(stale) {
   return [];
 }
 
-// A convenience hint, not state of record — the tool is a static page and the
+// A convenience hint, not state of record â€” the tool is a static page and the
 // DB is the truth. A miss just means "not bound".
 function _srRenderBindState() {
   let el = document.getElementById('srBindBadge');
@@ -2442,7 +2442,7 @@ function _srEsc(s) {
 }
 
 function bindToShowrunnerShow() {
-  // Open synchronously inside the click — popup blockers allow
+  // Open synchronously inside the click â€” popup blockers allow
   // gesture-opened popups only.
   const popupUrl = SHOWRUNNER_URL.replace(/\/$/, '') + '/?bind-spec=1&specType=nsf';
   const popup = window.open(popupUrl, 'bind-show-popup', 'width=900,height=720');
@@ -2451,7 +2451,7 @@ function bindToShowrunnerShow() {
   let sent = false;
   function onMessage(e) {
     // The dashboard's own handler checks NO origin (defect T1). Ours checks
-    // both directions — here, and again inside the Showrunner popup.
+    // both directions â€” here, and again inside the Showrunner popup.
     if (e.origin !== SHOWRUNNER_ORIGIN) return;
     const msg = e.data;
     if (!msg || !msg.type) return;
@@ -2467,11 +2467,11 @@ function bindToShowrunnerShow() {
       _srRenderBindState();
       cleanup();
     } else if (msg.type === 'bind-cancelled') {
-      // §9.3.3 step 9 — the popup closed without binding (operator gave up, we
+      // Â§9.3.3 step 9 â€” the popup closed without binding (operator gave up, we
       // never answered, or it refused our origin). Stop listening and say so:
       // staying silent is indistinguishable from a bind that worked.
       cleanup();
-      alert('Bind cancelled — nothing was filed to Showrunner.');
+      alert('Bind cancelled â€” nothing was filed to Showrunner.');
     }
   }
   function cleanup() { window.removeEventListener('message', onMessage); }
@@ -2499,18 +2499,18 @@ function bindToShowrunnerShow() {
 // Show the bound-state badge on load if this browser remembers one.
 try { _srRenderBindState(); } catch (_) {}
 
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // DASHBOARD EMBED MODE (?embed=dashboard)
 // When loaded as an iframe by the staffing dashboard with this query
 // flag, hide the editor chrome and show just the spec sheet plus a
 // Save/Cancel toolbar. Dashboard posts current JSON in; we post the
 // updated state back on Save.
-// ════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 (function setupDashboardEmbedMode() {
   const params = new URLSearchParams(location.search);
   if (params.get('embed') !== 'dashboard') return;
 
-  // #sheetWrap lives inside <main> inside .app — lift it to be a direct
+  // #sheetWrap lives inside <main> inside .app â€” lift it to be a direct
   // child of <body> so the "hide-all-siblings" CSS doesn't take it down
   // along with the wrapping containers.
   const sheetEl = document.getElementById('sheetWrap');
@@ -2540,9 +2540,9 @@ try { _srRenderBindState(); } catch (_) {}
   const toolbar = document.createElement('div');
   toolbar.id = 'embed-toolbar';
   toolbar.innerHTML = `
-    <span class="hint">Edit labels / ports · save when done</span>
-    <button class="embed-cancel" id="embed-cancel-btn">✕ Cancel</button>
-    <button class="embed-save" id="embed-save-btn">💾 Save</button>
+    <span class="hint">Edit labels / ports Â· save when done</span>
+    <button class="embed-cancel" id="embed-cancel-btn">âœ• Cancel</button>
+    <button class="embed-save" id="embed-save-btn">ðŸ’¾ Save</button>
   `;
   document.body.appendChild(toolbar);
 
