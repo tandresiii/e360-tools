@@ -41,6 +41,7 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="/config.js?v=1"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -1008,6 +1009,7 @@ function App() {
         <div style={{ padding: "6px 12px", borderBottom: "1px solid #21262d", display: "flex", justifyContent: "flex-end", gap: 6 }}>
           <button onClick={saveConfig} style={{ background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>💾 SAVE CONFIG</button>
           <button onClick={() => window.bindToDashboardEvent && window.bindToDashboardEvent()} style={{ background: "none", border: "1px solid #00c6ff", color: "#00c6ff", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO DASHBOARD</button>
+          <button onClick={() => window.bindToShowrunnerShow && window.bindToShowrunnerShow()} style={{ background: "none", border: "1px solid #35E0A1", color: "#35E0A1", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO PM SHOW</button>
           <button onClick={() => setPrintMode(true)} style={{ background: "#f59e0b", color: "#0d1117", border: "none", borderRadius: 4, padding: "5px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>EXPORT SHEET</button>
         </div>
         <Diagram layout={layout} />
@@ -1028,7 +1030,10 @@ root.render(<App />);
 // All three poke React via window.PowerSpec (exposed in App's useEffect).
 // ════════════════════════════════════════════════════════════════
 
-const DASHBOARD_URL = 'https://web-production-f9d318.up.railway.app';
+// /config.js is preferred but never required: fall back to the value this file
+// used to hardcode, so a missing or stale config.js breaks nothing (retires T5).
+const DASHBOARD_URL = (window.E360_TARGETS && window.E360_TARGETS.dashboard)
+                   || 'https://web-production-f9d318.up.railway.app';
 const DASHBOARD_ORIGIN = new URL(DASHBOARD_URL).origin;
 
 // Wait for React to flush a state change AND for the DOM to reflect it.
@@ -1169,6 +1174,129 @@ window.bindToDashboardEvent = function bindToDashboardEvent() {
     popup.postMessage({ type: 'bind-spec-data', json, svg, png, pageHtml }, DASHBOARD_ORIGIN);
   }
 };
+
+// ═══════════════════════════════════════════════════════════════
+// BIND TO PM SHOW (Showrunner)
+// Same popup pattern as bindToDashboardEvent(), a different target and a
+// slightly richer payload. This is ADDITIVE — the dashboard bind above is
+// untouched. Both targets are legitimate and both stay while Tom transitions.
+//
+// Why a popup and not an API call: these tools are static files on a public
+// file-server, so anything embedded in them is world-readable. The popup is a
+// first-party Showrunner page carrying the operator's own session; the tools
+// never hold a credential and make zero cross-origin XHR.
+// ═══════════════════════════════════════════════════════════════
+
+// /config.js is preferred but never required — fall back to the value this
+// file used to hardcode so a missing config.js breaks nothing.
+const SHOWRUNNER_URL    = (window.E360_TARGETS && window.E360_TARGETS.showrunner) || 'http://localhost:3100';
+const SHOWRUNNER_ORIGIN = new URL(SHOWRUNNER_URL).origin;
+// All four tools share ONE origin, so localStorage written by /e360/ is
+// readable by /powerspec/. Namespace the key.
+const SR_BIND_KEY = 'showrunner:bind:pcfg';
+
+function _srBound(v) {
+  try {
+    if (v === undefined) return JSON.parse(localStorage.getItem(SR_BIND_KEY) || 'null');
+    localStorage.setItem(SR_BIND_KEY, JSON.stringify(v));
+  } catch (_) { /* private window, cleared storage, blocked site data */ }
+  return v || null;
+}
+
+// A convenience hint, not state of record — the tool is a static page and the
+// DB is the truth. A miss just means "not bound".
+function _srRenderBindState() {
+  let el = document.getElementById('srBindBadge');
+  const b = _srBound();
+  if (!b) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'srBindBadge';
+    el.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:99999;max-width:320px;' +
+      'background:#11161d;border:1px solid #35E0A1;border-radius:6px;padding:9px 12px;' +
+      "color:#c8d3de;font:12px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;" +
+      'box-shadow:0 4px 18px rgba(0,0,0,.45)';
+    const noPrint = document.createElement('style');
+    noPrint.textContent = '@media print{#srBindBadge{display:none!important}}';
+    document.head.appendChild(noPrint);
+    document.body.appendChild(el);
+  }
+  const staleNodes = Object.keys(b.stale || {}).filter((k) => b.stale[k]);
+  el.innerHTML =
+    '<div style="color:#35E0A1;font-weight:600;margin-bottom:2px">\u2713 Bound to PM show</div>' +
+    '<div style="color:#e6edf3">' + _srEsc(b.showName || ('#' + b.showId)) + '</div>' +
+    '<div style="opacity:.75">' + _srEsc(b.node || '') + ' \u00b7 v' + (b.rev || '?') +
+      ' \u00b7 ' + _srEsc(String(b.boundAt || '').slice(0, 10)) + '</div>' +
+    (staleNodes.length
+      ? '<div style="color:#F4B740;margin-top:3px">\u26a0 ' + _srEsc(staleNodes.join(' and ')) +
+        ' ' + (staleNodes.length > 1 ? 'are' : 'is') + ' now stale</div>' : '') +
+    '<div style="margin-top:6px"><a href="' + SHOWRUNNER_URL.replace(/\/$/, '') +
+      '/#/shows/' + encodeURIComponent(b.showId) + '" target="_blank" rel="noopener" ' +
+      'style="color:#59A9F0;text-decoration:none">\ud83d\udd17 Open in Showrunner</a></div>';
+}
+function _srEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function bindToShowrunnerShow() {
+  if (!window.PowerSpec || !window.PowerSpec.isLoaded()) {
+    alert('Load or build a config first, then bind.');
+    return;
+  }
+  // Open synchronously inside the click — popup blockers allow
+  // gesture-opened popups only.
+  const popupUrl = SHOWRUNNER_URL.replace(/\/$/, '') + '/?bind-spec=1&specType=pcfg';
+  const popup = window.open(popupUrl, 'bind-show-popup', 'width=900,height=720');
+  if (!popup) { alert('Popup blocked. Please allow popups for this site and try again.'); return; }
+
+  let sent = false;
+  function onMessage(e) {
+    // The dashboard's own handler checks NO origin (defect T1). Ours checks
+    // both directions — here, and again inside the Showrunner popup.
+    if (e.origin !== SHOWRUNNER_ORIGIN) return;
+    const msg = e.data;
+    if (!msg || !msg.type) return;
+    if (msg.type === 'bind-popup-ready' && !sent) {
+      sent = true;
+      sendSpec().catch((err) => {
+        try { popup.postMessage({ type: 'bind-source-error', error: String(err.message || err) }, SHOWRUNNER_ORIGIN); } catch (_) {}
+        cleanup();
+      });
+    } else if (msg.type === 'bind-complete') {
+      _srBound({ showId: msg.showId, showName: msg.showName, node: msg.node, rev: msg.rev,
+                 stale: msg.stale || {}, boundAt: new Date().toISOString() });
+      _srRenderBindState();
+      cleanup();
+    } else if (msg.type === 'bind-cancelled') {
+      cleanup();
+    }
+  }
+  function cleanup() { window.removeEventListener('message', onMessage); }
+  window.addEventListener('message', onMessage);
+
+  async function sendSpec() {
+    const json = window.PowerSpec.collectData();
+    const svg = await _captureCurrentSvg();
+    const pageHtml = await _capturePageHtml();
+    let png = '';
+    try { png = await _bindSvgToPng(svg); }
+    catch (e) { console.warn('PNG rasterize failed (Showrunner falls back to SVG):', e); }
+    popup.postMessage({
+      type: 'bind-spec-data',
+      specType: 'pcfg',
+      json, svg, png, pageHtml,
+      // NEW vs the dashboard bind: lets Showrunner name the file and fill the
+      // chain node without re-parsing the spec.
+      suggestedName: json.clientName || 'spec',
+      sourceUrl: location.href
+    }, SHOWRUNNER_ORIGIN);
+  }
+}
+window.bindToShowrunnerShow = bindToShowrunnerShow;
+
+// Show the bound-state badge on load if this browser remembers one.
+try { _srRenderBindState(); } catch (_) {}
 
 // ── EMBED MODE (?embed=dashboard) ──
 (function setupDashboardEmbedMode() {
