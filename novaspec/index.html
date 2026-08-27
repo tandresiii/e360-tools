@@ -2392,6 +2392,17 @@ function _srBound(v) {
   return v || null;
 }
 
+// §9.3.3: `stale` on bind-complete is the ARRAY of node names the bind
+// invalidated. Senders older than that addition — and binds this browser
+// persisted before it — hand over the 200 response's stale MAP instead, so
+// accept either. Absent or empty means "nothing to say": the caller renders
+// no stale line at all.
+function _srStaleNodes(stale) {
+  if (Array.isArray(stale)) return stale.filter(Boolean).map(String);
+  if (stale && typeof stale === 'object') return Object.keys(stale).filter((k) => stale[k]);
+  return [];
+}
+
 // A convenience hint, not state of record — the tool is a static page and the
 // DB is the truth. A miss just means "not bound".
 function _srRenderBindState() {
@@ -2410,14 +2421,16 @@ function _srRenderBindState() {
     document.head.appendChild(noPrint);
     document.body.appendChild(el);
   }
-  const staleNodes = Object.keys(b.stale || {}).filter((k) => b.stale[k]);
+  const staleNodes = _srStaleNodes(b.stale);
+  const staleList  = staleNodes.length < 2 ? staleNodes.join('')
+    : staleNodes.slice(0, -1).join(', ') + ' and ' + staleNodes[staleNodes.length - 1];
   el.innerHTML =
     '<div style="color:#35E0A1;font-weight:600;margin-bottom:2px">\u2713 Bound to PM show</div>' +
     '<div style="color:#e6edf3">' + _srEsc(b.showName || ('#' + b.showId)) + '</div>' +
     '<div style="opacity:.75">' + _srEsc(b.node || '') + ' \u00b7 v' + (b.rev || '?') +
       ' \u00b7 ' + _srEsc(String(b.boundAt || '').slice(0, 10)) + '</div>' +
     (staleNodes.length
-      ? '<div style="color:#F4B740;margin-top:3px">\u26a0 ' + _srEsc(staleNodes.join(' and ')) +
+      ? '<div style="color:#F4B740;margin-top:3px">\u26a0 ' + _srEsc(staleList) +
         ' ' + (staleNodes.length > 1 ? 'are' : 'is') + ' now stale</div>' : '') +
     '<div style="margin-top:6px"><a href="' + SHOWRUNNER_URL.replace(/\/$/, '') +
       '/#/shows/' + encodeURIComponent(b.showId) + '" target="_blank" rel="noopener" ' +
@@ -2450,11 +2463,15 @@ function bindToShowrunnerShow() {
       });
     } else if (msg.type === 'bind-complete') {
       _srBound({ showId: msg.showId, showName: msg.showName, node: msg.node, rev: msg.rev,
-                 stale: msg.stale || {}, boundAt: new Date().toISOString() });
+                 stale: _srStaleNodes(msg.stale), boundAt: new Date().toISOString() });
       _srRenderBindState();
       cleanup();
     } else if (msg.type === 'bind-cancelled') {
+      // §9.3.3 step 9 — the popup closed without binding (operator gave up, we
+      // never answered, or it refused our origin). Stop listening and say so:
+      // staying silent is indistinguishable from a bind that worked.
       cleanup();
+      alert('Bind cancelled — nothing was filed to Showrunner.');
     }
   }
   function cleanup() { window.removeEventListener('message', onMessage); }
