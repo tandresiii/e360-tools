@@ -1196,7 +1196,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <!-- LIVE INPUT (SDI) — only relevant in modular mode -->
       <div id="sdi-section" style="display:none">
         <div style="border-top:1px solid var(--border);margin:0 0 18px"></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live Input (SDI)</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Live Input</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="form-group" style="margin:0">
             <label class="form-label">Resolution</label>
@@ -1230,6 +1230,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
               <option>6G-SDI</option>
               <option>12G-SDI</option>
               <option>SDI Quad-Link</option>
+              <option>HDMI 2.0</option>
+              <option>HDMI 2.1</option>
             </select>
           </div>
           <div class="form-group" style="margin:0">
@@ -3200,7 +3202,7 @@ function buildSdiSpecLines() {
     `<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #2a2a2a;font-size:11px"><span style="color:#aaa">${k}</span><span style="color:#fff;font-weight:700">${escapeHtml(val)}</span></div>`
   ).join('');
   return `<div style="background:#1a1a1a;color:#fff;width:100%;font-family:'Barlow Condensed',sans-serif;margin-top:6px;border:1px solid #2a2a2a">
-    <div style="padding:6px 14px;background:#0a0a0a;font-size:11px;font-weight:800;letter-spacing:2px;text-align:center;border-bottom:1px solid #2a2a2a">LIVE INPUT (SDI)</div>
+    <div style="padding:6px 14px;background:#0a0a0a;font-size:11px;font-weight:800;letter-spacing:2px;text-align:center;border-bottom:1px solid #2a2a2a">LIVE INPUT</div>
     <div style="display:grid;grid-template-columns:1fr 1fr">${cells}</div>
   </div>`;
 }
