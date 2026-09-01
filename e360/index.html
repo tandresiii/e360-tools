@@ -1173,8 +1173,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
             <input type="number" id="codecFps" min="1" max="120" placeholder="30" oninput="updateCodecSummary()">
           </div>
           <div class="form-group" style="margin:0">
-            <label class="form-label">Duration (seconds)</label>
-            <input type="number" id="codecDuration" min="1" max="300" placeholder="15" oninput="updateCodecSummary()">
+            <label class="form-label">Duration</label>
+            <input type="text" id="codecDuration" placeholder="e.g. 15, 0:30, or any length" oninput="updateCodecSummary()">
           </div>
           <div class="form-group" style="margin:0;grid-column:1/-1">
             <label class="form-label">Bitrate / Quality (optional)</label>
@@ -3366,7 +3366,7 @@ function applyProjectData(p) {
   codecSettings.codec     = document.getElementById('codecName')?.value      || codecSettings.codec;
   codecSettings.container = document.getElementById('codecContainer')?.value || codecSettings.container;
   codecSettings.fps       = parseInt(document.getElementById('codecFps')?.value)      || codecSettings.fps;
-  codecSettings.duration  = parseInt(document.getElementById('codecDuration')?.value) || codecSettings.duration;
+  codecSettings.duration  = (document.getElementById('codecDuration')?.value || '').trim() || codecSettings.duration;
   codecSettings.bitrate   = document.getElementById('codecBitrate')?.value   ?? codecSettings.bitrate;
   codecSettings.notes     = document.getElementById('codecNotes')?.value     ?? codecSettings.notes;
 
@@ -3632,7 +3632,7 @@ function updateCodecPreview() {
   const ext       = container.toUpperCase();
 
   let html = `<strong>Video File Format: .${ext}</strong><br>`;
-  html += `&mdash; Duration: 0:${String(duration).padStart(2,'0')} (${duration} seconds)<br>`;
+  html += `&mdash; Duration: ${escapeHtml(formatDurationLabel(duration))}<br>`;
   html += `&mdash; Frame Rate: ${fps} fps<br>`;
   html += `&mdash; Aspect Ratio: Square Pixels<br>`;
   html += `&mdash; Video Codec: ${codec}`;
@@ -3647,7 +3647,7 @@ function applyCodec() {
   codecSettings.codec     = document.getElementById('codecName').value;
   codecSettings.container = document.getElementById('codecContainer').value;
   codecSettings.fps       = parseInt(document.getElementById('codecFps').value)      || 30;
-  codecSettings.duration  = parseInt(document.getElementById('codecDuration').value) || 15;
+  codecSettings.duration  = (document.getElementById('codecDuration').value || '').trim() || 15;
   codecSettings.bitrate   = document.getElementById('codecBitrate').value;
   codecSettings.notes     = document.getElementById('codecNotes').value;
   closeCodecModal();
@@ -3662,14 +3662,23 @@ function renderCodecSidebarSummary() {
   el.innerHTML = `.${ext} · ${codecSettings.codec} · ${codecSettings.fps}fps · ${codecSettings.duration}s`;
 }
 
+// Duration is free text: a bare number is treated as seconds and pretty-printed;
+// anything else ("0:30", "varies", "as needed") prints exactly as typed.
+function formatDurationLabel(d) {
+  const raw = String(d == null ? '' : d).trim();
+  if (raw === '') return String.fromCharCode(8212);
+  if (/^[0-9]+$/.test(raw)) {
+    const n = parseInt(raw, 10), mins = Math.floor(n / 60), secs = n % 60;
+    return mins + ':' + String(secs).padStart(2, '0') + ' (' + n + ' second' + (n !== 1 ? 's' : '') + ')';
+  }
+  return raw;
+}
+
 // Helper: build codec spec lines for page 1
 function codecSpecLines() {
   const { codec, container, fps, duration, bitrate, notes } = codecSettings;
   const ext  = container.toUpperCase();
-  const mins = Math.floor(duration / 60);
-  const secs = duration % 60;
-  const durStr = mins > 0 ? `${mins}:${String(secs).padStart(2,'0')}` : `0:${String(secs).padStart(2,'0')}`;
-  const durationLabel = `${durStr} (${duration} second${duration !== 1 ? 's' : ''})`;
+  const durationLabel = formatDurationLabel(duration);
 
   let lines = `<div class="spec-item" style="margin-top:4px"><strong>Video File Format: .${escapeHtml(ext)}</strong></div>`;
   lines += `<div class="spec-item" style="padding-left:8px">\u2014 Duration: ${escapeHtml(durationLabel)}</div>`;
