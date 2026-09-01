@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>e360 Sport â€” Power Cabling Diagram</title>
+<title>e360 Sport — Power Cabling Diagram</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0d1117; }
@@ -59,7 +59,7 @@ const TRUE1_LEN = 31;
 const MAX_SOC_RUN = 250;
 const SOC_COLORS = ["#ef4444","#3b82f6","#22c55e","#f97316","#a855f7","#06b6d4","#dc2626","#2563eb","#16a34a","#ea580c","#9333ea","#0891b2","#f43f5e","#6366f1","#10b981","#fb923c"];
 
-// â”€â”€ PARSING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PARSING ──────────────────────────────────────────────────────
 function parseConfig(txt) {
   const d = JSON.parse(txt);
   const clientName = d.fields?.clientName || d.fields?.jobName || "Unknown";
@@ -87,7 +87,7 @@ function parseConfig(txt) {
   return { clientName, sections: [{ name: "Touchline", side: "main", cabType: defType, count: tc || 70, gapBefore: 0 }] };
 }
 
-// â”€â”€ GEOMETRY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── GEOMETRY ─────────────────────────────────────────────────────
 function buildGeometry(sections) {
   let pos = 0, cabNum = 0;
   const cabData = {}, secData = [], gapData = [];
@@ -102,7 +102,7 @@ function buildGeometry(sections) {
   return { cabData, secData, gapData, totalPerimLen: pos, totalCabs: cabNum };
 }
 
-// â”€â”€ CIRCUITS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CIRCUITS ─────────────────────────────────────────────────────
 function buildCircuitsForRange(first, last, cabData, cpc_override) {
   const circuits = [];
   let cn = last;
@@ -134,7 +134,7 @@ function calcCircuitSizes(totalCabs, targetCpc) {
   return Array.from({ length: n }, (_, i) => base + (i < extra ? 1 : 0));
 }
 
-// â”€â”€ SOCAPEX GENERATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SOCAPEX GENERATION ───────────────────────────────────────────
 // mode: "pack" = fill to 6, partial closest to distro
 //       "spread" = distribute evenly across spreadCount outputs
 function autoSocForDistro(firstCab, lastCab, secData, cabData, maxSoc, mode = "pack", spreadCount = null) {
@@ -185,7 +185,7 @@ function autoSocForDistro(firstCab, lastCab, secData, cabData, maxSoc, mode = "p
   return result;
 }
 
-// â”€â”€ AUTO DISTROS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AUTO DISTROS ─────────────────────────────────────────────────
 function autoDistros(sections) {
   const geo = buildGeometry(sections);
   const { cabData, secData, totalPerimLen, totalCabs } = geo;
@@ -245,7 +245,7 @@ function autoDistros(sections) {
   return result;
 }
 
-// â”€â”€ CALC LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CALC LAYOUT ──────────────────────────────────────────────────
 function calcLayout(sections, distros, wattsPerCab) {
   if (!sections?.length || !distros?.length) return null;
   const geo = buildGeometry(sections);
@@ -303,7 +303,7 @@ function calcLayout(sections, distros, wattsPerCab) {
   return { secData, cabData, gapData, circuits: allCircuits, socapex: allSocapex, distros: layoutDistros, totalPerimLen, totalCabs, totalCkts: allCircuits.length, totalSoc: allSocapex.length, totalDistros: layoutDistros.length, totalPower: totalCabs * wattsPerCab, warnings };
 }
 
-// â”€â”€ UPLOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── UPLOAD ────────────────────────────────────────────────────────
 function Upload({ onLoad, onLoadState, onManual }) {
   const ref = useRef(null);
   const [drag, setDrag] = useState(false);
@@ -336,7 +336,7 @@ function Upload({ onLoad, onLoadState, onManual }) {
   );
 }
 
-// â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SIDEBAR ──────────────────────────────────────────────────────
 function Settings({ s, onUpdate, layout, onReset }) {
   const u = useCallback((k, v) => onUpdate({ ...s, [k]: v }), [s, onUpdate]);
   const inp = { background: "#0d1117", border: "1px solid #30363d", color: "#e6edf3", borderRadius: 4, padding: "4px 6px", width: "100%", fontSize: 11, fontFamily: "'SF Mono','Consolas',monospace", outline: "none" };
@@ -390,7 +390,7 @@ function Settings({ s, onUpdate, layout, onReset }) {
           <div key={i} style={{ background: "#0d1117", border: "1px solid #21262d", borderRadius: 5, padding: 6, marginTop: 4 }}>
             <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
               <input style={{ ...inp, border: "none", padding: 0, fontWeight: 600, flex: 1 }} value={sec.name} onChange={e => uSec(i, "name", e.target.value)} />
-              <button onClick={() => rmSec(i)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>âœ•</button>
+              <button onClick={() => rmSec(i)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>✕</button>
             </div>
             <div className="flex gap-1 items-end flex-wrap">
               <div><label style={lbl}>Type</label><select style={{ ...inpSm, width: 64 }} value={sec.cabType} onChange={e => uSec(i, "cabType", e.target.value)}>
@@ -414,8 +414,8 @@ function Settings({ s, onUpdate, layout, onReset }) {
               <div className="flex items-center justify-between" style={{ marginBottom: 3 }}>
                 <span style={{ color: "#f59e0b", fontSize: 11, fontWeight: 700 }}>Distro {di + 1}</span>
                 <div className="flex gap-1">
-                  <button onClick={() => regenSoc(di)} style={{ ...btn, fontSize: 8, padding: "1px 4px", color: "#3b82f6", borderColor: "#3b82f6" }}>â†» SOC</button>
-                  <button onClick={() => rmDist(di)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>âœ•</button>
+                  <button onClick={() => regenSoc(di)} style={{ ...btn, fontSize: 8, padding: "1px 4px", color: "#3b82f6", borderColor: "#3b82f6" }}>↻ SOC</button>
+                  <button onClick={() => rmDist(di)} style={{ ...btn, color: "#c0392b", border: "none", fontSize: 9, padding: "0 4px" }}>✕</button>
                 </div>
               </div>
               <div className="flex gap-1 items-end flex-wrap" style={{ marginBottom: 4 }}>
@@ -450,16 +450,16 @@ function Settings({ s, onUpdate, layout, onReset }) {
                 return (
                   <div key={si} style={{ borderLeft: `3px solid ${over ? "#ff4444" : col}`, paddingLeft: 6, marginBottom: 4, marginLeft: 2 }}>
                     <div className="flex items-center justify-between">
-                      <span style={{ color: over ? "#ff4444" : col, fontSize: 10, fontWeight: 700 }}>SOC {layoutSoc?.label || String.fromCharCode(65 + si)}{cLen != null ? ` â€” ${cLen.toFixed(0)}ft` : ""}</span>
-                      <button onClick={() => rmSoc(di, si)} style={{ ...btn, border: "none", color: "#c0392b", fontSize: 8, padding: 0 }}>âœ•</button>
+                      <span style={{ color: over ? "#ff4444" : col, fontSize: 10, fontWeight: 700 }}>SOC {layoutSoc?.label || String.fromCharCode(65 + si)}{cLen != null ? ` — ${cLen.toFixed(0)}ft` : ""}</span>
+                      <button onClick={() => rmSoc(di, si)} style={{ ...btn, border: "none", color: "#c0392b", fontSize: 8, padding: 0 }}>✕</button>
                     </div>
-                    {over && <div style={{ fontSize: 8, color: "#ff4444", fontWeight: 600 }}>âš  Exceeds 250ft â€” add a distro</div>}
+                    {over && <div style={{ fontSize: 8, color: "#ff4444", fontWeight: 600 }}>⚠ Exceeds 250ft — add a distro</div>}
                     <div className="flex gap-1 items-end flex-wrap">
                       <div><label style={lbl}>First</label><input style={{ ...inpSm, width: 42 }} type="number" min={1} value={sc.firstCab} onChange={e => uSoc(di, si, "firstCab", parseInt(e.target.value) || 1)} /></div>
                       <div><label style={lbl}>Last</label><input style={{ ...inpSm, width: 42 }} type="number" min={1} value={sc.lastCab} onChange={e => uSoc(di, si, "lastCab", parseInt(e.target.value) || 1)} /></div>
                       <div><label style={lbl}>Cab/Ckt</label><input style={{ ...inpSm, width: 36 }} type="number" min={1} value={sc.cpc || 4} onChange={e => uSoc(di, si, "cpc", parseInt(e.target.value) || 1)} /></div>
                     </div>
-                    <div style={{ fontSize: 8, color: "#6e7681", marginTop: 2 }}>{cabCount} cabs â†’ {sizes.length} ckts [{sizes.join(",")}]</div>
+                    <div style={{ fontSize: 8, color: "#6e7681", marginTop: 2 }}>{cabCount} cabs → {sizes.length} ckts [{sizes.join(",")}]</div>
                   </div>
                 );
               })}
@@ -476,19 +476,19 @@ function Settings({ s, onUpdate, layout, onReset }) {
           {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(1)}ft`], ["Circuits", layout.totalCkts], ["Socapex", layout.totalSoc], ["Max Power", `${(layout.totalPower / 1000).toFixed(1)}kW`]].map(([k, v]) =>
             <div key={k} className="flex justify-between" style={{ fontSize: 10, marginTop: 1 }}><span style={{ color: "#8b949e" }}>{k}</span><span style={{ color: "#e6edf3", fontFamily: "monospace" }}>{v}</span></div>
           )}
-          {layout.warnings?.map((w, i) => <div key={i} style={{ color: "#c0392b", fontSize: 9, marginTop: 2 }}>âš  {w}</div>)}
+          {layout.warnings?.map((w, i) => <div key={i} style={{ color: "#c0392b", fontSize: 9, marginTop: 2 }}>⚠ {w}</div>)}
           <div style={{ marginTop: 6, borderTop: "1px solid #21262d", paddingTop: 6 }}>
             <span style={hdr}>TRUE1 <span style={{ color: "#8b949e", fontWeight: 400, fontSize: 8 }}>(31ft sections)</span></span>
             {layout.socapex.map((sc, si) => {
               const col = SOC_COLORS[si % SOC_COLORS.length];
               const runs = sc.circuits.map(ckt => { const sb = Math.max(...ckt.cabs); const lb = Math.min(...ckt.cabs); const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", cab: sb, lastCab: lb, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
               return (<div key={sc.id} style={{ marginTop: 3 }}><div style={{ fontSize: 9, color: col, fontWeight: 600 }}>{sc.label}: {runs.reduce((a, r) => a + r.cables, 0)} cables</div>
-                {runs.map(r => <div key={r.label} style={{ fontSize: 8, color: "#8b949e", marginLeft: 10, fontFamily: "monospace" }}>{r.label}: {r.cab}â†’{r.lastCab} {r.ft.toFixed(0)}ft â†’ {r.cables}Ã—31'</div>)}</div>);
+                {runs.map(r => <div key={r.label} style={{ fontSize: 8, color: "#8b949e", marginLeft: 10, fontFamily: "monospace" }}>{r.label}: {r.cab}→{r.lastCab} {r.ft.toFixed(0)}ft → {r.cables}×31'</div>)}</div>);
             })}
             <div style={{ borderTop: "1px solid #21262d", paddingTop: 3, marginTop: 4, fontSize: 10 }}>
               <span style={{ color: "#8b949e" }}>Total: </span>
               <span style={{ color: "#e6edf3", fontWeight: 600, fontFamily: "monospace" }}>
-                {layout.socapex.reduce((a, sc) => a + sc.circuits.reduce((b, ckt) => { const ft = Math.abs(layout.cabData[Math.max(...ckt.cabs)].centerPos - sc.termPos); return b + (ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN)); }, 0), 0)}Ã— 31ft
+                {layout.socapex.reduce((a, sc) => a + sc.circuits.reduce((b, ckt) => { const ft = Math.abs(layout.cabData[Math.max(...ckt.cabs)].centerPos - sc.termPos); return b + (ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN)); }, 0), 0)}× 31ft
               </span>
             </div>
           </div>
@@ -498,7 +498,7 @@ function Settings({ s, onUpdate, layout, onReset }) {
   );
 }
 
-// â”€â”€ DIAGRAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DIAGRAM ──────────────────────────────────────────────────────
 function Diagram({ layout }) {
   if (!layout) return <div className="flex-1 flex items-center justify-center" style={{ color: "#484f58" }}>Configure system</div>;
   const PAD = 60, drawW = Math.max(800, layout.totalCabs * 24), svgW = PAD * 2 + drawW;
@@ -508,9 +508,9 @@ function Diagram({ layout }) {
   // Y layout
   const FLOW_Y = 54, CAB_Y = 68, CAB_H = 38;
   const TERM_R = 6; // term circle radius
-  const TERM_Y = CAB_Y + CAB_H + 50; // center of term circles â€” room for True1 branches
+  const TERM_Y = CAB_Y + CAB_H + 50; // center of term circles — room for True1 branches
   const SOC_LABEL_Y = TERM_Y + 16;
-  // Socapex horizontal lanes â€” staggered per output, one lane per soc across all distros
+  // Socapex horizontal lanes — staggered per output, one lane per soc across all distros
   const maxSocInAnyDistro = Math.max(...layout.distros.map(d => d.socapex.length), 1);
   const SOC_LANE_START = SOC_LABEL_Y + 14;
   const SOC_LANE_STEP = 14;
@@ -533,12 +533,12 @@ function Diagram({ layout }) {
         <rect width={svgW} height={svgH} fill="#0d1117" />
 
         {/* Header */}
-        <text x={PAD} y={18} fill="#e6edf3" fontSize={13} fontWeight={700} fontFamily="'Segoe UI',sans-serif">{layout.secData[0]?.name || "System"} â€” Power Cabling</text>
+        <text x={PAD} y={18} fill="#e6edf3" fontSize={13} fontWeight={700} fontFamily="'Segoe UI',sans-serif">{layout.secData[0]?.name || "System"} — Power Cabling</text>
         <text x={PAD} y={31} fill="#8b949e" fontSize={9} fontFamily="monospace">{layout.totalCabs} cabs | {layout.totalPerimLen.toFixed(0)}ft | {layout.totalDistros}d | {layout.totalSoc}soc | {layout.totalCkts}ckts | {(layout.totalPower/1000).toFixed(0)}kW</text>
         <text x={PAD + drawW} y={18} textAnchor="end" fill="#f59e0b" fontSize={10} fontWeight={700} fontFamily="monospace" letterSpacing="0.12em">REAR VIEW</text>
-        <text x={PAD + drawW / 2} y={46} textAnchor="middle" fill="#30363d" fontSize={7} fontFamily="monospace" letterSpacing="0.1em">â–² AUDIENCE / FIELD â–²</text>
+        <text x={PAD + drawW / 2} y={46} textAnchor="middle" fill="#30363d" fontSize={7} fontFamily="monospace" letterSpacing="0.1em">▲ AUDIENCE / FIELD ▲</text>
         <line x1={PAD + 8} y1={FLOW_Y} x2={PAD + drawW - 8} y2={FLOW_Y} stroke="#484f58" strokeWidth={0.8} markerEnd="url(#aR)" />
-        <text x={PAD + drawW / 2} y={FLOW_Y - 3} textAnchor="middle" fill="#484f58" fontSize={7} fontFamily="monospace">POWER FLOW ({layout.totalCabs} â†’ 1)</text>
+        <text x={PAD + drawW / 2} y={FLOW_Y - 3} textAnchor="middle" fill="#484f58" fontSize={7} fontFamily="monospace">POWER FLOW ({layout.totalCabs} → 1)</text>
 
         {/* Gaps + corners */}
         {layout.gapData.map((g, i) => {
@@ -547,7 +547,7 @@ function Diagram({ layout }) {
           const corner = sA && sB && sA.side !== sB.side;
           return <g key={`gap-${i}`}><rect x={x1} y={CAB_Y + 2} width={x2 - x1} height={CAB_H - 4} fill="none" stroke={corner ? "#f59e0b" : "#30363d"} strokeWidth={corner ? 1.2 : 0.8} strokeDasharray="3,3" rx={2} />
             <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + (corner ? -1 : 3)} textAnchor="middle" fill={corner ? "#f59e0b" : "#484f58"} fontSize={7} fontFamily="monospace">{g.len.toFixed(1)}'</text>
-            {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 10} textAnchor="middle" fill="#f59e0b" fontSize={8} fontFamily="monospace" fontWeight={700}>âŒ 90Â°</text>}</g>;
+            {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 10} textAnchor="middle" fill="#f59e0b" fontSize={8} fontFamily="monospace" fontWeight={700}>⌐ 90°</text>}</g>;
         })}
         {layout.secData.map(sd => <text key={sd.idx} x={(toX(sd.startPos) + toX(sd.endPos)) / 2} y={CAB_Y - 2} textAnchor="middle" fill="#484f58" fontSize={6} fontFamily="monospace">{sd.name}</text>)}
 
@@ -578,7 +578,7 @@ function Diagram({ layout }) {
             return <g key={`t1-${ckt.id}`}>
               <path d={`M${cx} ${TRUE1_START} L${cx} ${branchY} L${tx} ${branchY} L${tx} ${TRUE1_END}`}
                 fill="none" stroke={col} strokeWidth={1.2} opacity={0.5} strokeLinejoin="round" />
-              <text x={midX} y={branchY - 3} textAnchor="middle" fill={col} fontSize={6} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}Ã—31'</text>
+              <text x={midX} y={branchY - 3} textAnchor="middle" fill={col} fontSize={6} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}×31'</text>
             </g>;
           });
         })}
@@ -614,14 +614,14 @@ function Diagram({ layout }) {
             const laneY = SOC_LANE_START + li * SOC_LANE_STEP;
             const lt = sc.cableLen < 1 ? "<1'" : `${sc.cableLen.toFixed(0)}'`;
 
-            // Route: from term circle bottom â†’ down to lane â†’ horizontal to distro X â†’ down to distro top
+            // Route: from term circle bottom → down to lane → horizontal to distro X → down to distro top
             return <g key={`soc-${d.id}-${sc.id}`}>
               <path d={`M${tx} ${TERM_Y + TERM_R} L${tx} ${laneY} L${dx} ${laneY} L${dx} ${DISTRO_Y - 2}`}
                 fill="none" stroke={strokeCol} strokeWidth={over ? 3.5 : 2.8} strokeLinecap="round" strokeLinejoin="round" opacity={over ? 0.85 : 0.6} />
               {/* Length label on horizontal run */}
               <text x={(tx + dx) / 2} y={laneY - 3} textAnchor="middle" fill={strokeCol} fontSize={7} fontFamily="monospace" fontWeight={700} opacity={0.9}>{lt}</text>
               {/* SOC label at the elbow near term */}
-              {over && <text x={(tx + dx) / 2} y={laneY + 9} textAnchor="middle" fill="#ff4444" fontSize={7} fontFamily="monospace" fontWeight={700}>âš  ADD DISTRO</text>}
+              {over && <text x={(tx + dx) / 2} y={laneY + 9} textAnchor="middle" fill="#ff4444" fontSize={7} fontFamily="monospace" fontWeight={700}>⚠ ADD DISTRO</text>}
             </g>;
           });
         })}
@@ -648,7 +648,7 @@ function Diagram({ layout }) {
   );
 }
 
-// â”€â”€ PRINT: SINGLE DISTRO DIAGRAM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PRINT: SINGLE DISTRO DIAGRAM ─────────────────────────────────
 function DistroDiagram({ distro, layout, compact }) {
   const d = distro;
   const first = d.firstCab, last = d.lastCab;
@@ -711,9 +711,9 @@ function DistroDiagram({ distro, layout, compact }) {
   return (
     <svg viewBox={`0 0 ${svgW} ${svgH}`} width="100%" style={{ display: "block" }}>
       <rect width={svgW} height={svgH} fill="#0d1117" />
-      <text x={PAD} y={14} fill="#f59e0b" fontSize={9 * fs} fontWeight={700} fontFamily="monospace">{d.model}A DISTRO {d.id} â€” Cabs {first}â€“{last} ({d.totalCabs} cabs) â€” behind cab {nearCab}</text>
+      <text x={PAD} y={14} fill="#f59e0b" fontSize={9 * fs} fontWeight={700} fontFamily="monospace">{d.model}A DISTRO {d.id} — Cabs {first}–{last} ({d.totalCabs} cabs) — behind cab {nearCab}</text>
       <text x={PAD + drawW} y={14} textAnchor="end" fill="#8b949e" fontSize={7 * fs} fontFamily="monospace">REAR VIEW</text>
-      <text x={PAD + drawW / 2} y={24} textAnchor="middle" fill="#30363d" fontSize={5 * fs} fontFamily="monospace">â–² AUDIENCE / FIELD â–²</text>
+      <text x={PAD + drawW / 2} y={24} textAnchor="middle" fill="#30363d" fontSize={5 * fs} fontFamily="monospace">▲ AUDIENCE / FIELD ▲</text>
 
       {/* Gaps + corners */}
       {dGaps.map((g, i) => {
@@ -721,7 +721,7 @@ function DistroDiagram({ distro, layout, compact }) {
         const sA = layout.secData[g.afterSection], sB = layout.secData[g.afterSection + 1];
         const corner = sA && sB && sA.side !== sB.side;
         return <g key={`g-${i}`}><rect x={x1} y={CAB_Y + 1} width={x2 - x1} height={CAB_H - 2} fill="none" stroke={corner ? "#f59e0b" : "#30363d"} strokeWidth={0.6} strokeDasharray="2,2" rx={1} />
-          {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#f59e0b" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>90Â°</text>}</g>;
+          {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#f59e0b" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>90°</text>}</g>;
       })}
       {dSecs.map(sd => <text key={sd.idx} x={(toX(Math.max(sd.startPos, rangeStart)) + toX(Math.min(sd.endPos, rangeEnd))) / 2} y={CAB_Y - 1} textAnchor="middle" fill="#484f58" fontSize={5 * fs} fontFamily="monospace">{sd.name}</text>)}
 
@@ -744,7 +744,7 @@ function DistroDiagram({ distro, layout, compact }) {
           const branchY = TRUE1_START + 4 + (ci / Math.max(1, numCkts - 1)) * (TRUE1_END - TRUE1_START - 8);
           return <g key={`t-${ckt.id}`}>
             <path d={`M${cx} ${TRUE1_START} L${cx} ${branchY} L${tx} ${branchY} L${tx} ${TRUE1_END}`} fill="none" stroke={col} strokeWidth={1 * fs} opacity={0.5} strokeLinejoin="round" />
-            <text x={(cx + tx) / 2} y={branchY - 2} textAnchor="middle" fill={col} fontSize={5 * fs} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}Ã—31'</text>
+            <text x={(cx + tx) / 2} y={branchY - 2} textAnchor="middle" fill={col} fontSize={5 * fs} fontFamily="monospace" fontWeight={600} opacity={0.8}>{cables}×31'</text>
           </g>;
         });
       })}
@@ -767,7 +767,7 @@ function DistroDiagram({ distro, layout, compact }) {
           return <g key={`soc-${sc.id}`}>
             <path d={`M${tx} ${TERM_Y + TERM_R} L${tx} ${laneY} L${dx} ${laneY} L${dx} ${DISTRO_Y - 2}`} fill="none" stroke={over ? "#ff4444" : col} strokeWidth={over ? 3 : 2.2} strokeLinecap="round" strokeLinejoin="round" opacity={over ? 0.8 : 0.55} />
             <text x={(tx + dx) / 2} y={laneY - 2} textAnchor="middle" fill={over ? "#ff4444" : col} fontSize={6 * fs} fontFamily="monospace" fontWeight={700} opacity={0.9}>{lt}</text>
-            {over && <text x={(tx + dx) / 2} y={laneY + 8 * fs} textAnchor="middle" fill="#ff4444" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>âš  ADD DISTRO</text>}
+            {over && <text x={(tx + dx) / 2} y={laneY + 8 * fs} textAnchor="middle" fill="#ff4444" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>⚠ ADD DISTRO</text>}
           </g>; });
       })()}
 
@@ -779,7 +779,7 @@ function DistroDiagram({ distro, layout, compact }) {
   );
 }
 
-// â”€â”€ PRINT SHEET (MULTI-PAGE) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PRINT SHEET (MULTI-PAGE) ─────────────────────────────────────
 function PrintSheet({ layout, settings, onBack }) {
   if (!layout) return null;
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
@@ -796,7 +796,7 @@ function PrintSheet({ layout, settings, onBack }) {
   const printRef = useRef(null);
   const downloadHTML = () => {
     if (!printRef.current) return;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${settings.clientName} â€” Power Cabling</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${settings.clientName} — Power Cabling</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',system-ui,sans-serif;color:#111}
 @media print{.no-print{display:none!important}@page{size:landscape;margin:0.3in}}.ps~.ps{page-break-before:always}
 .page{background:#fff;padding:20px 28px}.page~.page{page-break-before:always}
@@ -823,29 +823,29 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
     <div ref={printRef} style={{ background: "#fff", minHeight: "100vh" }}>
       <style>{`@media print { .no-print { display: none !important; } body { margin: 0; padding: 0; } @page { size: landscape; margin: 0.3in; } .ps ~ .ps { page-break-before: always; } }`}</style>
 
-      {/* â•â•â• PAGE 1: SYSTEM OVERVIEW â•â•â• */}
+      {/* ═══ PAGE 1: SYSTEM OVERVIEW ═══ */}
       <div className="ps" style={pageStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #f59e0b", paddingBottom: 4, marginBottom: 8 }}>
-          <div><div style={{ fontSize: 20, fontWeight: 700 }}>{settings.clientName}</div><div style={{ fontSize: 12, color: "#666" }}>Power Cabling Reference â€” System Overview</div></div>
+          <div><div style={{ fontSize: 20, fontWeight: 700 }}>{settings.clientName}</div><div style={{ fontSize: 12, color: "#666" }}>Power Cabling Reference — System Overview</div></div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.1em" }}>e360 SPORT</div>
             <div style={{ fontSize: 10, color: "#999" }}>{today}</div>
             <div className="no-print" style={{ marginTop: 4, display: "flex", gap: 4, justifyContent: "flex-end" }}>
-              <button onClick={downloadHTML} style={{ background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>â¬‡ DOWNLOAD HTML</button>
-              <button onClick={() => window.print()} style={{ background: "#333", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>ðŸ–¨ PRINT / PDF</button>
-              <button onClick={onBack} style={{ background: "#f59e0b", color: "#000", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>â† BACK TO EDITOR</button>
+              <button onClick={downloadHTML} style={{ background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>⬇ DOWNLOAD HTML</button>
+              <button onClick={() => window.print()} style={{ background: "#333", color: "#fff", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>🖨 PRINT / PDF</button>
+              <button onClick={onBack} style={{ background: "#f59e0b", color: "#000", border: "none", borderRadius: 4, padding: "5px 14px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>← BACK TO EDITOR</button>
             </div>
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10, fontSize: 11, padding: "6px 10px", background: "#f9f9f9", borderRadius: 4 }}>
-          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(0)}ft`], ["Distros", layout.distros.map(d => `${d.model}A`).join(" + ")], ["Socapex", layout.totalSoc], ["Circuits", layout.totalCkts], ["True1", `${totalTrue1}Ã— 31ft`], ["Max Power", `${(layout.totalPower / 1000).toFixed(0)}kW`]].map(([k, v]) =>
+          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(0)}ft`], ["Distros", layout.distros.map(d => `${d.model}A`).join(" + ")], ["Socapex", layout.totalSoc], ["Circuits", layout.totalCkts], ["True1", `${totalTrue1}× 31ft`], ["Max Power", `${(layout.totalPower / 1000).toFixed(0)}kW`]].map(([k, v]) =>
             <div key={k}><span style={{ color: "#999" }}>{k}: </span><span style={{ fontWeight: 700 }}>{v}</span></div>)}
         </div>
 
         {layout.warnings?.length > 0 && (
           <div style={{ background: "#fff3f3", border: "1px solid #ffcccc", borderRadius: 4, padding: 8, marginBottom: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#c00", marginBottom: 4 }}>âš  WARNINGS</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#c00", marginBottom: 4 }}>⚠ WARNINGS</div>
             {layout.warnings.map((w, i) => <div key={i} style={{ fontSize: 10, color: "#c00" }}>{w}</div>)}
           </div>
         )}
@@ -856,7 +856,7 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
             <thead><tr>{["Distro", "Model", "Cab Range", "SOC Outputs", "Position"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
             <tbody>{layout.distros.map(d => {
               let nc = d.behindCab || d.firstCab; if (!d.behindCab) { let nd = Infinity; for (let cn = d.firstCab; cn <= d.lastCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - d.placement); if (dist < nd) { nd = dist; nc = cn; } } } }
-              return <tr key={d.id}><td style={td}>Distro {d.id}</td><td style={td}>{d.model}A</td><td style={td}>Cabs {d.firstCab}â€“{d.lastCab} ({d.totalCabs})</td><td style={td}>{d.socapex.length} ({d.socapex.map(s => s.letter).join(",")})</td><td style={td}>Behind cab {nc}</td></tr>;
+              return <tr key={d.id}><td style={td}>Distro {d.id}</td><td style={td}>{d.model}A</td><td style={td}>Cabs {d.firstCab}–{d.lastCab} ({d.totalCabs})</td><td style={td}>{d.socapex.length} ({d.socapex.map(s => s.letter).join(",")})</td><td style={td}>Behind cab {nc}</td></tr>;
             })}</tbody>
           </table>
         </div>
@@ -868,7 +868,7 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
             <tbody>{socBom.map((sc, si) => {
               let termCab = sc.minCab, termDist = Infinity;
               for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < termDist) { termDist = dist; termCab = cn; } } }
-              return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}â€“{sc.minCab}</td><td style={td}>{sc.cabCount}</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {termCab}</td></tr>;
+              return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}–{sc.minCab}</td><td style={td}>{sc.cabCount}</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {termCab}</td></tr>;
             })}</tbody>
           </table>
           <div style={{ marginTop: 4, fontSize: 11, fontWeight: 600, color: "#111" }}>
@@ -883,18 +883,18 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
             <thead><tr>{["Distro", "Circuit", "Power Input Cab", "Last Cab", "Distance", "Cables"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
             <tbody>
               {socBom.flatMap(sc => sc.runs.map(r => (
-                <tr key={`${r.distroId}-${r.label}`}><td style={td}>{r.distroId}</td><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(1)}ft</td><td style={td}>{r.cables}Ã— 31ft</td></tr>
+                <tr key={`${r.distroId}-${r.label}`}><td style={td}>{r.distroId}</td><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(1)}ft</td><td style={td}>{r.cables}× 31ft</td></tr>
               )))}
-              <tr style={{ background: "#f5f5f5" }}><td colSpan={5} style={{ ...td, fontWeight: 700, textAlign: "right", fontFamily: "'Segoe UI',sans-serif" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700, fontSize: 12 }}>{totalTrue1}Ã— 31ft</td></tr>
+              <tr style={{ background: "#f5f5f5" }}><td colSpan={5} style={{ ...td, fontWeight: 700, textAlign: "right", fontFamily: "'Segoe UI',sans-serif" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700, fontSize: 12 }}>{totalTrue1}× 31ft</td></tr>
             </tbody>
           </table>
         </div>
         <div style={{ borderTop: "1px solid #f59e0b", paddingTop: 4, display: "flex", justifyContent: "space-between", fontSize: 9, color: "#999", marginTop: 6 }}>
-          <span>e360 Sport â€” {settings.clientName}</span><span>{today} â€” CONFIDENTIAL</span>
+          <span>e360 Sport — {settings.clientName}</span><span>{today} — CONFIDENTIAL</span>
         </div>
       </div>
 
-      {/* â•â•â• PAGE 2+: ONE PER DISTRO (no footer) â•â•â• */}
+      {/* ═══ PAGE 2+: ONE PER DISTRO (no footer) ═══ */}
       {layout.distros.map((d, di) => {
         const dSocs = socBom.filter(sc => d.socapex.some(ds => ds.id === sc.id));
         const dTrue1 = dSocs.reduce((a, s) => a + s.totalCables, 0);
@@ -902,8 +902,8 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
         return (
           <div key={di} className="ps" style={pageStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "2px solid #f59e0b", paddingBottom: 4, marginBottom: 6 }}>
-              <div><div style={{ fontSize: 18, fontWeight: 700 }}>{settings.clientName} â€” Distro {d.id}</div>
-                <div style={{ fontSize: 11, color: "#666" }}>{d.model}A | Cabs {d.firstCab}â€“{d.lastCab} ({d.totalCabs}) | {d.socapex.length} SOC | Behind cab {nc} | {dTrue1}Ã— True1</div></div>
+              <div><div style={{ fontSize: 18, fontWeight: 700 }}>{settings.clientName} — Distro {d.id}</div>
+                <div style={{ fontSize: 11, color: "#666" }}>{d.model}A | Cabs {d.firstCab}–{d.lastCab} ({d.totalCabs}) | {d.socapex.length} SOC | Behind cab {nc} | {dTrue1}× True1</div></div>
               <div style={{ textAlign: "right" }}><div style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.1em" }}>e360 SPORT</div><div style={{ fontSize: 9, color: "#999" }}>{today}</div></div>
             </div>
 
@@ -913,26 +913,26 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
 
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <div style={{ flex: "0 0 200px" }}>
-                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>SOCAPEX â€” DISTRO {d.id}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>SOCAPEX — DISTRO {d.id}</div>
                 <table style={{ borderCollapse: "collapse", width: "100%" }}>
                   <thead><tr>{["SOC", "Cabs", "Ckts", "Run", "Term"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
                   <tbody>{dSocs.map((sc, si) => {
                     let tc = sc.minCab, td2 = Infinity;
                     for (let cn = sc.minCab; cn <= sc.maxCab; cn++) { const cd = layout.cabData[cn]; if (cd) { const dist = Math.abs(cd.centerPos - sc.termPos); if (dist < td2) { td2 = dist; tc = cn; } } }
-                    return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}â€“{sc.minCab} ({sc.cabCount})</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {tc}</td></tr>;
+                    return <tr key={si}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{sc.label}</td><td style={td}>{sc.maxCab}–{sc.minCab} ({sc.cabCount})</td><td style={td}>{sc.circuits.length}</td><td style={td}>{sc.cableLen.toFixed(0)}ft</td><td style={td}>Cab {tc}</td></tr>;
                   })}</tbody>
                 </table>
                 <div style={{ marginTop: 4, fontSize: 10, fontWeight: 600, color: "#111" }}>True1 Fanouts Required: <span style={{ fontFamily: "'SF Mono','Consolas',monospace" }}>{dSocs.length}</span></div>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>TRUE1 â€” DISTRO {d.id}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: "#f59e0b" }}>TRUE1 — DISTRO {d.id}</div>
                 <table style={{ borderCollapse: "collapse", width: "100%" }}>
                   <thead><tr>{["Circuit", "Input Cab", "Last Cab", "Dist", "Cables"].map(h => <th key={h} style={th}>{h}</th>)}</tr></thead>
                   <tbody>
                     {dSocs.flatMap(sc => sc.runs.map(r => (
-                      <tr key={`${r.distroId}-${r.label}`}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(0)}ft</td><td style={td}>{r.cables}Ã—31'</td></tr>
+                      <tr key={`${r.distroId}-${r.label}`}><td style={{ ...td, color: sc.col, fontWeight: 600 }}>{r.label}</td><td style={td}>{r.cab}</td><td style={td}>{r.lastCab}</td><td style={td}>{r.ft.toFixed(0)}ft</td><td style={td}>{r.cables}×31'</td></tr>
                     )))}
-                    <tr style={{ background: "#f5f5f5" }}><td colSpan={4} style={{ ...td, fontWeight: 700, textAlign: "right" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700 }}>{dTrue1}Ã—31'</td></tr>
+                    <tr style={{ background: "#f5f5f5" }}><td colSpan={4} style={{ ...td, fontWeight: 700, textAlign: "right" }}>TOTAL:</td><td style={{ ...td, fontWeight: 700 }}>{dTrue1}×31'</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -944,7 +944,7 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
   );
 }
 
-// â”€â”€ APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── APP ──────────────────────────────────────────────────────────
 function App() {
   const [config, setConfig] = useState(null);
   const [settings, setSettings] = useState(null);
@@ -1007,9 +1007,9 @@ function App() {
       <Settings s={settings} onUpdate={setSettings} layout={layout} onReset={() => { setConfig(null); setSettings(null); setPrintMode(false); }} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{ padding: "6px 12px", borderBottom: "1px solid #21262d", display: "flex", justifyContent: "flex-end", gap: 6 }}>
-          <button onClick={saveConfig} style={{ background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>ðŸ’¾ SAVE CONFIG</button>
-          <button onClick={() => window.bindToDashboardEvent && window.bindToDashboardEvent()} style={{ background: "none", border: "1px solid #00c6ff", color: "#00c6ff", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>ðŸ“¤ BIND TO DASHBOARD</button>
-          <button onClick={() => window.bindToShowrunnerShow && window.bindToShowrunnerShow()} style={{ background: "none", border: "1px solid #35E0A1", color: "#35E0A1", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>ðŸ“¤ BIND TO PM SHOW</button>
+          <button onClick={saveConfig} style={{ background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>💾 SAVE CONFIG</button>
+          <button onClick={() => window.bindToDashboardEvent && window.bindToDashboardEvent()} style={{ background: "none", border: "1px solid #00c6ff", color: "#00c6ff", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO DASHBOARD</button>
+          <button onClick={() => window.bindToShowrunnerShow && window.bindToShowrunnerShow()} style={{ background: "none", border: "1px solid #35E0A1", color: "#35E0A1", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO PM SHOW</button>
           <button onClick={() => setPrintMode(true)} style={{ background: "#f59e0b", color: "#0d1117", border: "none", borderRadius: 4, padding: "5px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>EXPORT SHEET</button>
         </div>
         <Diagram layout={layout} />
@@ -1022,13 +1022,13 @@ function App() {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// STAFFING-DASHBOARD INTEGRATION (plain JS â€” runs outside React)
+// ════════════════════════════════════════════════════════════════
+// STAFFING-DASHBOARD INTEGRATION (plain JS — runs outside React)
 // Three flows: headless render (postMessage 'render-spec'), embed mode
 // (?embed=dashboard hides chrome and adds Save/Cancel toolbar), and Bind
-// to Dashboard Event (popup â†’ postMessage â†’ dashboard POSTs).
+// to Dashboard Event (popup → postMessage → dashboard POSTs).
 // All three poke React via window.PowerSpec (exposed in App's useEffect).
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════
 
 // /config.js is preferred but never required: fall back to the value this file
 // used to hardcode, so a missing or stale config.js breaks nothing (retires T5).
@@ -1117,7 +1117,7 @@ async function _bindSvgToPng(svgString) {
   });
 }
 
-// â”€â”€ HEADLESS RENDER (dashboard's hidden iframe) â”€â”€
+// ── HEADLESS RENDER (dashboard's hidden iframe) ──
 window.addEventListener('message', async (e) => {
   const msg = e.data;
   if (!msg || msg.type !== 'render-spec') return;
@@ -1132,7 +1132,7 @@ window.addEventListener('message', async (e) => {
   }
 });
 
-// â”€â”€ BIND TO DASHBOARD EVENT (toolbar button) â”€â”€
+// ── BIND TO DASHBOARD EVENT (toolbar button) ──
 window.bindToDashboardEvent = function bindToDashboardEvent() {
   if (!window.PowerSpec || !window.PowerSpec.isLoaded()) {
     alert('Load or build a config first, then bind.');
@@ -1157,7 +1157,7 @@ window.bindToDashboardEvent = function bindToDashboardEvent() {
         cleanup();
       });
     } else if (msg.type === 'bind-complete') {
-      alert('âœ“ Bound to: ' + (msg.eventName || 'event'));
+      alert('✓ Bound to: ' + (msg.eventName || 'event'));
       cleanup();
     }
   }
@@ -1175,19 +1175,19 @@ window.bindToDashboardEvent = function bindToDashboardEvent() {
   }
 };
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 // BIND TO PM SHOW (Showrunner)
 // Same popup pattern as bindToDashboardEvent(), a different target and a
-// slightly richer payload. This is ADDITIVE â€” the dashboard bind above is
+// slightly richer payload. This is ADDITIVE — the dashboard bind above is
 // untouched. Both targets are legitimate and both stay while Tom transitions.
 //
 // Why a popup and not an API call: these tools are static files on a public
 // file-server, so anything embedded in them is world-readable. The popup is a
 // first-party Showrunner page carrying the operator's own session; the tools
 // never hold a credential and make zero cross-origin XHR.
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════
 
-// /config.js is preferred but never required â€” fall back to the value this
+// /config.js is preferred but never required — fall back to the value this
 // file used to hardcode so a missing config.js breaks nothing.
 const SHOWRUNNER_URL    = (window.E360_TARGETS && window.E360_TARGETS.showrunner) || 'http://localhost:3100';
 const SHOWRUNNER_ORIGIN = new URL(SHOWRUNNER_URL).origin;
@@ -1203,9 +1203,9 @@ function _srBound(v) {
   return v || null;
 }
 
-// Â§9.3.3: `stale` on bind-complete is the ARRAY of node names the bind
-// invalidated. Senders older than that addition â€” and binds this browser
-// persisted before it â€” hand over the 200 response's stale MAP instead, so
+// §9.3.3: `stale` on bind-complete is the ARRAY of node names the bind
+// invalidated. Senders older than that addition — and binds this browser
+// persisted before it — hand over the 200 response's stale MAP instead, so
 // accept either. Absent or empty means "nothing to say": the caller renders
 // no stale line at all.
 function _srStaleNodes(stale) {
@@ -1214,7 +1214,7 @@ function _srStaleNodes(stale) {
   return [];
 }
 
-// A convenience hint, not state of record â€” the tool is a static page and the
+// A convenience hint, not state of record — the tool is a static page and the
 // DB is the truth. A miss just means "not bound".
 function _srRenderBindState() {
   let el = document.getElementById('srBindBadge');
@@ -1257,7 +1257,7 @@ function bindToShowrunnerShow() {
     alert('Load or build a config first, then bind.');
     return;
   }
-  // Open synchronously inside the click â€” popup blockers allow
+  // Open synchronously inside the click — popup blockers allow
   // gesture-opened popups only.
   const popupUrl = SHOWRUNNER_URL.replace(/\/$/, '') + '/?bind-spec=1&specType=pcfg';
   const popup = window.open(popupUrl, 'bind-show-popup', 'width=900,height=720');
@@ -1266,7 +1266,7 @@ function bindToShowrunnerShow() {
   let sent = false;
   function onMessage(e) {
     // The dashboard's own handler checks NO origin (defect T1). Ours checks
-    // both directions â€” here, and again inside the Showrunner popup.
+    // both directions — here, and again inside the Showrunner popup.
     if (e.origin !== SHOWRUNNER_ORIGIN) return;
     const msg = e.data;
     if (!msg || !msg.type) return;
@@ -1282,11 +1282,11 @@ function bindToShowrunnerShow() {
       _srRenderBindState();
       cleanup();
     } else if (msg.type === 'bind-cancelled') {
-      // Â§9.3.3 step 9 â€” the popup closed without binding (operator gave up, we
+      // §9.3.3 step 9 — the popup closed without binding (operator gave up, we
       // never answered, or it refused our origin). Stop listening and say so:
       // staying silent is indistinguishable from a bind that worked.
       cleanup();
-      alert('Bind cancelled â€” nothing was filed to Showrunner.');
+      alert('Bind cancelled — nothing was filed to Showrunner.');
     }
   }
   function cleanup() { window.removeEventListener('message', onMessage); }
@@ -1315,7 +1315,7 @@ window.bindToShowrunnerShow = bindToShowrunnerShow;
 // Show the bound-state badge on load if this browser remembers one.
 try { _srRenderBindState(); } catch (_) {}
 
-// â”€â”€ EMBED MODE (?embed=dashboard) â”€â”€
+// ── EMBED MODE (?embed=dashboard) ──
 (function setupDashboardEmbedMode() {
   const params = new URLSearchParams(location.search);
   if (params.get('embed') !== 'dashboard') return;
@@ -1342,9 +1342,9 @@ try { _srRenderBindState(); } catch (_) {}
   const toolbar = document.createElement('div');
   toolbar.id = 'embed-toolbar';
   toolbar.innerHTML = `
-    <span class="hint">Edit sections / distros Â· save when done</span>
-    <button class="embed-cancel" id="embed-cancel-btn">âœ• Cancel</button>
-    <button class="embed-save" id="embed-save-btn">ðŸ’¾ Save</button>
+    <span class="hint">Edit sections / distros · save when done</span>
+    <button class="embed-cancel" id="embed-cancel-btn">✕ Cancel</button>
+    <button class="embed-save" id="embed-save-btn">💾 Save</button>
   `;
   document.body.appendChild(toolbar);
 
@@ -1354,7 +1354,7 @@ try { _srRenderBindState(); } catch (_) {}
   document.getElementById('embed-save-btn').addEventListener('click', () => {
     try {
       const json = window.PowerSpec && window.PowerSpec.collectData();
-      if (!json) { alert('Nothing to save yet â€” load or build a config first.'); return; }
+      if (!json) { alert('Nothing to save yet — load or build a config first.'); return; }
       window.parent.postMessage({ type: 'edit-save', json }, '*');
     } catch (err) {
       alert('Failed to gather data: ' + err.message);
