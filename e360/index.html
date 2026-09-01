@@ -913,6 +913,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
           <select id="cabinetType" onchange="onCabinetChange()">
             <option value="p10">P10 — 1600×900mm — 160×90px</option>
             <option value="p391">P3.91 — 500×500mm — 128×128px</option>
+            <option value="p198v">P1.98 Vertical — 500×1000mm — 256×512px</option>
+            <option value="p198h">P1.98 Horizontal — 1000×500mm — 512×256px</option>
             <option value="p12">P12 — 1600×900mm — 128×72px</option>
           </select>
         </div>
@@ -984,6 +986,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
           <select id="modularCabType" onchange="modularConfig.cabType=this.value;update()">
             <option value="p10">P10 — 1600×900mm — 160×90px</option>
             <option value="p391" selected>P3.91 — 500×500mm — 128×128px</option>
+            <option value="p198v">P1.98 Vertical — 500×1000mm — 256×512px</option>
+            <option value="p198h">P1.98 Horizontal — 1000×500mm — 512×256px</option>
             <option value="p12">P12 — 1600×900mm — 128×72px</option>
           </select>
         </div>
@@ -1374,6 +1378,8 @@ const E360_LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAq4AAAHmCAYAAAC
 const CABINETS = {
   p10:  { name:'P10',   lengthMm:1600, depthMm:80, heightMm:900, pxW:160, pxH:90  },
   p391: { name:'P3.91', lengthMm:500,  depthMm:80, heightMm:500, pxW:128, pxH:128 },
+  p198v:{ name:'P1.98 V', lengthMm:500,  depthMm:80, heightMm:1000, pxW:256, pxH:512 },
+  p198h:{ name:'P1.98 H', lengthMm:1000, depthMm:80, heightMm:500,  pxW:512, pxH:256 },
   p12:  { name:'P12',   lengthMm:1600, depthMm:80, heightMm:900, pxW:128, pxH:72  },
 };
 

@@ -233,6 +233,8 @@ textarea{resize:vertical;min-height:54px}
         <select id="cabType" onchange="onCabChange()">
           <option value="p10">P10 — 160×90px</option>
           <option value="p391">P3.91 — 128×128px</option>
+          <option value="p198v">P1.98 Vertical — 256×512px</option>
+          <option value="p198h">P1.98 Horizontal — 512×256px</option>
           <option value="p12">P12 — 128×72px</option>
         </select>
       </div>
@@ -412,6 +414,8 @@ textarea{resize:vertical;min-height:54px}
 const CAB = {
   p10:  { name:'P10',   mm:'1600×900mm', pxW:160, pxH:90,  lenFt:5.25 },
   p391: { name:'P3.91', mm:'500×500mm',  pxW:128, pxH:128, lenFt:1.64 },
+  p198v:{ name:'P1.98 V', mm:'500×1000mm', pxW:256, pxH:512, lenFt:1.64 },
+  p198h:{ name:'P1.98 H', mm:'1000×500mm', pxW:512, pxH:256, lenFt:3.28 },
   p12:  { name:'P12',   mm:'1600×900mm', pxW:128, pxH:72,  lenFt:5.25 },
 };
 const PORT_COLORS = [
