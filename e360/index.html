@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E360 Sport — Spec Sheet Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ── RESET & VARS ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -144,6 +144,7 @@ textarea { resize: vertical; min-height: 60px; }
 .spec-page {
   background: #fff;
   width: 1100px;
+  height: 849px;
   min-height: 849px;
   position: relative;
   box-shadow: 0 8px 40px rgba(0,0,0,0.4);
@@ -154,43 +155,57 @@ textarea { resize: vertical; min-height: 60px; }
 
 /* Page 1 layout */
 .p1-header {
-  padding: 16px 36px 14px;
-  border-bottom: 3px solid #1a1a1a;
+  padding: 10px 22px 8px;
+  border-bottom: 3px solid #111;
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
+  background: #fff;
 }
-.p1-title-block { flex: 1; }
+.p1-title-block { flex: 1; min-width: 0; }
+.p1-plate {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 4px;
+}
 .p1-client-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: #1a1a1a;
-  line-height: 1;
-  letter-spacing: 1px;
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: #111;
+  line-height: 0.88;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.p1-title-pipe { color: #888; margin: 0 8px; }
-.p1-led-text {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: #1a1a1a;
+.p1-title-pipe { display: none; }
+.p1-led-text, .p1-led-kicker {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: #111;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 5px;
 }
 .p1-venue {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 2px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b8860b;
+  letter-spacing: 2.4px;
   text-transform: uppercase;
-  margin-top: 4px;
+  margin-top: 3px;
 }
-.p1-logos { display: flex; align-items: center; gap: 20px; }
-.p1-client-logo { max-height: 56px; max-width: 100px; object-fit: contain; }
-.p1-e360-logo { max-height: 44px; max-width: 80px; object-fit: contain; }
-.p1-logo-divider { width: 1px; height: 44px; background: #ddd; }
+.p1-logos { display: flex; align-items: center; gap: 16px; }
+.p1-client-logo { max-height: 48px; max-width: 92px; object-fit: contain; }
+.p1-e360-logo { max-height: 40px; max-width: 76px; object-fit: contain; }
+.p1-logo-divider { width: 1px; height: 40px; background: #111; }
 
 .p1-body { display: grid; grid-template-columns: 280px 1fr; gap: 0; flex: 1; }
 .p1-left { padding: 10px 20px; border-right: 1px solid #ddd; }
@@ -198,31 +213,79 @@ textarea { resize: vertical; min-height: 60px; }
 
 .spec-section-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #1a1a1a;
-  margin-bottom: 4px;
-  margin-top: 10px;
+  margin-bottom: 6px;
+  margin-top: 14px;
+  border-bottom: 1.5px solid #1a1a1a;
+  padding-bottom: 3px;
 }
 .spec-section-title:first-child { margin-top: 0; }
 
-.spec-item { font-size: 12px; color: #333; line-height: 1.6; }
+.spec-item { font-size: 11.5px; color: #333; line-height: 1.45; padding: 2px 0; border-bottom: 1px solid #ececec; }
 .spec-item strong { font-weight: 600; }
 
 .file-list { list-style: none; }
 .file-list li { font-size: 12px; color: #333; padding: 2px 0; }
-.file-list li::before { content: '• '; color: var(--gold); font-weight: 700; }
+.file-list li::before { content: '\2022  '; color: var(--gold); font-weight: 700; }
 
 /* Field diagram */
 .field-diagram-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 .field-diagram-wrap svg { display: block; }
+.gl-wrap { width: 100%; height: 100%; position: relative; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.gl-spec-host {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  background: #5c5f64;
+  display: grid;
+  overflow: hidden;
+}
+.gl-spec-host > img,
+.gl-spec-host > .gl-spec-labels {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+.gl-spec-host > img { object-fit: fill; object-position: center; }
+.gl-spec-host > .gl-spec-labels {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+.gl-spec-labels .iso-label { pointer-events: all; cursor: grab; }
+.gl-caption {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  z-index: 3;
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
 
 /* Perimeter summary bar */
 .perimeter-bar {
@@ -241,17 +304,143 @@ textarea { resize: vertical; min-height: 60px; }
 .perimeter-bar-title { font-weight: 800; font-size: 13px; }
 
 /* Zone legend */
-.zone-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; margin-top: 6px; min-height: 72px; }
+.zone-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; margin-top: 4px; min-height: 0; }
 .zone-legend-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #333; }
 .zone-legend-swatch { width: 28px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.zone-legend-still {
+  height: auto;
+  flex: 1;
+  min-width: 0;
+  display: block;
+  object-fit: fill;
+  background: none;
+}
+.zone-legend.has-stills {
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 8px 20px;
+  min-height: 0;
+}
+.zone-legend.has-stills .zone-legend-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+.zone-legend.has-stills .zone-legend-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  min-width: 0;
+}
+.zone-legend.has-stills .zone-legend-still {
+  flex: none;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: fill;
+  background: none;
+}
+.zone-legend.has-stills .zone-legend-row span {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 10px;
+}
 
-/* Contact + submission footer */
+.p1-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.p1-hero {
+  flex: 1 1 auto;
+  min-height: 52%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #5c5f64;
+  position: relative;
+  z-index: 0;
+}
+.p1-hero .field-diagram-wrap {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  gap: 0;
+  overflow: hidden;
+}
+.p1-band {
+  flex-shrink: 0;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 5px 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-align: center;
+}
+.p1-below {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 20px 8px;
+  min-height: 0;
+  overflow: visible;
+  border-top: 3px solid #111;
+  background: #fff;
+  position: relative;
+  z-index: 2;
+}
+.p1-titleblock {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 0 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #111;
+}
+.tb-h {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: #111;
+  border-bottom: 1px solid #111;
+  padding-bottom: 2px;
+  margin-bottom: 5px;
+}
+.tb-note { font-size: 10px; color: #333; line-height: 1.35; margin-bottom: 6px; }
+.tb-line { font-size: 10px; color: #222; line-height: 1.4; }
+.tb-line strong { font-weight: 600; }
+.tb-kv {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0 8px;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.tb-kv span:first-child { color: #888; text-transform: uppercase; letter-spacing: 0.6px; font-size: 8px; padding-top: 2px; }
+.tb-name { font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+.tb-sub { font-size: 10px; color: #333; }
+.p1-legend {
+  padding: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.p1-legend-kicker { display: none; }
 .p1-footer {
   border-top: 2px solid #1a1a1a;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
   padding: 0;
+  flex-shrink: 0;
 }
 .p1-footer-col { padding: 7px 24px; }
 .p1-footer-col:first-child { border-right: 1px solid #ddd; }
@@ -278,6 +467,7 @@ textarea { resize: vertical; min-height: 60px; }
   display: flex;
   justify-content: space-between;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 /* Page 2 */
@@ -293,7 +483,7 @@ textarea { resize: vertical; min-height: 60px; }
 .p2-text strong { font-weight: 700; color: #1a1a1a; }
 .p2-list { list-style: none; margin-bottom: 8px; }
 .p2-list li { font-size: 11px; color: #444; padding: 2px 0; }
-.p2-list li::before { content: '• '; color: #c8a830; }
+.p2-list li::before { content: '\2022  '; color: #c8a830; }
 .p2-num-list { padding-left: 16px; margin-bottom: 8px; }
 .p2-num-list li { font-size: 11px; color: #444; padding: 2px 0; }
 .p2-faq-q { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-top: 6px; }
@@ -483,6 +673,24 @@ textarea { resize: vertical; min-height: 60px; }
 .pick-btn:hover { border-color: var(--accent); color: var(--accent); }
 .pick-btn.picking { background: var(--accent); color: #000; border-color: var(--accent); animation: pulse 1s infinite; }
 .pick-btn.set     { border-color: #444; color: #aaa; }
+.zone-still-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.zone-still-row .form-label { margin-bottom: 5px; }
+.zone-still-preview {
+  display: block;
+  width: 100%;
+  height: 28px;
+  object-fit: contain;
+  object-position: left center;
+  margin-top: 6px;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+}
+.zone-still-msg { font-size: 10px; color: var(--gold); margin-top: 4px; line-height: 1.35; }
+.pick-btn.on { background: var(--accent); color: #000; border-color: var(--accent); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
 .zone-range-display {
   font-family: 'Barlow Condensed', sans-serif;
@@ -776,31 +984,71 @@ textarea { resize: vertical; min-height: 60px; }
 
 /* ── PRINT STYLES ── */
 @page {
+  size: landscape;
   margin: 0;
 }
 @media print {
-  body { background: #fff; }
-  .app { display: block; }
+  html, body {
+    background: #fff !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+  .app {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
   .sidebar, .preview-label, .preview-pane > *:not(.spec-page) { display: none !important; }
-  .preview-pane { background: #fff; padding: 0; gap: 0; }
+  .preview-pane {
+    background: #fff !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
   .spec-page {
     box-shadow: none;
-    width: 100%;
-    max-height: 100vh;
-    overflow: hidden;
-    page-break-inside: avoid;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .spec-page:not(:last-child) { page-break-after: always; }
-  .spec-page:last-child { page-break-after: avoid; break-after: avoid; }
-  .zone-legend { max-height: 80px; overflow: hidden; }
-  .zone-legend-swatch {
+  .p1-sheet { height: 100% !important; min-height: 0 !important; overflow: hidden !important; }
+  .p1-header { padding: 8px 24px 6px !important; flex-shrink: 0 !important; }
+  .p1-hero { flex: 1 1 auto !important; min-height: 52% !important; overflow: hidden !important; }
+  .p1-below { flex: 0 0 auto !important; max-height: none !important; overflow: visible !important; }
+  .p1-legend { padding: 8px 14px 8px !important; }
+  .p1-footer, .page-copyright {
+    flex-shrink: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-before: avoid !important;
+  }
+  .p1-footer-col { padding: 4px 18px !important; }
+  .page-copyright { padding: 3px 18px !important; }
+  .zone-legend { min-height: 0 !important; max-height: none; margin-top: 4px !important; }
+  .gl-caption { padding: 2px 2px 0 !important; }
+  .zone-legend-swatch, .zone-legend-still {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   svg { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .gl-spec-host { position: relative !important; display: grid !important; height: 100% !important; }
+  .gl-spec-host > img { width: 100% !important; height: 100% !important; object-fit: contain !important; display: block !important; }
 }
 
 /* Mapping modal print mode */
@@ -842,6 +1090,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
 }
 </style>
 <script src="/config.js?v=2"></script>
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -855,11 +1104,11 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
 
       <!-- SAVE / LOAD -->
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button onclick="saveProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--accent);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">⬇ SAVE PROJECT</button>
-        <button onclick="loadProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">⬆ LOAD PROJECT</button>
+        <button onclick="saveProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--accent);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">SAVE PROJECT</button>
+        <button onclick="loadProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">LOAD PROJECT</button>
       </div>
-      <button onclick="bindToDashboardEvent()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #00c6ff;color:#00c6ff;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:8px">📤 BIND TO DASHBOARD EVENT</button>
-      <button onclick="bindToShowrunnerShow()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #35E0A1;color:#35E0A1;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:16px">📤 BIND TO PM SHOW</button>
+      <button onclick="bindToDashboardEvent()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #00c6ff;color:#00c6ff;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:8px">BIND TO DASHBOARD EVENT</button>
+      <button onclick="bindToShowrunnerShow()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #35E0A1;color:#35E0A1;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:16px">BIND TO PM SHOW</button>
 
       <!-- CLIENT INFO -->
       <div class="section-label">Client Info</div>
@@ -939,21 +1188,58 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <!-- LAYOUT MODE -->
       <div class="section-label">Layout Mode</div>
       <div class="layout-mode-pill" style="grid-template-columns:repeat(3,1fr);display:grid">
-        <label><input type="radio" name="layoutMode" value="u" checked onchange="setLayoutMode('u')"> ⬡ U Config</label>
-        <label><input type="radio" name="layoutMode" value="complex" onchange="setLayoutMode('complex')"> ⬡ Complex</label>
-        <label><input type="radio" name="layoutMode" value="modular" onchange="setLayoutMode('modular')"> ▦ Modular LED</label>
+        <label><input type="radio" name="layoutMode" value="u" checked onchange="setLayoutMode('u')"> U Config</label>
+        <label><input type="radio" name="layoutMode" value="complex" onchange="setLayoutMode('complex')"> Complex</label>
+        <label><input type="radio" name="layoutMode" value="modular" onchange="setLayoutMode('modular')"> Modular LED</label>
       </div>
 
       <div data-hide-in-modular>
         <!-- DIAGRAM VIEW -->
         <div class="section-label">Diagram View</div>
         <div class="layout-mode-pill">
-          <label><input type="radio" name="diagramView" value="topdown" checked onchange="diagramView=this.value;update()"> ▦ Top-Down</label>
-          <label><input type="radio" name="diagramView" value="isometric" onchange="diagramView=this.value;update()"> ◳ Isometric 3D</label>
+          <label><input type="radio" name="diagramView" value="topdown" checked onchange="diagramView=this.value;syncIsoCamControls();update()"> Top-Down</label>
+          <label><input type="radio" name="diagramView" value="isometric" onchange="diagramView=this.value;syncIsoCamControls();update()"> Isometric 3D</label>
         </div>
-        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;font-size:12px;color:var(--text)">
+        <div id="isoCamControls" style="display:none;margin:0 0 8px">
+          <div class="form-group" style="margin-bottom:8px">
+            <label class="form-label">Orbit <span id="isoAzimuthVal">45°</span></label>
+            <input type="range" id="isoAzimuth" min="0" max="360" step="1" value="45"
+              oninput="isoAzimuth=parseFloat(this.value);document.getElementById('isoAzimuthVal').textContent=Math.round(isoAzimuth)+'°';update()"
+              style="width:100%;accent-color:var(--accent)">
+          </div>
+          <div class="form-group" style="margin-bottom:8px">
+            <label class="form-label">Elevation <span id="isoElevationVal">36°</span></label>
+            <input type="range" id="isoElevation" min="12" max="80" step="1" value="36"
+              oninput="isoElevation=parseFloat(this.value);document.getElementById('isoElevationVal').textContent=Math.round(isoElevation)+'°';update()"
+              style="width:100%;accent-color:var(--accent)">
+          </div>
+          <div class="form-group" style="margin-bottom:8px">
+            <label class="form-label">Pan length <span id="isoPanXVal">0</span> ft</label>
+            <input type="range" id="isoPanX" min="-400" max="400" step="0.5" value="0"
+              oninput="isoPanX=parseFloat(this.value);document.getElementById('isoPanXVal').textContent=isoPanX.toFixed(1);update()"
+              style="width:100%;accent-color:var(--accent)">
+          </div>
+          <div class="form-group" style="margin-bottom:8px">
+            <label class="form-label">Pan width <span id="isoPanZVal">0</span> ft</label>
+            <input type="range" id="isoPanZ" min="-400" max="400" step="0.5" value="0"
+              oninput="isoPanZ=parseFloat(this.value);document.getElementById('isoPanZVal').textContent=isoPanZ.toFixed(1);update()"
+              style="width:100%;accent-color:var(--accent)">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:8px">
+          <label class="form-label">Extents <span id="isoZoomVal">100%</span></label>
+          <input type="range" id="isoZoom" min="5" max="180" step="1" value="100"
+            oninput="isoZoom=parseFloat(this.value)/100;document.getElementById('isoZoomVal').textContent=Math.round(isoZoom*100)+'%';update()"
+            style="width:100%;accent-color:var(--accent)">
+        </div>
+        <button type="button" class="btn btn-outline" style="padding:5px 10px;font-size:11px;margin-bottom:8px;width:auto" onclick="resetIsoCamera()">Default view</button>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;font-size:12px;color:var(--text)">
           <input type="checkbox" id="isoCabStroke" onchange="isoCabStroke=this.checked;update()" style="accent-color:var(--accent);width:15px;height:15px">
           Cabinet outlines (iso view)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;font-size:12px;color:var(--text)">
+          <input type="checkbox" id="showFieldGear" checked onchange="showFieldGear=this.checked;update()" style="accent-color:var(--accent);width:15px;height:15px">
+          3D goals &amp; posts
         </label>
       </div>
 
@@ -974,8 +1260,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
 
       <!-- COMPLEX LAYOUT SECTION (hidden by default) -->
       <div id="complex-config-section" style="display:none">
-        <button class="btn btn-primary btn-block" onclick="openComplexModal()">⬡ Edit Complex Layout</button>
-        <button class="btn btn-outline btn-block" style="margin-top:6px" onclick="createZonesFromSections()" title="Generate one zone per section using the section name and start/end cab numbers">⬡ Create Zones from Sections</button>
+        <button class="btn btn-primary btn-block" onclick="openComplexModal()">Edit Complex Layout</button>
+        <button class="btn btn-outline btn-block" style="margin-top:6px" onclick="createZonesFromSections()" title="Generate one zone per section using the section name and start/end cab numbers">Create Zones from Sections</button>
         <div id="complex-sidebar-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
       </div>
 
@@ -1014,12 +1300,12 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <div data-hide-in-modular>
         <!-- ZONE DEFINITION -->
         <div class="section-label">Zone Definition</div>
-        <button class="btn btn-primary btn-block" onclick="openZoneModal()">⬡ Define Zones</button>
+        <button class="btn btn-primary btn-block" onclick="openZoneModal()">Define Zones</button>
         <div id="zone-summary" style="font-size:11px;color:var(--accent);font-family:'Barlow Condensed',sans-serif;line-height:1.8;margin-top:6px"></div>
 
         <!-- CABINET MAPPING -->
         <div class="section-label">Cabinet Mapping</div>
-        <button class="btn btn-outline btn-block" onclick="openMappingModal()">⬡ View Cabinet Map</button>
+        <button class="btn btn-outline btn-block" onclick="openMappingModal()">View Cabinet Map</button>
       </div>
 
       <!-- VIDEO SPECS -->
@@ -1099,8 +1385,12 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         <input type="checkbox" id="showZoneLength" onchange="update()" style="accent-color:var(--accent);width:15px;height:15px">
         Display zone length on diagram
       </label>
-      <button class="btn btn-print btn-block" onclick="window.print()">🖨 Print / Save PDF</button>
-      <button class="btn btn-outline btn-block" onclick="resetForm()">↺ Reset Form</button>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;font-size:12px;color:var(--text)">
+        <input type="checkbox" id="legendStills" onchange="legendStills=this.checked;update()" style="accent-color:var(--accent);width:15px;height:15px">
+        Stills in zone legend
+      </label>
+      <button class="btn btn-print btn-block" onclick="printSpecSheet()">Print / Save PDF</button>
+      <button class="btn btn-outline btn-block" onclick="resetForm()">Reset Form</button>
 
     </div>
   </aside>
@@ -1119,7 +1409,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
   <div style="background:var(--surface);border:1px solid var(--border);width:520px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;border-radius:0">
     <div style="background:var(--surface2);border-bottom:2px solid var(--accent);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff">Video File Specs</div>
-      <button class="zone-modal-close" onclick="closeCodecModal()">✕</button>
+      <button class="zone-modal-close" onclick="closeCodecModal()">X</button>
     </div>
     <div style="padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:20px">
 
@@ -1201,11 +1491,11 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
           <div class="form-group" style="margin:0">
             <label class="form-label">Resolution</label>
             <select id="sdiResolution" onchange="modularConfig.sdi.resolution=this.value;updateCodecSummary()">
-              <option>1920×1080</option>
-              <option>1280×720</option>
-              <option>3840×2160</option>
-              <option>1920×1200</option>
-              <option>2048×1080</option>
+              <option>1920x1080</option>
+              <option>1280x720</option>
+              <option>3840x2160</option>
+              <option>1920x1200</option>
+              <option>2048x1080</option>
               <option>Custom</option>
             </select>
           </div>
@@ -1277,10 +1567,10 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         <div style="font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase">Cab #1 Direction:</div>
         <button id="reverseToggleBtn" onclick="toggleReverseNumbering()"
           style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s">
-          ← LEFT IS #1
+          LEFT IS #1
         </button>
       </div>
-      <button class="zone-modal-close" onclick="closeZoneModal()">✕</button>
+      <button class="zone-modal-close" onclick="closeZoneModal()">X</button>
     </div>
     <div class="zone-modal-body">
       <div class="zone-panel">
@@ -1316,7 +1606,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         <button class="cx-unit-btn"        id="unitBtn_yd"  onclick="setCxUnit('yd')">YD</button>
         <button class="cx-unit-btn"        id="unitBtn_m"   onclick="setCxUnit('m')">M</button>
       </div>
-      <button class="zone-modal-close" onclick="closeComplexModal()">✕</button>
+      <button class="zone-modal-close" onclick="closeComplexModal()">X</button>
     </div>
     <div class="zone-modal-body">
       <!-- LEFT: Section List -->
@@ -1349,8 +1639,8 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
       <div class="zone-modal-title">Cabinet Mapping</div>
       <div id="mapping-header-meta" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--muted)"></div>
       <div style="display:flex;align-items:center;gap:10px">
-        <button onclick="printMappingModal()" style="background:var(--gold);color:#1a1200;border:none;padding:8px 18px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer">🖨 Print Map</button>
-        <button class="zone-modal-close" onclick="closeMappingModal()">✕</button>
+        <button onclick="printMappingModal()" style="background:var(--gold);color:#1a1200;border:none;padding:8px 18px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Print Map</button>
+        <button class="zone-modal-close" onclick="closeMappingModal()">X</button>
       </div>
     </div>
     <div class="mapping-modal-body" id="mapping-modal-body">
@@ -1510,7 +1800,14 @@ function buildCabinetFootprint() {
   for (let r=0;r<=maxRows;r++) grid += `<line x1="${ox}" y1="${oy+r*cellH}" x2="${ox+drawW}" y2="${oy+r*cellH}" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>`;
 
   const svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg">
-    <rect x="${ox}" y="${oy}" width="${drawW}" height="${drawH}" fill="#222" stroke="#00c8f0" stroke-width="1.5" rx="1"/>
+    <defs>
+      <pattern id="fpDots" width="${Math.max(2.4, cellW)}" height="${Math.max(2.4, cellH)}" patternUnits="userSpaceOnUse">
+        <rect width="100%" height="100%" fill="#0b0e14"/>
+        <circle cx="50%" cy="50%" r="28%" fill="rgba(0,200,240,0.55)"/>
+      </pattern>
+    </defs>
+    <rect x="${ox}" y="${oy}" width="${drawW}" height="${drawH}" fill="#10141c" stroke="#00c8f0" stroke-width="1.5" rx="1"/>
+    <rect x="${ox}" y="${oy}" width="${drawW}" height="${drawH}" fill="url(#fpDots)" rx="1"/>
     ${grid}
     <!-- Width arrow top -->
     <line x1="${ox}" y1="${oy-7}" x2="${ox+drawW}" y2="${oy-7}" stroke="#c8a830" stroke-width="1"/>
@@ -1568,6 +1865,92 @@ function cabColorFromZones(cabNum) {
   return z ? z.color : null;
 }
 
+function cabIsStacked(cabNum) {
+  if (!zones || zones.length === 0) return false;
+  const z = zones.find(z => cabNum >= Math.min(z.first, z.last) && cabNum <= Math.max(z.first, z.last));
+  return !!(z && z.doubleStacked);
+}
+
+function zoneForCab(cabNum) {
+  if (!zones || !zones.length) return null;
+  return zones.find(z => cabNum >= Math.min(z.first, z.last) && cabNum <= Math.max(z.first, z.last)) || null;
+}
+
+function cabPixelSize(cabNum) {
+  if (layoutMode === 'complex') {
+    for (let si = 0; si < complexSections.length; si++) {
+      const start = getSectionStartCab(si);
+      const n = parseInt(complexSections[si].count) || 0;
+      if (cabNum >= start && cabNum <= start + n - 1) {
+        const cab = getCxSectionCab(complexSections[si]);
+        return { w: cab.pxW, h: cab.pxH };
+      }
+    }
+  }
+  const cab = getCab();
+  return { w: cab.pxW, h: cab.pxH };
+}
+
+function expectedZonePx(z) {
+  if (!z) return { w: 0, h: 0 };
+  if (layoutMode === 'complex') return zonePixelsComplex(z.first, z.last, z.doubleStacked);
+  return zonePixels(z.first, z.last, z.doubleStacked);
+}
+
+function zoneCabPixelOffset(z, cabNum) {
+  let x = 0;
+  const step = z.first <= z.last ? 1 : -1;
+  for (let c = z.first; c !== cabNum; c += step) {
+    if (step > 0 && c > z.last) break;
+    if (step < 0 && c < z.last) break;
+    x += cabPixelSize(c).w;
+  }
+  return x;
+}
+
+function isSafeStillUrl(url) {
+  return typeof url === 'string' && /^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/i.test(url);
+}
+function isSafeBitmapDataUrl(url) {
+  if (typeof url !== 'string') return null;
+  const compact = url.replace(/\s+/g, '');
+  if (/^data:image\/(png|jpe?g|gif|webp)(;charset=[^;,]+)?;base64,[A-Za-z0-9+/=]+$/i.test(compact)) return compact;
+  return null;
+}
+function sanitizeZoneStills() {
+  (zones || []).forEach(z => {
+    if (z.faceStillDataUrl && !isSafeStillUrl(z.faceStillDataUrl)) {
+      z.faceStillDataUrl = null;
+      delete z.faceStillW;
+      delete z.faceStillH;
+    }
+    if (z.faceLook !== 'seams' && z.faceLook !== 'smooth') z.faceLook = 'led';
+    if (z.faceSide !== 'away') z.faceSide = 'field';
+    z.faceFlipH = !!z.faceFlipH;
+    z.faceFlipV = !!z.faceFlipV;
+  });
+}
+const zoneStillImgs = {};
+function zoneStillImage(z) {
+  const src = z && z.faceStillDataUrl;
+  if (!src || !isSafeStillUrl(src)) return null;
+  let img = zoneStillImgs[src];
+  if (img && img.complete && img.naturalWidth > 0) return img;
+  if (!img) {
+    img = new Image();
+    img.onload = () => {
+      const host = document.getElementById('gl-spec-host');
+      if (host && typeof glSpec !== 'undefined') {
+        glSpec.paint(host);
+        attachIsoLabelHandlers();
+      }
+    };
+    img.src = src;
+    zoneStillImgs[src] = img;
+  }
+  return (img.complete && img.naturalWidth > 0) ? img : null;
+}
+
 // ── HTML/SVG ESCAPE — prevents XSS via user-controlled strings (zone names,
 // client/venue names, contact info) interpolated into innerHTML or SVG <text>.
 function escapeHtml(s) {
@@ -1598,6 +1981,74 @@ function zoneLabelForRange(first, last, spanFt) {
   if (!name) return null;
   const showLen = document.getElementById('showZoneLength')?.checked;
   return showLen ? `${name} · ${parseFloat(spanFt).toFixed(1)} ft` : name;
+}
+
+// Shared look for field surfaces + LED cabinet faces. Geometry is
+// unchanged; these are fills/overlays only. Unique ids per SVG so
+// two diagrams on one page cannot collide.
+function specLookUid(p) { return p + '_' + Math.random().toString(36).slice(2, 8); }
+function specLookDefs(fieldX, fieldY, fieldW, fieldH) {
+  const g = specLookUid('gr');
+  const w = specLookUid('wd');
+  const ice = specLookUid('ice');
+  const dots = specLookUid('ld');
+  const sheen = specLookUid('sh');
+  const iso = specLookUid('is');
+  const stripe = Math.max(7, fieldW / 14);
+  const woodH = Math.max(7, fieldH / 8);
+  const defs = `<defs>
+    <pattern id="${g}" patternUnits="userSpaceOnUse" x="${fieldX}" y="${fieldY}" width="${stripe.toFixed(2)}" height="${fieldH}">
+      <rect width="${(stripe*0.5).toFixed(2)}" height="${fieldH}" fill="#3c9140"/>
+      <rect x="${(stripe*0.5).toFixed(2)}" width="${(stripe*0.5).toFixed(2)}" height="${fieldH}" fill="#348238"/>
+      <rect width="${stripe.toFixed(2)}" height="${Math.max(0.6, fieldH*0.01).toFixed(2)}" fill="rgba(255,255,255,0.05)"/>
+    </pattern>
+    <pattern id="${w}" patternUnits="userSpaceOnUse" width="16" height="${woodH.toFixed(2)}">
+      <rect width="16" height="${woodH.toFixed(2)}" fill="#c9a36c"/>
+      <rect width="8" height="${woodH.toFixed(2)}" fill="#d4b27c"/>
+      <rect y="${(woodH-0.8).toFixed(2)}" width="16" height="0.8" fill="rgba(90,50,20,0.18)"/>
+    </pattern>
+    <linearGradient id="${ice}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e7f5fb"/>
+      <stop offset="45%" stop-color="#cfe6f2"/>
+      <stop offset="100%" stop-color="#b9d8e8"/>
+    </linearGradient>
+    <pattern id="${dots}" patternUnits="userSpaceOnUse" width="3.1" height="3.1">
+      <rect width="3.1" height="3.1" fill="#0b0e14"/>
+      <circle cx="1.55" cy="1.55" r="0.62" fill="rgba(210,228,255,0.58)"/>
+    </pattern>
+    <linearGradient id="${sheen}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.30"/>
+      <stop offset="40%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.30"/>
+    </linearGradient>
+    <linearGradient id="${iso}" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#000" stop-opacity="0.34"/>
+      <stop offset="50%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.28"/>
+    </linearGradient>
+  </defs>`;
+  return { defs, grass:g, wood:w, ice, dots, sheen, iso };
+}
+function specFieldPlate(sportKey, x, y, w, h, ids, rx) {
+  const r = rx != null ? rx : 1;
+  if (sportKey === 'football') return '';
+  if (sportKey === 'hockey')
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="url(#${ids.ice})" stroke="#8aa8b8" stroke-width="1.2"/>`;
+  if (sportKey === 'basketball')
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#${ids.wood})"/>`;
+  if (sportKey === 'volleyball')
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="#4a9e4a"/>`;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#${ids.grass})"/>`;
+}
+function specLedCab(x, y, w, h, color, ids) {
+  const hh = Math.min(1.6, Math.max(0.7, h * 0.22));
+  return `<g>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#10141c" rx="0.35"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${ids.dots})" rx="0.35"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${color}" opacity="0.50" rx="0.35"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="rgba(255,255,255,0.22)" rx="0.3"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="0.45" rx="0.35"/>
+  </g>`;
 }
 
 // ── FIELD DIAGRAM SVG ────────────────────────────────────────────────────
@@ -1730,30 +2181,41 @@ function buildFieldDiagram() {
   const stripRaw = depthPx;
   const strip    = Math.max(4, Math.min(stripRaw, 12));
 
+  const look = specLookDefs(fieldX, fieldY, fieldW, fieldH);
   let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+  svg += look.defs;
 
   // Field — volleyball gets green free zone as base, inner court drawn in markings block
   // Football draws its own grass stripes in buildFootballMarkings, so skip base rect for it
-  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : sport.fieldColor;
-  if (currentSport !== 'football')
-    svg += `<rect x="${fieldX}" y="${fieldY}" width="${fieldW}" height="${fieldH}" fill="${fieldBaseColor}" rx="1"/>`;
+  svg += specFieldPlate(currentSport, fieldX, fieldY, fieldW, fieldH, look);
 
   // Field markings
   if (currentSport==='soccer'||currentSport==='rugby') {
-    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="${sport.lineColor}" stroke-width="0.8" opacity="0.4"/>`;
-    svg += `<circle cx="${fieldX+fieldW/2}" cy="${fieldY+fieldH/2}" r="${Math.min(fieldW,fieldH)*0.13}" stroke="${sport.lineColor}" stroke-width="0.8" fill="none" opacity="0.4"/>`;
+    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="${sport.lineColor}" stroke-width="1" opacity="0.7"/>`;
+    svg += `<circle cx="${fieldX+fieldW/2}" cy="${fieldY+fieldH/2}" r="${Math.min(fieldW,fieldH)*0.13}" stroke="${sport.lineColor}" stroke-width="1" fill="none" opacity="0.7"/>`;
     const pbW=fieldW*0.14, pbH=fieldH*0.5;
-    svg += `<rect x="${fieldX}" y="${fieldY+(fieldH-pbH)/2}" width="${pbW}" height="${pbH}" stroke="${sport.lineColor}" stroke-width="0.5" fill="none" opacity="0.3"/>`;
-    svg += `<rect x="${fieldX+fieldW-pbW}" y="${fieldY+(fieldH-pbH)/2}" width="${pbW}" height="${pbH}" stroke="${sport.lineColor}" stroke-width="0.5" fill="none" opacity="0.3"/>`;
+    svg += `<rect x="${fieldX}" y="${fieldY+(fieldH-pbH)/2}" width="${pbW}" height="${pbH}" stroke="${sport.lineColor}" stroke-width="0.7" fill="none" opacity="0.55"/>`;
+    svg += `<rect x="${fieldX+fieldW-pbW}" y="${fieldY+(fieldH-pbH)/2}" width="${pbW}" height="${pbH}" stroke="${sport.lineColor}" stroke-width="0.7" fill="none" opacity="0.55"/>`;
+    const gaW=fieldW*0.05, gaH=fieldH*0.25;
+    svg += `<rect x="${fieldX}" y="${fieldY+(fieldH-gaH)/2}" width="${gaW}" height="${gaH}" stroke="${sport.lineColor}" stroke-width="0.6" fill="none" opacity="0.5"/>`;
+    svg += `<rect x="${fieldX+fieldW-gaW}" y="${fieldY+(fieldH-gaH)/2}" width="${gaW}" height="${gaH}" stroke="${sport.lineColor}" stroke-width="0.6" fill="none" opacity="0.5"/>`;
   } else if (currentSport==='football') {
     svg += buildFootballMarkings(fieldX, fieldY, fieldW, fieldH);
   } else if (currentSport==='basketball') {
-    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="${sport.lineColor}" stroke-width="0.8" opacity="0.4"/>`;
-    svg += `<circle cx="${fieldX+fieldW/2}" cy="${fieldY+fieldH/2}" r="${fieldH*0.25}" stroke="${sport.lineColor}" stroke-width="0.8" fill="none" opacity="0.4"/>`;
+    const keyW = fieldW * 0.19, keyH = fieldH * 0.36;
+    const keyY = fieldY + (fieldH - keyH) / 2;
+    svg += `<rect x="${fieldX}" y="${keyY}" width="${keyW}" height="${keyH}" fill="rgba(180,40,40,0.28)" stroke="#fff" stroke-width="1"/>`;
+    svg += `<rect x="${fieldX+fieldW-keyW}" y="${keyY}" width="${keyW}" height="${keyH}" fill="rgba(40,70,160,0.28)" stroke="#fff" stroke-width="1"/>`;
+    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="${sport.lineColor}" stroke-width="1" opacity="0.75"/>`;
+    svg += `<circle cx="${fieldX+fieldW/2}" cy="${fieldY+fieldH/2}" r="${fieldH*0.18}" stroke="${sport.lineColor}" stroke-width="1" fill="none" opacity="0.7"/>`;
+    svg += `<rect x="${fieldX}" y="${fieldY}" width="${fieldW}" height="${fieldH}" fill="none" stroke="#fff" stroke-width="1.4"/>`;
   } else if (currentSport==='hockey') {
-    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="#cc0000" stroke-width="1.5" opacity="0.5"/>`;
-    svg += `<line x1="${fieldX+fieldW*0.25}" y1="${fieldY}" x2="${fieldX+fieldW*0.25}" y2="${fieldY+fieldH}" stroke="#0055cc" stroke-width="1" opacity="0.4"/>`;
-    svg += `<line x1="${fieldX+fieldW*0.75}" y1="${fieldY}" x2="${fieldX+fieldW*0.75}" y2="${fieldY+fieldH}" stroke="#0055cc" stroke-width="1" opacity="0.4"/>`;
+    svg += `<line x1="${fieldX+fieldW/2}" y1="${fieldY}" x2="${fieldX+fieldW/2}" y2="${fieldY+fieldH}" stroke="#cc0000" stroke-width="1.6" opacity="0.75"/>`;
+    svg += `<line x1="${fieldX+fieldW*0.25}" y1="${fieldY}" x2="${fieldX+fieldW*0.25}" y2="${fieldY+fieldH}" stroke="#0055cc" stroke-width="1.1" opacity="0.55"/>`;
+    svg += `<line x1="${fieldX+fieldW*0.75}" y1="${fieldY}" x2="${fieldX+fieldW*0.75}" y2="${fieldY+fieldH}" stroke="#0055cc" stroke-width="1.1" opacity="0.55"/>`;
+    const cr = Math.min(fieldW, fieldH) * 0.08;
+    svg += `<circle cx="${fieldX+fieldW*0.08}" cy="${fieldY+fieldH/2}" r="${cr}" stroke="#cc0000" stroke-width="0.8" fill="none" opacity="0.45"/>`;
+    svg += `<circle cx="${fieldX+fieldW*0.92}" cy="${fieldY+fieldH/2}" r="${cr}" stroke="#cc0000" stroke-width="0.8" fill="none" opacity="0.45"/>`;
   } else if (currentSport==='volleyball') {
     // Inner court: 18x9m inside ~24x15m total → ~75% wide, ~60% tall
     const icW = fieldW * 0.75, icH = fieldH * 0.60;
@@ -1792,7 +2254,7 @@ function buildFieldDiagram() {
         const x     = startX + i * cabLen_svg;
         const pIdx  = pathOffset + i + 1; // 1-indexed cab number
         const color = cabColorFromZones(pIdx) || defaultColor;
-        out += `<rect x="${x+0.3}" y="${cy - strip/2}" width="${cabLen_svg-0.6}" height="${strip}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        out += specLedCab(x+0.3, cy - strip/2, cabLen_svg-0.6, strip, color, look);
         cabCenters.set(pIdx, { px: x + cabLen_svg/2, py: cy, strip: stripName });
       }
       out += `<line x1="${midX}" y1="${cy-strip/2-3}" x2="${midX}" y2="${cy+strip/2+3}" stroke="#fff" stroke-width="1" opacity="0.8"/>`;
@@ -1848,7 +2310,7 @@ function buildFieldDiagram() {
         const y     = startY - (i+1) * cabLen_svg;
         const pIdx  = pathOffset + i + 1;
         const color = cabColorFromZones(pIdx) || defaultColor;
-        out += `<rect x="${cx - strip/2}" y="${y+0.3}" width="${strip}" height="${cabLen_svg-0.6}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        out += specLedCab(cx - strip/2, y+0.3, strip, cabLen_svg-0.6, color, look);
         cabCenters.set(pIdx, { px: cx, py: y + cabLen_svg/2, strip: stripName });
       }
       return out;
@@ -1861,7 +2323,7 @@ function buildFieldDiagram() {
         const y     = startY + i * cabLen_svg;
         const pIdx  = pathOffset + i + 1;
         const color = cabColorFromZones(pIdx) || defaultColor;
-        out += `<rect x="${cx - strip/2}" y="${y+0.3}" width="${strip}" height="${cabLen_svg-0.6}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        out += specLedCab(cx - strip/2, y+0.3, strip, cabLen_svg-0.6, color, look);
         cabCenters.set(pIdx, { px: cx, py: y + cabLen_svg/2, strip: stripName });
       }
       return out;
@@ -2010,16 +2472,28 @@ function buildIsometricDiagram() {
   const fieldX1 = fieldX0 + fL;
   const fieldY1 = fieldY0 + fW;
 
+  const fc = [proj(fieldX0,fieldY0), proj(fieldX1,fieldY0), proj(fieldX1,fieldY1), proj(fieldX0,fieldY1)];
+  const isoBX = Math.min(...fc.map(c=>c.px));
+  const isoBY = Math.min(...fc.map(c=>c.py));
+  const isoBW = Math.max(...fc.map(c=>c.px)) - isoBX;
+  const isoBH = Math.max(...fc.map(c=>c.py)) - isoBY;
+  const look = specLookDefs(isoBX, isoBY, isoBW, isoBH);
   let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+  svg += look.defs;
 
   // ── FIELD SURFACE ────────────────────────────────────────────────────
-  const fc = [proj(fieldX0,fieldY0), proj(fieldX1,fieldY0), proj(fieldX1,fieldY1), proj(fieldX0,fieldY1)];
-  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : sport.fieldColor;
-  if (currentSport !== 'football') {
-    svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${fieldBaseColor}"/>`;
+  const isoPts = fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ');
+  // Never paint a screen-axis grass pattern on a perspective field —
+  // those stripes stay vertical on the page. Solid fill; mowing is
+  // drawn as projected quads in the markings block.
+  if (currentSport === 'hockey') {
+    svg += `<polygon points="${isoPts}" fill="url(#${look.ice})"/>`;
+  } else if (currentSport === 'basketball') {
+    svg += `<polygon points="${isoPts}" fill="#c9a36c"/>`;
+  } else if (currentSport === 'volleyball') {
+    svg += `<polygon points="${isoPts}" fill="#4a9e4a"/>`;
   } else {
-    // Football: solid green base then darker mowing stripes
-    svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${sport.fieldColor || '#3a7a3a'}"/>`;
+    svg += `<polygon points="${isoPts}" fill="#3a8a3c"/>`;
   }
 
   // ── FIELD MARKINGS — mirror top-down for soccer / football / volleyball ──
@@ -2030,11 +2504,12 @@ function buildIsometricDiagram() {
       .map(p=>`${p.px.toFixed(1)},${p.py.toFixed(1)}`).join(' ');
 
   if (currentSport === 'soccer' || currentSport === 'rugby') {
-    // Mowing stripes (perpendicular to length, alternating shades)
-    const stripeCount = 8;
+    // Mowing stripes as PROJECTED quads (follow the isometric field,
+    // never screen-vertical). Alternate shade along field width.
+    const stripeCount = 14;
     for (let i=0; i<stripeCount; i++) {
       if (i % 2 === 0) continue;
-      svg += `<polygon points="${projQuad(fieldX0, fieldY0 + fW*i/stripeCount, fieldX1, fieldY0 + fW*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.10)"/>`;
+      svg += `<polygon points="${projQuad(fieldX0, fieldY0 + fW*i/stripeCount, fieldX1, fieldY0 + fW*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.16)"/>`;
     }
     // Center line
     const cl0 = proj(fieldX0 + fL/2, fieldY0), cl1 = proj(fieldX0 + fL/2, fieldY1);
@@ -2059,7 +2534,7 @@ function buildIsometricDiagram() {
     svg += `<polygon points="${projQuad(fieldX0, gay0, fieldX0+gaW, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
     svg += `<polygon points="${projQuad(fieldX1-gaW, gay0, fieldX1, gay1)}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5"/>`;
   } else if (currentSport === 'football') {
-    // Football uses 360-ft long × 160-ft wide as the canonical layout (top-down convention).
+    // Football uses 360-ft long x 160-ft wide as the canonical layout (top-down convention).
     // Map foot coords through the field rect proportionally so non-default field sizes still scale.
     const fbX = (ft) => fieldX0 + (ft / 360) * fL;
     const fbY = (ft) => fieldY0 + (ft / 160) * fW;
@@ -2101,7 +2576,7 @@ function buildIsometricDiagram() {
       svg += `<line x1="${tB.px.toFixed(1)}" y1="${tB.py.toFixed(1)}" x2="${bB.px.toFixed(1)}" y2="${bB.py.toFixed(1)}" stroke="yellow" stroke-width="1"/>`;
     });
   } else if (currentSport === 'volleyball') {
-    // Inner court inset within the free zone (75% × 60% of total field)
+    // Inner court inset within the free zone (75% x 60% of total field)
     const icW = fL * 0.75, icH = fW * 0.60;
     const icX0 = fieldX0 + (fL - icW) / 2, icY0 = fieldY0 + (fW - icH) / 2;
     const icX1 = icX0 + icW, icY1 = icY0 + icH;
@@ -2197,7 +2672,9 @@ function buildIsometricDiagram() {
         const hL = ledHeightAt(bL.t), hR = ledHeightAt(bR.t);
         const tL = { px: bL.px, py: bL.py - hL };
         const tR = { px: bR.px, py: bR.py - hR };
-        out += `<polygon points="${bL.px.toFixed(1)},${bL.py.toFixed(1)} ${bR.px.toFixed(1)},${bR.py.toFixed(1)} ${tR.px.toFixed(1)},${tR.py.toFixed(1)} ${tL.px.toFixed(1)},${tL.py.toFixed(1)}" fill="${color}"${strokeAttr}/>`;
+        const ptsH = `${bL.px.toFixed(1)},${bL.py.toFixed(1)} ${bR.px.toFixed(1)},${bR.py.toFixed(1)} ${tR.px.toFixed(1)},${tR.py.toFixed(1)} ${tL.px.toFixed(1)},${tL.py.toFixed(1)}`;
+        out += `<polygon points="${ptsH}" fill="${color}"${strokeAttr}/>`;
+        out += `<polygon points="${ptsH}" fill="url(#${look.iso})" pointer-events="none"/>`;
       };
 
       if (isoCabStroke) {
@@ -2245,7 +2722,9 @@ function buildIsometricDiagram() {
         const hA = ledHeightAt(bA.t), hB = ledHeightAt(bB.t);
         const tA = { px: bA.px, py: bA.py - hA };
         const tB = { px: bB.px, py: bB.py - hB };
-        out += `<polygon points="${bA.px.toFixed(1)},${bA.py.toFixed(1)} ${bB.px.toFixed(1)},${bB.py.toFixed(1)} ${tB.px.toFixed(1)},${tB.py.toFixed(1)} ${tA.px.toFixed(1)},${tA.py.toFixed(1)}" fill="${color}"${strokeAttr}/>`;
+        const ptsV = `${bA.px.toFixed(1)},${bA.py.toFixed(1)} ${bB.px.toFixed(1)},${bB.py.toFixed(1)} ${tB.px.toFixed(1)},${tB.py.toFixed(1)} ${tA.px.toFixed(1)},${tA.py.toFixed(1)}`;
+        out += `<polygon points="${ptsV}" fill="${color}"${strokeAttr}/>`;
+        out += `<polygon points="${ptsV}" fill="url(#${look.iso})" pointer-events="none"/>`;
       };
 
       if (isoCabStroke) {
@@ -2371,13 +2850,20 @@ function buildComplexIsometricDiagram() {
   const LED_H_BACK  = 12;
   const ledHeightAt = (t) => LED_H_FRONT + (LED_H_BACK - LED_H_FRONT) * t;
 
+  const sport = getSport();
+  const fc = [proj(fX0,fY0), proj(fX1,fY0), proj(fX1,fY1), proj(fX0,fY1)];
+  const cxBX = Math.min(...fc.map(c=>c.px));
+  const cxBY = Math.min(...fc.map(c=>c.py));
+  const look = specLookDefs(cxBX, cxBY, Math.max(...fc.map(c=>c.px))-cxBX, Math.max(...fc.map(c=>c.py))-cxBY);
   let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif">`;
+  svg += look.defs;
 
   // Field surface — same color logic as U-config (volleyball = free-zone green, else sport color)
-  const sport = getSport();
-  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : (sport.fieldColor || '#3a7a3a');
-  const fc = [proj(fX0,fY0), proj(fX1,fY0), proj(fX1,fY1), proj(fX0,fY1)];
-  svg += `<polygon points="${fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ')}" fill="${fieldBaseColor}"/>`;
+  const isoPtsCx = fc.map(c=>`${c.px.toFixed(1)},${c.py.toFixed(1)}`).join(' ');
+  if (currentSport === 'hockey') svg += `<polygon points="${isoPtsCx}" fill="url(#${look.ice})"/>`;
+  else if (currentSport === 'basketball') svg += `<polygon points="${isoPtsCx}" fill="#c9a36c"/>`;
+  else if (currentSport === 'volleyball') svg += `<polygon points="${isoPtsCx}" fill="#4a9e4a"/>`;
+  else svg += `<polygon points="${isoPtsCx}" fill="#3a8a3c"/>`;
 
   // ── FIELD MARKINGS — mirror top-down for soccer / football / volleyball ──
   const lc = sport.lineColor || '#fff';
@@ -2387,10 +2873,10 @@ function buildComplexIsometricDiagram() {
 
   if (currentSport === 'soccer' || currentSport === 'rugby') {
     // Mowing stripes (perpendicular to length, alternating shades)
-    const stripeCount = 8;
+    const stripeCount = 14;
     for (let i=0; i<stripeCount; i++) {
       if (i % 2 === 0) continue;
-      svg += `<polygon points="${projQuad(fX0, fY0 + fW_ft*i/stripeCount, fX1, fY0 + fW_ft*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.10)"/>`;
+      svg += `<polygon points="${projQuad(fX0, fY0 + fW_ft*i/stripeCount, fX1, fY0 + fW_ft*(i+1)/stripeCount)}" fill="rgba(0,0,0,0.16)"/>`;
     }
     // Center line
     const cl0 = proj(fX0 + fL_ft/2, fY0), cl1 = proj(fX0 + fL_ft/2, fY1);
@@ -2682,8 +3168,9 @@ function buildModularLEDDiagram(svgW, svgH) {
       <stop offset="100%" stop-color="#0a0a0a" stop-opacity="1"/>
     </linearGradient>
     <pattern id="pixelGrid" width="${pixelTilePx}" height="${pixelTilePx}" patternUnits="userSpaceOnUse">
-      <rect width="${pixelTilePx}" height="${pixelTilePx}" fill="#10141c"/>
-      <circle cx="${pixelTilePx/2}" cy="${pixelTilePx/2}" r="${Math.max(0.3, pixelTilePx*0.16)}" fill="rgba(120,170,255,0.22)"/>
+      <rect width="${pixelTilePx}" height="${pixelTilePx}" fill="#0b0e14"/>
+      <circle cx="${pixelTilePx/2}" cy="${pixelTilePx/2}" r="${Math.max(0.35, pixelTilePx*0.22)}" fill="rgba(190,215,255,0.42)"/>
+      <circle cx="${pixelTilePx/2}" cy="${pixelTilePx*0.38}" r="${Math.max(0.15, pixelTilePx*0.08)}" fill="rgba(255,255,255,0.35)"/>
     </pattern>
     <linearGradient id="bezelTop" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%"  stop-color="rgba(140,180,240,0.18)"/>
@@ -2812,6 +3299,34 @@ function buildModularLEDDiagram(svgW, svgH) {
   return svg;
 }
 
+function zoneLegendRowHtml(z, count, px) {
+  const stacked = z.doubleStacked ? ' (2 tall)' : '';
+  const useStill = legendStills && z.faceStillDataUrl && isSafeStillUrl(z.faceStillDataUrl);
+  let bar;
+  if (useStill) {
+    const sw = z.faceStillW || px.w || 1;
+    const sh = z.faceStillH || px.h || 1;
+    bar = `<img class="zone-legend-still" src="${z.faceStillDataUrl}" alt="" style="aspect-ratio:${sw} / ${sh}">`;
+  } else {
+    bar = `<div class="zone-legend-swatch" style="background:${escapeHtml(z.color)}"></div>`;
+  }
+  return `<div class="zone-legend-row">${bar}<span>${escapeHtml(z.name)} // ${count} CABINETS${stacked} // ${px.w} x ${px.h}px</span></div>`;
+}
+
+function formatZoneLegend(legendItems, zoneCount) {
+  if (!legendStills) {
+    const extra = zoneCount <= 3 ? 'grid-template-columns:1fr;justify-items:center;' : '';
+    return `<div class="zone-legend" style="width:100%;${extra}">${legendItems}</div>`;
+  }
+  const parts = String(legendItems).split(/(?=<div class="zone-legend-row")/).filter(s => s.trim());
+  const left = [], right = [];
+  parts.forEach((html, i) => { (i % 2 === 0 ? left : right).push(html); });
+  return `<div class="zone-legend has-stills" style="width:100%">
+    <div class="zone-legend-col">${left.join('')}</div>
+    <div class="zone-legend-col">${right.join('')}</div>
+  </div>`;
+}
+
 // ── ZONE BREAKDOWN FOR PAGE 1 ────────────────────────────────────────────
 function buildZoneBreakdown() {
   if (layoutMode === 'complex') return buildComplexZoneBreakdown();
@@ -2836,8 +3351,8 @@ function buildZoneBreakdown() {
       const px = zonePixels(lo, hi, z.doubleStacked);
       totalCabs += z.doubleStacked ? count * 2 : count;
       totalFt   += count * cf;
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${escapeHtml(z.color)}"></div><span>${escapeHtml(z.name)} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} \u00d7 ${px.h}px</span></div>`;
-      fileList    += `<li>\u2022 ${escapeHtml(z.name)}: ${px.w} \u00d7 ${px.h} px</li>`;
+      legendItems += zoneLegendRowHtml(z, count, px);
+      fileList    += `<li>${escapeHtml(z.name)}: ${px.w} x ${px.h} px</li>`;
       legendCount++;
     }
   } else {
@@ -2855,8 +3370,8 @@ function buildZoneBreakdown() {
       const ft  = (qty * cf).toFixed(1);
       totalCabs += qty;
       totalFt   += qty * cf;
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${r.color}"></div><span>${r.label} // ${qty} CABINETS // ${pxW} \u00d7 ${cab.pxH}px // ${ft} ft.</span></div>`;
-      fileList    += `<li>\u2022 ${r.label}: ${pxW} \u00d7 ${cab.pxH} px</li>`;
+      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${r.color}"></div><span>${r.label} // ${qty} CABINETS // ${pxW} x ${cab.pxH}px // ${ft} ft.</span></div>`;
+      fileList    += `<li>${r.label}: ${pxW} x ${cab.pxH} px</li>`;
       legendCount++;
     }
   }
@@ -2894,10 +3409,25 @@ function handleLogoUpload(input) {
   const reader = new FileReader();
   reader.onload = e => {
     clientLogoDataUrl = e.target.result;
-    document.getElementById('logoPreviewImg').src = clientLogoDataUrl;
-    document.getElementById('logoPreviewImg').style.display = 'block';
-    document.getElementById('logoPlaceholder').style.display = 'none';
-    update();
+    const preview = document.getElementById('logoPreviewImg');
+    const placeholder = document.getElementById('logoPlaceholder');
+    if (placeholder) placeholder.style.display = 'none';
+    const paintLogo = () => {
+      if (typeof glSpec !== 'undefined' && glSpec.invalidateLogo) glSpec.invalidateLogo();
+      update();
+    };
+    if (preview) {
+      preview.onload = () => { preview.onload = null; paintLogo(); };
+      preview.onerror = () => { preview.onerror = null; paintLogo(); };
+      preview.src = clientLogoDataUrl;
+      preview.style.display = 'block';
+      if (preview.complete && preview.naturalWidth) {
+        preview.onload = null;
+        paintLogo();
+      }
+    } else {
+      paintLogo();
+    }
   };
   reader.readAsDataURL(input.files[0]);
 }
@@ -2914,6 +3444,13 @@ function resetForm() {
   compassBearing    = 0;
   diagramView       = 'topdown';
   isoCabStroke      = false;
+  showFieldGear     = true;
+  legendStills      = false;
+  isoAzimuth        = 45;
+  isoElevation      = 36;
+  isoZoom           = 1;
+  isoPanX           = 0;
+  isoPanZ           = 0;
   isoLabelOverrides = {};
   currentSport      = 'soccer';
   currentCabinet    = 'p10';
@@ -2921,7 +3458,7 @@ function resetForm() {
   codecSettings = { codec:'H.264', container:'mp4', fps:30, duration:15, bitrate:'', notes:'' };
   modularConfig = {
     cabType:  'p391', cabsWide: 4, cabsTall: 3, mounting: 'ground',
-    sdi: { resolution:'1920×1080', fps:'60', format:'3G-SDI', sampling:'4:2:2', bitDepth:'10-bit', colorspace:'Rec. 709' }
+    sdi: { resolution:'1920x1080', fps:'60', format:'3G-SDI', sampling:'4:2:2', bitDepth:'10-bit', colorspace:'Rec. 709' }
   };
 
   // ── DOM inputs → cleared / defaults ──
@@ -2948,7 +3485,9 @@ function resetForm() {
 
   // Logo
   document.getElementById('logoPreviewImg').style.display = 'none';
+  document.getElementById('logoPreviewImg').removeAttribute('src');
   document.getElementById('logoPlaceholder').style.display = '';
+  if (typeof glSpec !== 'undefined' && glSpec.invalidateLogo) glSpec.invalidateLogo();
 
   // ── UI sync — match fresh-project state ──
   // Layout mode → U-config
@@ -2977,11 +3516,16 @@ function resetForm() {
   if (dvRadio) dvRadio.checked = true;
   const isoStrokeBox = document.getElementById('isoCabStroke');
   if (isoStrokeBox) isoStrokeBox.checked = false;
+  const gearBox = document.getElementById('showFieldGear');
+  if (gearBox) gearBox.checked = true;
+  const legendStillBox = document.getElementById('legendStills');
+  if (legendStillBox) legendStillBox.checked = false;
+  syncIsoCamControls();
 
   // Reverse numbering button
   const reverseBtn = document.getElementById('reverseToggleBtn');
   if (reverseBtn) {
-    reverseBtn.textContent = '← LEFT IS #1';
+    reverseBtn.textContent = 'LEFT IS #1';
     reverseBtn.style.borderColor = 'var(--border)';
     reverseBtn.style.color = 'var(--text)';
   }
@@ -3000,9 +3544,7 @@ function buildPage1() {
   const cab   = getCab();
   const sport = getSport();
   const { legendItems, fileList, totalCabs, totalFt, zoneCount } = buildZoneBreakdown();
-  const diagram = (diagramView === 'isometric')
-    ? buildIsometricDiagram()
-    : buildFieldDiagram();
+  const diagram = specDiagramSlot();
   const clientName  = v('clientName')  || 'CLIENT NAME';
   const venueName   = v('venueName')   || 'Venue Name';
   const deadline    = v('contentDeadline');
@@ -3015,62 +3557,57 @@ function buildPage1() {
     : `<div style="width:100px;height:70px;border:1px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa">LOGO</div>`;
   const e360Html = `<img src="${E360_LOGO}" style="height:52px;object-fit:contain;" alt="e360 Sport">`;
 
-  return `<div style="display:flex;flex-direction:column;height:100%">
+  return `<div class="p1-sheet">
     <div class="p1-header">
       <div class="p1-title-block">
-        <div><span class="p1-client-name">${escapeHtml(clientName)}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
+        <div class="p1-client-name">${escapeHtml(clientName)}</div>
+        <div class="p1-led-kicker">LED Specifications</div>
         <div class="p1-venue">${escapeHtml(venueName)}</div>
       </div>
       <div class="p1-logos">${logoHtml}<div class="p1-logo-divider"></div>${e360Html}</div>
     </div>
-    <div style="display:grid;grid-template-columns:270px 1fr;flex:1;overflow:hidden">
-      <div style="padding:10px 16px;border-right:1px solid #ddd;font-size:12px">
-        <div class="spec-section-title">General Guidelines</div>
-        <div class="spec-item">Files must conform to the specifications provided. Failure to match these specs may result in a file that does not display as intended.</div>
-        <div class="spec-section-title">Specifications</div>
-        <div class="spec-item">Resolution: 72 pixels per inch (ppi)</div>
-        <div class="spec-item">Color: RGB</div><div class="spec-item">Audio: None</div>
-        <div class="spec-item">Static File: JPEG/PNG</div>
-        ${codecSpecLines()}
-        <div class="spec-section-title">File Submissions Needed</div>
-        <ul class="file-list" style="list-style:none;padding:0">${fileList}</ul>
-        ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
-      </div>
-      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%">
-        <div class="field-diagram-wrap">
-          ${diagram}
-        </div>
-        <div style="width:100%">
-          <div style="background:#1a1a1a;color:#fff;padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;width:100%;text-align:center">
-            PERIMETER SYSTEM // ${totalCabs} CABINETS TOTAL // ${totalFt.toFixed(0)} ft.
-          </div>
-          <div class="zone-legend" style="width:100%;${zoneCount <= 3 ? 'grid-template-columns:1fr;justify-items:center;' : ''}">${legendItems}</div>
-        </div>
-      </div>
+    <div class="p1-hero">
+      ${diagram}
+      <div class="p1-band">PERIMETER SYSTEM &nbsp;//&nbsp; ${totalCabs} CABINETS TOTAL &nbsp;//&nbsp; ${totalFt.toFixed(0)} FT</div>
     </div>
-    <div class="p1-footer">
-      <div class="p1-footer-col">
-        <div class="footer-section-title">Contact Info</div>
-        <div class="contact-block">
-          <div class="contact-role">Creative Director</div>
-          <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
-          <div class="contact-detail">${escapeHtml(cmPhone)}</div>
-          <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
+    <div class="p1-below">
+      <div class="p1-titleblock">
+        <div>
+          <div class="tb-h">Guidelines</div>
+          <div class="tb-note">Files must conform to these specifications. Failure to match them may result in a file that does not display as intended.</div>
+          <div class="tb-h">Specifications</div>
+          <div class="tb-kv">
+            <span>Raster</span><span>72 ppi · RGB · JPEG/PNG</span>
+            <span>Audio</span><span>None</span>
+            <span>Video</span><span>${escapeHtml(codecSettings.codec || 'H.264')} / ${escapeHtml((codecSettings.container || 'mp4').toUpperCase())}</span>
+            <span>Duration</span><span>${escapeHtml(String(codecSettings.duration || 30))} seconds</span>
+            <span>Frame rate</span><span>${escapeHtml(String(codecSettings.fps || 30))} fps · square pixels</span>
+            ${codecSettings.bitrate ? `<span>Bitrate</span><span>${escapeHtml(codecSettings.bitrate)}</span>` : ''}
+            ${codecSettings.notes ? `<span>Notes</span><span>${escapeHtml(codecSettings.notes)}</span>` : ''}
+          </div>
         </div>
-        <div class="contact-block">
-          <div class="contact-role">Technical Director</div>
-          <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
-          <div class="contact-detail">${escapeHtml(tdPhone)}</div>
-          <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
+        <div>
+          <div class="tb-h">File submissions</div>
+          <ul class="file-list" style="list-style:none;padding:0;margin:0">${fileList}</ul>
+          <div class="tb-h" style="margin-top:8px">Deadline</div>
+          <div class="tb-line">${deadline && deadline !== '\u2014' ? escapeHtml(deadline) : 'TBD'}</div>
+        </div>
+        <div>
+          <div class="tb-h">Creative Director</div>
+          <div class="tb-name">${escapeHtml(cmName)}</div>
+          <div class="tb-sub">${escapeHtml(cmPhone)}</div>
+          <div class="tb-sub">${escapeHtml(cmEmail)}</div>
+        </div>
+        <div>
+          <div class="tb-h">Technical Director</div>
+          <div class="tb-name">${escapeHtml(tdName)}</div>
+          <div class="tb-sub">${escapeHtml(tdPhone)}</div>
+          <div class="tb-sub">${escapeHtml(tdEmail)}</div>
+          ${submitUrl && submitUrl !== '\u2014' ? `<div class="tb-h" style="margin-top:8px">Submit files</div><a class="submission-link" href="${encodeURI(submitUrl)}">${escapeHtml(submitUrl)}</a>` : ''}
         </div>
       </div>
-      <div class="p1-footer-col">
-        <div class="footer-section-title">File Submission</div>
-        <div style="font-size:12px;color:#333;margin-bottom:8px">SUBMITTING FILES TO e360 SPORT</div>
-        <a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>
-        <div class="submission-step" style="margin-top:8px">STEP 1: OPEN LINK</div>
-        <div class="submission-step">STEP 2: DRAG/DROP FILES</div>
-        <div class="submission-step">STEP 3: ENTER YOUR NAME AND EMAIL</div>
+      <div class="p1-legend">
+        ${formatZoneLegend(legendItems, zoneCount)}
       </div>
     </div>
     <div class="page-copyright">
@@ -3112,38 +3649,55 @@ function buildPage1Modular() {
     : `<div style="width:100px;height:70px;border:1px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa">LOGO</div>`;
   const e360Html = `<img src="${E360_LOGO}" style="height:52px;object-fit:contain;" alt="e360 Sport">`;
 
-  const diagram = buildModularLEDDiagram(620, 360);
+  const diagram = specDiagramSlot();
   const sdiLines = buildSdiSpecLines();
 
-  return `<div style="display:flex;flex-direction:column;height:100%">
+  return `<div class="p1-sheet">
     <div class="p1-header">
       <div class="p1-title-block">
-        <div><span class="p1-client-name">${escapeHtml(clientName)}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
+        <div class="p1-client-name">${escapeHtml(clientName)}</div>
+        <div class="p1-led-kicker">LED Specifications</div>
         <div class="p1-venue">${escapeHtml(venueName)}</div>
       </div>
       <div class="p1-logos">${logoHtml}<div class="p1-logo-divider"></div>${e360Html}</div>
     </div>
-    <div style="display:grid;grid-template-columns:270px 1fr;flex:1;overflow:hidden">
-      <div style="padding:10px 16px;border-right:1px solid #ddd;font-size:12px">
+    <div class="p1-main">
+      <div class="p1-specs">
         <div class="spec-section-title">General Guidelines</div>
         <div class="spec-item">Files must conform to the specifications provided. Failure to match these specs may result in a file that does not display as intended.</div>
         <div class="spec-section-title">Wall Specifications</div>
         <div class="spec-item"><strong>Cabinet:</strong> ${escapeHtml(cab.name)}</div>
-        <div class="spec-item"><strong>Layout:</strong> ${w} \u00d7 ${h} cabs (${w*h} total)</div>
-        <div class="spec-item"><strong>Pixel Canvas:</strong> ${pxW} \u00d7 ${pxH} px</div>
-        <div class="spec-item"><strong>Physical:</strong> ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}</div>
+        <div class="spec-item"><strong>Layout:</strong> ${w} x ${h} cabs (${w*h} total)</div>
+        <div class="spec-item"><strong>Pixel Canvas:</strong> ${pxW} x ${pxH} px</div>
+        <div class="spec-item"><strong>Physical:</strong> ${ftStr(ftW)} x ${ftStr(ftH)}</div>
         <div class="spec-item"><strong>Aspect:</strong> ${aspect} : 1</div>
         <div class="spec-item">Color: RGB \u00b7 Audio: None</div>
         <div class="spec-item">Static File: JPEG/PNG</div>
         ${codecSpecLines()}
         <div class="spec-section-title">File Submission</div>
         <ul class="file-list" style="list-style:none;padding:0">
-          <li>\u2022 Full Canvas: ${pxW} \u00d7 ${pxH} px</li>
+          <li>Full Canvas: ${pxW} x ${pxH} px</li>
         </ul>
         ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
+        <div class="p1-specs-bottom">
+          <div class="spec-section-title">Contact</div>
+          <div class="contact-block">
+            <div class="contact-role">Creative Director</div>
+            <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
+            <div class="contact-detail">${escapeHtml(cmPhone)}</div>
+            <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
+          </div>
+          <div class="contact-block">
+            <div class="contact-role">Technical Director</div>
+            <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
+            <div class="contact-detail">${escapeHtml(tdPhone)}</div>
+            <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
+          </div>
+          ${submitUrl && submitUrl !== '\u2014' ? `<div class="spec-section-title">Submit files</div><a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>` : ''}
+        </div>
       </div>
       <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;gap:10px">
-        <div class="field-diagram-wrap" style="background:#070709;border-radius:4px">
+        <div class="field-diagram-wrap" style="width:100%">
           ${diagram}
         </div>
         <div style="width:100%">
@@ -3152,31 +3706,6 @@ function buildPage1Modular() {
           </div>
           ${sdiLines}
         </div>
-      </div>
-    </div>
-    <div class="p1-footer">
-      <div class="p1-footer-col">
-        <div class="footer-section-title">Contact Info</div>
-        <div class="contact-block">
-          <div class="contact-role">Creative Director</div>
-          <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
-          <div class="contact-detail">${escapeHtml(cmPhone)}</div>
-          <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
-        </div>
-        <div class="contact-block">
-          <div class="contact-role">Technical Director</div>
-          <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
-          <div class="contact-detail">${escapeHtml(tdPhone)}</div>
-          <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
-        </div>
-      </div>
-      <div class="p1-footer-col">
-        <div class="footer-section-title">File Submission</div>
-        <div style="font-size:12px;color:#333;margin-bottom:8px">SUBMITTING FILES TO e360 SPORT</div>
-        <a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>
-        <div class="submission-step" style="margin-top:8px">STEP 1: OPEN LINK</div>
-        <div class="submission-step">STEP 2: DRAG/DROP FILES</div>
-        <div class="submission-step">STEP 3: ENTER YOUR NAME AND EMAIL</div>
       </div>
     </div>
     <div class="page-copyright">
@@ -3230,6 +3759,7 @@ function collectProjectData() {
     'compassBearingInput','submitUrl',
     'cm_name','cm_phone','cm_email','td_name','td_phone','td_email',
     'codecName','codecContainer','codecFps','codecDuration','codecBitrate','codecNotes',
+    'diagramLabelSize',
   ];
   const fields = {};
   fieldIds.forEach(id => {
@@ -3255,7 +3785,17 @@ function collectProjectData() {
     compassBearing,
     diagramView,
     isoCabStroke,
+    showFieldGear,
+    legendStills,
+    isoAzimuth,
+    isoElevation,
+    isoZoom,
+    isoPanX,
+    isoPanZ,
     isoLabelOverrides,
+    showCabNumbers: document.getElementById('showCabNumbers')?.checked !== false,
+    showZoneLength: !!document.getElementById('showZoneLength')?.checked,
+    showDiagramLabels: document.getElementById('showDiagramLabels')?.checked !== false,
     modularConfig,
     zones,
     clientLogoDataUrl: typeof clientLogoDataUrl !== 'undefined' ? clientLogoDataUrl : null,
@@ -3294,6 +3834,13 @@ function applyProjectData(p) {
   compassBearing  = p.compassBearing  ?? 0;
   diagramView     = p.diagramView     ?? 'topdown';
   isoCabStroke    = p.isoCabStroke    ?? false;
+  showFieldGear   = p.showFieldGear   ?? true;
+  legendStills    = p.legendStills    ?? false;
+  isoAzimuth      = p.isoAzimuth      ?? 45;
+  isoElevation    = p.isoElevation    ?? 36;
+  isoZoom         = p.isoZoom         ?? 1;
+  isoPanX         = p.isoPanX         ?? 0;
+  isoPanZ         = p.isoPanZ         ?? 0;
   isoLabelOverrides = p.isoLabelOverrides ?? {};
   if (p.modularConfig) {
     modularConfig = {
@@ -3305,6 +3852,7 @@ function applyProjectData(p) {
     };
   }
   zones           = p.zones           ?? [];
+  sanitizeZoneStills();
 
   // Sync modular UI inputs to restored state
   const mCabT = document.getElementById('modularCabType');
@@ -3319,23 +3867,36 @@ function applyProjectData(p) {
   // Sync cabinet-outlines checkbox to restored state.
   const isoStrokeBox = document.getElementById('isoCabStroke');
   if (isoStrokeBox) isoStrokeBox.checked = isoCabStroke;
+  const gearBox = document.getElementById('showFieldGear');
+  if (gearBox) gearBox.checked = showFieldGear;
+  const legendStillBox = document.getElementById('legendStills');
+  if (legendStillBox) legendStillBox.checked = legendStills;
+  syncIsoCamControls();
 
   // Sync diagram-view radio so the UI reflects the loaded state.
   const dvRadio = document.querySelector(`input[name="diagramView"][value="${diagramView}"]`);
   if (dvRadio) dvRadio.checked = true;
 
-  // Restore logo — strict MIME gate so a malicious .e360 cannot smuggle
-  // data:image/svg+xml,<svg onload=...> or other non-bitmap formats.
-  if (p.clientLogoDataUrl &&
-      /^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(p.clientLogoDataUrl)) {
-    clientLogoDataUrl = p.clientLogoDataUrl;
+  // Restore logo — bitmap MIME only (png/jpeg/gif/webp). Whitespace in
+  // pretty-printed .e360 base64 is stripped so a valid logo isn't dropped.
+  const logoUrl = isSafeBitmapDataUrl(p.clientLogoDataUrl);
+  if (logoUrl) {
+    clientLogoDataUrl = logoUrl;
     const previewImg  = document.getElementById('logoPreviewImg');
     const placeholder = document.getElementById('logoPlaceholder');
     if (previewImg)  { previewImg.src = clientLogoDataUrl; previewImg.style.display = ''; }
     if (placeholder)   placeholder.style.display = 'none';
   } else if (p.clientLogoDataUrl) {
+    clientLogoDataUrl = null;
     console.warn('Logo data URL rejected: unsupported MIME type or format');
   }
+
+  const cabNumBox = document.getElementById('showCabNumbers');
+  if (cabNumBox && p.showCabNumbers !== undefined) cabNumBox.checked = !!p.showCabNumbers;
+  const zoneLenBox = document.getElementById('showZoneLength');
+  if (zoneLenBox && p.showZoneLength !== undefined) zoneLenBox.checked = !!p.showZoneLength;
+  const dimLabelBox = document.getElementById('showDiagramLabels');
+  if (dimLabelBox && p.showDiagramLabels !== undefined) dimLabelBox.checked = !!p.showDiagramLabels;
 
   // Sync UI state — show only the relevant config section for the loaded mode
   // and hide non-applicable sidebar sections (sport/zones/etc) in modular mode.
@@ -3356,7 +3917,7 @@ function applyProjectData(p) {
 
   const reverseBtn = document.getElementById('reverseToggleBtn');
   if (reverseBtn) {
-    reverseBtn.textContent = reverseNumbering ? '→ RIGHT IS #1' : '← LEFT IS #1';
+    reverseBtn.textContent = reverseNumbering ? '→ RIGHT IS #1' : 'LEFT IS #1';
     reverseBtn.style.borderColor = reverseNumbering ? 'var(--accent)' : 'var(--border)';
     reverseBtn.style.color = reverseNumbering ? 'var(--accent)' : 'var(--text)';
   }
@@ -3387,6 +3948,7 @@ function applyProjectData(p) {
     if (el) el.checked = checked;
   });
 
+  if (typeof glSpec !== 'undefined' && glSpec.invalidateLogo) glSpec.invalidateLogo();
   update();
 }
 
@@ -3411,7 +3973,1412 @@ function loadProject() {
 }
 
 // ── MAIN UPDATE ──────────────────────────────────────────────────────────
+function specDiagramSlot() {
+  return `<div class="gl-wrap">
+    <div id="gl-spec-host" class="gl-spec-host"></div>
+    <div class="gl-caption">Not to Exact Scale</div>
+  </div>`;
+}
+
+// 3D spec-sheet map: studio gray, black LED cabinets, zone color as lit
+// face. Same .e360 geometry as the SVG path (counts, offsets, gaps).
+// Height/depth are boosted so fascia reads on a full-size field.
+// Snapshot to PNG for print. Zone labels overlay the raster.
+const glSpec = (() => {
+  let W = 1600, H = 720;
+  function sizeToHost(host) {
+    const r = host.getBoundingClientRect();
+    const dw = r.width > 80 ? r.width : 1100;
+    const dh = r.height > 80 ? r.height : 520;
+    const scale = Math.min(2, 1920 / dw);
+    W = Math.max(960, Math.round(dw * scale));
+    H = Math.max(360, Math.round(dh * scale));
+  }
+  const TOUCH = '#c8a830', END = '#4a5560';
+  let renderer, scene, camera, maskTex, cabMarks = [];
+  let logoImg = null, logoKey = '', logoRepaint = false;
+  let logoPainted = null, logoPaintedKey = '';
+  function readyClientLogo() {
+    const src = (typeof clientLogoDataUrl === 'string') ? clientLogoDataUrl : '';
+    if (!src || src.indexOf('data:image') !== 0) return null;
+    if (logoImg && logoKey === src && logoImg.complete && logoImg.naturalWidth > 0) return logoImg;
+    if (logoKey !== src) {
+      logoKey = src;
+      logoPainted = null;
+      logoPaintedKey = '';
+      logoImg = new Image();
+      logoImg.onload = () => {
+        if (logoRepaint) return;
+        logoRepaint = true;
+        const host = document.getElementById('gl-spec-host');
+        if (host) { paint(host); attachIsoLabelHandlers(); }
+        logoRepaint = false;
+      };
+      logoImg.src = src;
+    }
+    if (logoImg && logoKey === src && logoImg.complete && logoImg.naturalWidth > 0) return logoImg;
+    return null;
+  }
+  function logoPaintCanvas(img) {
+    if (logoPainted && logoPaintedKey === logoKey) return logoPainted;
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) return img;
+    const src = document.createElement('canvas');
+    src.width = w; src.height = h;
+    const sg = src.getContext('2d');
+    sg.drawImage(img, 0, 0);
+    let data;
+    try { data = sg.getImageData(0, 0, w, h); }
+    catch (err) {
+      logoPainted = img; logoPaintedKey = logoKey;
+      return img;
+    }
+    const d = data.data;
+    const sample = (x, y) => {
+      const i = (y * w + x) * 4;
+      return [d[i], d[i + 1], d[i + 2], d[i + 3]];
+    };
+    const corners = [sample(0, 0), sample(w - 1, 0), sample(0, h - 1), sample(w - 1, h - 1)];
+    const avg = corners.reduce((a, c) => [a[0] + c[0], a[1] + c[1], a[2] + c[2], a[3] + c[3]], [0, 0, 0, 0]).map(v => v / 4);
+    const punchWhite = avg[3] > 80 && avg[0] > 210 && avg[1] > 210 && avg[2] > 210;
+    const punchBlack = avg[3] > 80 && avg[0] < 28 && avg[1] < 28 && avg[2] < 28;
+    // Only punch background connected to the canvas edge. A global white/black
+    // key was eating interior whites (eagle, stars, "USA RUGBY" banner type).
+    const isBg = punchWhite
+      ? (r, g, b, a) => a > 8 && r > 205 && g > 205 && b > 205
+      : punchBlack
+        ? (r, g, b, a) => a > 8 && r < 22 && g < 22 && b < 22
+        : null;
+    if (isBg) {
+      const seen = new Uint8Array(w * h);
+      const stack = [];
+      const consider = (x, y) => {
+        if (x < 0 || y < 0 || x >= w || y >= h) return;
+        const idx = y * w + x;
+        if (seen[idx]) return;
+        seen[idx] = 1;
+        const i = idx * 4;
+        if (!isBg(d[i], d[i + 1], d[i + 2], d[i + 3])) return;
+        d[i + 3] = 0;
+        stack.push(x, y);
+      };
+      for (let x = 0; x < w; x++) { consider(x, 0); consider(x, h - 1); }
+      for (let y = 0; y < h; y++) { consider(0, y); consider(w - 1, y); }
+      while (stack.length) {
+        const y = stack.pop();
+        const x = stack.pop();
+        consider(x + 1, y); consider(x - 1, y); consider(x, y + 1); consider(x, y - 1);
+      }
+      sg.putImageData(data, 0, 0);
+    }
+    let minX = w, minY = h, maxX = 0, maxY = 0, kept = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (d[i + 3] > 24) {
+          kept++;
+          if (x < minX) minX = x; if (y < minY) minY = y;
+          if (x > maxX) maxX = x; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (!kept || maxX <= minX || maxY <= minY) {
+      logoPainted = img; logoPaintedKey = logoKey;
+      return img;
+    }
+    const pad = Math.max(8, Math.round(Math.max(w, h) * 0.03));
+    minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+    maxX = Math.min(w - 1, maxX + pad); maxY = Math.min(h - 1, maxY + pad);
+    const out = document.createElement('canvas');
+    out.width = maxX - minX + 1; out.height = maxY - minY + 1;
+    out.getContext('2d').drawImage(src, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+    logoPainted = out; logoPaintedKey = logoKey;
+    return out;
+  }
+  function ok() { return typeof THREE !== 'undefined'; }
+  function hexCol(hex) {
+    const h = String(hex || '#c8a830').replace('#','');
+    const n = parseInt(h.length === 3 ? h.split('').map(c=>c+c).join('') : h, 16);
+    return new THREE.Color(((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255);
+  }
+  function pixelMask() {
+    if (maskTex) return maskTex;
+    const cols = 8, rows = 5, cw = 16, ch = 16;
+    const c = document.createElement('canvas');
+    c.width = cols * cw; c.height = rows * ch;
+    const g = c.getContext('2d');
+    g.fillStyle = '#050607';
+    g.fillRect(0, 0, c.width, c.height);
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = col * cw, y = row * ch;
+        g.fillStyle = 'rgba(255,255,255,0.16)';
+        g.fillRect(x + 1, y + 1, cw - 2, ch - 2);
+        g.fillStyle = '#f7f7f7';
+        g.fillRect(x + 3.5, y + 3.2, cw - 7, ch - 6.5);
+      }
+    }
+    maskTex = new THREE.CanvasTexture(c);
+    maskTex.wrapS = maskTex.wrapT = THREE.RepeatWrapping;
+    maskTex.anisotropy = 8;
+    maskTex.colorSpace = THREE.NoColorSpace;
+    return maskTex;
+  }
+  function fieldTexture(fL, fW, sportKey) {
+    const maxPx = 2048;
+    const aspect = fL / Math.max(1, fW);
+    let w, h;
+    if (aspect >= 1) { w = maxPx; h = Math.max(256, Math.round(maxPx / aspect)); }
+    else { h = maxPx; w = Math.max(256, Math.round(maxPx * aspect)); }
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    const sx = w / fL;
+    const px = (ft) => ft * sx;
+    const stroke = (ft) => Math.max(1.6, px(ft));
+    const midX = w / 2, midY = h / 2;
+    const inset = px(0.6);
+    g.lineJoin = 'miter';
+    g.lineCap = 'butt';
+
+    function noiseOverlay(alpha) {
+      const p = document.createElement('canvas');
+      p.width = 64; p.height = 64;
+      const pg = p.getContext('2d');
+      const d = pg.createImageData(64, 64);
+      for (let i = 0, n = d.data.length; i < n; i += 4) {
+        const v = (Math.sin(i * 0.013) * 43758.5453) % 1;
+        const k = 128 + ((v < 0 ? v + 1 : v) * 90);
+        d.data[i] = d.data[i + 1] = d.data[i + 2] = k;
+        d.data[i + 3] = alpha;
+      }
+      pg.putImageData(d, 0, 0);
+      g.fillStyle = g.createPattern(p, 'repeat');
+      g.fillRect(0, 0, w, h);
+    }
+    function grassBands(alongWidth, a, b) {
+      const c1 = a || '#2e8a36', c2 = b || '#348f3c';
+      const bands = 16;
+      for (let i = 0; i < bands; i++) {
+        g.fillStyle = i % 2 ? c1 : c2;
+        if (alongWidth) g.fillRect(0, (i / bands) * h, w, h / bands + 1);
+        else g.fillRect((i / bands) * w, 0, w / bands + 1, h);
+      }
+      noiseOverlay(22);
+    }
+    function white(lw) {
+      g.strokeStyle = 'rgba(255,255,255,0.92)';
+      g.lineWidth = lw || stroke(0.35);
+    }
+    function fillWhite() { g.fillStyle = 'rgba(255,255,255,0.92)'; }
+    function roundRectPath(x, y, rw, rh, r) {
+      const rr = Math.min(r, rw / 2, rh / 2);
+      g.beginPath();
+      g.moveTo(x + rr, y);
+      g.arcTo(x + rw, y, x + rw, y + rh, rr);
+      g.arcTo(x + rw, y + rh, x, y + rh, rr);
+      g.arcTo(x, y + rh, x, y, rr);
+      g.arcTo(x, y, x + rw, y, rr);
+      g.closePath();
+    }
+    function stampLogo(x, y, r) {
+      const img = readyClientLogo();
+      const has = !!(img && img.naturalWidth);
+      g.save();
+      if (!has) {
+        g.beginPath();
+        g.arc(x, y, r, 0, Math.PI * 2);
+        g.fillStyle = 'rgba(255,255,255,0.07)';
+        g.fill();
+        g.strokeStyle = 'rgba(255,255,255,0.22)';
+        g.lineWidth = Math.max(1.6, r * 0.03);
+        g.stroke();
+        g.restore();
+        return;
+      }
+      const painted = logoPaintCanvas(img);
+      const pw = painted.width || painted.naturalWidth, ph = painted.height || painted.naturalHeight;
+      const aspect = pw / Math.max(1, ph);
+      const wide = aspect > 1.55;
+      const fitR = wide ? r * 1.2 : r;
+      // Full-frame contain — shield + banner, no circular mask.
+      const boxW = wide ? fitR * 2.7 : fitR * 2.35;
+      const boxH = fitR * 2.35;
+      const scale = Math.min(boxW / pw, boxH / ph);
+      const dw = pw * scale, dh = ph * scale;
+      g.shadowColor = 'rgba(0,0,0,0.38)';
+      g.shadowBlur = Math.max(4, r * 0.08);
+      g.globalAlpha = 0.94;
+      g.drawImage(painted, x - dw / 2, y - dh / 2, dw, dh);
+      g.restore();
+    }
+
+    if (sportKey === 'hockey') {
+      g.fillStyle = '#2a3038';
+      g.fillRect(0, 0, w, h);
+      const lg = g.createLinearGradient(0, 0, w, h);
+      lg.addColorStop(0, '#f4fbfd'); lg.addColorStop(0.55, '#d7ebf3'); lg.addColorStop(1, '#c2dce8');
+      g.fillStyle = lg;
+      const brd = px(2.2);
+      roundRectPath(brd, brd, w - brd * 2, h - brd * 2, px(28));
+      g.fill();
+      g.save();
+      roundRectPath(brd, brd, w - brd * 2, h - brd * 2, px(28));
+      g.clip();
+      noiseOverlay(16);
+      g.strokeStyle = '#c4122f'; g.lineWidth = stroke(0.6);
+      g.beginPath(); g.moveTo(midX, brd); g.lineTo(midX, h - brd); g.stroke();
+      g.strokeStyle = '#1c4ea8'; g.lineWidth = stroke(0.48);
+      g.beginPath(); g.moveTo(w * 0.25, brd); g.lineTo(w * 0.25, h - brd); g.stroke();
+      g.beginPath(); g.moveTo(w * 0.75, brd); g.lineTo(w * 0.75, h - brd); g.stroke();
+      g.strokeStyle = '#c4122f'; g.lineWidth = stroke(0.28);
+      const faceR = px(Math.min(15, fW * 0.12));
+      [[0.08, 0.31], [0.08, 0.69], [0.92, 0.31], [0.92, 0.69], [0.5, 0.31], [0.5, 0.69]].forEach(([fx, fy]) => {
+        g.beginPath(); g.arc(w * fx, h * fy, faceR, 0, Math.PI * 2); g.stroke();
+        g.beginPath(); g.arc(w * fx, h * fy, stroke(0.35), 0, Math.PI * 2);
+        g.fillStyle = '#c4122f'; g.fill();
+      });
+      g.beginPath(); g.arc(midX, midY, px(Math.min(15, fW * 0.10)), 0, Math.PI * 2); g.stroke();
+      const creaseR = px(Math.min(11, fW * 0.11));
+      g.beginPath(); g.arc(brd + px(11), midY, creaseR, -Math.PI / 2, Math.PI / 2); g.stroke();
+      g.beginPath(); g.arc(w - brd - px(11), midY, creaseR, Math.PI / 2, Math.PI * 1.5); g.stroke();
+      g.restore();
+    } else if (sportKey === 'basketball') {
+      const n = 18;
+      for (let i = 0; i < n; i++) {
+        g.fillStyle = i % 2 ? '#d7b57e' : '#cba66c';
+        g.fillRect((i / n) * w, 0, w / n + 1, h);
+      }
+      g.strokeStyle = 'rgba(92, 52, 18, 0.10)';
+      g.lineWidth = 1;
+      for (let x = 0; x < w; x += 7) {
+        g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke();
+      }
+      white(stroke(0.26));
+      g.strokeRect(inset, inset, w - inset * 2, h - inset * 2);
+      g.beginPath(); g.moveTo(midX, inset); g.lineTo(midX, h - inset); g.stroke();
+      g.beginPath(); g.arc(midX, midY, px(Math.min(6, fW * 0.12)), 0, Math.PI * 2); g.stroke();
+      stampLogo(midX, midY, px(Math.min(5.2, fW * 0.10)));
+      const keyD = w * 0.19, keyW = h * 0.36;
+      g.fillStyle = 'rgba(176, 42, 42, 0.30)';
+      g.fillRect(inset, midY - keyW / 2, keyD, keyW);
+      g.fillStyle = 'rgba(36, 64, 158, 0.30)';
+      g.fillRect(w - inset - keyD, midY - keyW / 2, keyD, keyW);
+      white(stroke(0.26));
+      g.strokeRect(inset, midY - keyW / 2, keyD, keyW);
+      g.strokeRect(w - inset - keyD, midY - keyW / 2, keyD, keyW);
+      const ftR = keyW * 0.5;
+      g.beginPath(); g.arc(inset + keyD, midY, ftR, -Math.PI / 2, Math.PI / 2); g.stroke();
+      g.beginPath(); g.arc(w - inset - keyD, midY, ftR, Math.PI / 2, Math.PI * 1.5); g.stroke();
+      const tpr = Math.min(h * 0.47, w * 0.22);
+      g.beginPath(); g.arc(inset + px(5.25), midY, tpr, -Math.PI * 0.62, Math.PI * 0.62); g.stroke();
+      g.beginPath(); g.arc(w - inset - px(5.25), midY, tpr, Math.PI * 0.38, Math.PI * 1.62); g.stroke();
+      g.lineWidth = stroke(0.14);
+      for (let i = 1; i <= 4; i++) {
+        const yy = midY - keyW / 2 + keyW * (i / 5);
+        g.beginPath(); g.moveTo(inset + keyD - px(0.8), yy); g.lineTo(inset + keyD, yy); g.stroke();
+        g.beginPath(); g.moveTo(w - inset - keyD, yy); g.lineTo(w - inset - keyD + px(0.8), yy); g.stroke();
+      }
+    } else if (sportKey === 'volleyball') {
+      g.fillStyle = '#3f9140';
+      g.fillRect(0, 0, w, h);
+      noiseOverlay(18);
+      const icW = w * 0.75, icH = h * 0.60;
+      const icX = (w - icW) / 2, icY = (h - icH) / 2;
+      g.fillStyle = '#c9a45a';
+      g.fillRect(icX, icY, icW, icH);
+      g.fillStyle = 'rgba(255,255,255,0.06)';
+      g.fillRect(icX, icY, icW / 2, icH);
+      white(stroke(0.32));
+      g.strokeRect(icX, icY, icW, icH);
+      g.lineWidth = stroke(0.38);
+      g.beginPath(); g.moveTo(icX + icW / 2, icY); g.lineTo(icX + icW / 2, icY + icH); g.stroke();
+      const atk = icW * (3 / 18);
+      g.lineWidth = stroke(0.26);
+      g.beginPath(); g.moveTo(icX + icW / 2 - atk, icY); g.lineTo(icX + icW / 2 - atk, icY + icH); g.stroke();
+      g.beginPath(); g.moveTo(icX + icW / 2 + atk, icY); g.lineTo(icX + icW / 2 + atk, icY + icH); g.stroke();
+      const courtLogo = Math.min(icW, icH) * 0.13;
+      stampLogo(icX + icW * 0.25, icY + icH / 2, courtLogo);
+      stampLogo(icX + icW * 0.75, icY + icH / 2, courtLogo);
+    } else if (sportKey === 'football') {
+      const sx360 = w / 360, sy160 = h / 160;
+      const fx = (ft) => ft * sx360;
+      const fy = (ft) => ft * sy160;
+      for (let yd = 0; yd < 360; yd += 15) {
+        g.fillStyle = (yd / 15) % 2 === 0 ? '#2c8534' : '#34943c';
+        g.fillRect(fx(yd), 0, fx(15) + 1, h);
+      }
+      noiseOverlay(20);
+      g.fillStyle = 'rgba(0,20,0,0.16)';
+      g.fillRect(fx(0), 0, fx(30), h);
+      g.fillRect(fx(330), 0, fx(30), h);
+      white(stroke(0.36));
+      g.strokeRect(inset, inset, w - inset * 2, h - inset * 2);
+      g.lineWidth = stroke(0.42);
+      [30, 330].forEach(x => {
+        g.beginPath(); g.moveTo(fx(x), inset); g.lineTo(fx(x), h - inset); g.stroke();
+      });
+      for (let x = 45; x <= 315; x += 15) {
+        g.lineWidth = x === 180 ? stroke(0.36) : stroke(0.18);
+        g.beginPath(); g.moveTo(fx(x), inset); g.lineTo(fx(x), h - inset); g.stroke();
+      }
+      g.lineWidth = stroke(0.14);
+      const hashRows = [[0, 2], [69.75, 71.75], [88.25, 90.25], [158, 160]];
+      for (let ftX = 33; ftX <= 327; ftX += 3) {
+        if (ftX % 15 === 0) continue;
+        hashRows.forEach(([y1, y2]) => {
+          g.beginPath(); g.moveTo(fx(ftX), fy(y1)); g.lineTo(fx(ftX), fy(y2)); g.stroke();
+        });
+      }
+      const ns = Math.max(18, Math.min(64, fy(7.2)));
+      g.font = `800 ${ns}px "Barlow Condensed", Arial, sans-serif`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      [[60, 10], [90, 20], [120, 30], [150, 40], [180, 50], [210, 40], [240, 30], [270, 20], [300, 10]].forEach(([ft, n]) => {
+        const label = String(n);
+        g.fillStyle = 'rgba(255,255,255,0.94)';
+        g.strokeStyle = 'rgba(20,50,20,0.35)';
+        g.lineWidth = Math.max(2, ns * 0.06);
+        g.save();
+        g.translate(fx(ft), fy(138));
+        g.strokeText(label, 0, 0); g.fillText(label, 0, 0);
+        g.restore();
+        g.save();
+        g.translate(fx(ft), fy(22));
+        g.rotate(Math.PI);
+        g.strokeText(label, 0, 0); g.fillText(label, 0, 0);
+        g.restore();
+      });
+      fillWhite();
+      const aw = fx(2.2), ah = fy(2.0);
+      const arrow = (x, y, dir) => {
+        g.beginPath();
+        g.moveTo(x, y);
+        g.lineTo(x + dir * aw, y - ah / 2);
+        g.lineTo(x + dir * aw, y + ah / 2);
+        g.closePath();
+        g.fill();
+      };
+      [50, 80, 110, 140].forEach(ft => arrow(fx(ft), fy(137), -1));
+      [220, 250, 280, 310].forEach(ft => arrow(fx(ft), fy(137), 1));
+      [50, 80, 110, 140].forEach(ft => arrow(fx(ft), fy(23), 1));
+      [220, 250, 280, 310].forEach(ft => arrow(fx(ft), fy(23), -1));
+      stampLogo(fx(180), fy(80), fy(14));
+    } else if (sportKey === 'rugby') {
+      grassBands(true);
+      white(stroke(0.32));
+      g.strokeRect(inset, inset, w - inset * 2, h - inset * 2);
+      const tryD = px(Math.min(22, fL * 0.06));
+      g.fillStyle = 'rgba(0,0,0,0.10)';
+      g.fillRect(inset, inset, tryD, h - inset * 2);
+      g.fillRect(w - inset - tryD, inset, tryD, h - inset * 2);
+      white(stroke(0.32));
+      [tryD, w - tryD, midX].forEach(x => {
+        g.beginPath(); g.moveTo(x, inset); g.lineTo(x, h - inset); g.stroke();
+      });
+      const m22 = px(Math.min(72, fL * 0.20));
+      g.lineWidth = stroke(0.22);
+      [inset + tryD + m22, w - inset - tryD - m22].forEach(x => {
+        g.beginPath(); g.moveTo(x, inset); g.lineTo(x, h - inset); g.stroke();
+      });
+      const m10 = px(Math.min(33, fL * 0.09));
+      g.setLineDash([px(3), px(2)]);
+      [midX - m10, midX + m10].forEach(x => {
+        g.beginPath(); g.moveTo(x, inset); g.lineTo(x, h - inset); g.stroke();
+      });
+      g.setLineDash([]);
+      stampLogo(midX, midY, px(Math.min(24, fW * 0.12)));
+    } else {
+      grassBands(true, '#2d8735', '#34943c');
+      const u = fL / 345, v = fW / 225;
+      const lx = (ft) => px(ft * u);
+      const ly = (ft) => ft * v * (h / fW);
+      white(stroke(0.34));
+      g.strokeRect(inset, inset, w - inset * 2, h - inset * 2);
+      g.beginPath(); g.moveTo(midX, inset); g.lineTo(midX, h - inset); g.stroke();
+      const cR = lx(30);
+      g.fillStyle = 'rgba(255,255,255,0.06)';
+      g.beginPath(); g.arc(midX, midY, cR, 0, Math.PI * 2); g.fill();
+      white(stroke(0.34));
+      g.beginPath(); g.arc(midX, midY, cR, 0, Math.PI * 2); g.stroke();
+      fillWhite();
+      g.beginPath(); g.arc(midX, midY, Math.max(2.2, stroke(0.5)), 0, Math.PI * 2); g.fill();
+      stampLogo(midX, midY, cR * 0.55);
+      const boxD = lx(54), boxH = ly(132);
+      const sixD = lx(18), sixH = ly(60);
+      const spot = lx(36);
+      white(stroke(0.32));
+      g.strokeRect(inset, midY - boxH / 2, boxD, boxH);
+      g.strokeRect(w - inset - boxD, midY - boxH / 2, boxD, boxH);
+      g.strokeRect(inset, midY - sixH / 2, sixD, sixH);
+      g.strokeRect(w - inset - sixD, midY - sixH / 2, sixD, sixH);
+      fillWhite();
+      g.beginPath(); g.arc(inset + spot, midY, Math.max(2.4, stroke(0.55)), 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(w - inset - spot, midY, Math.max(2.4, stroke(0.55)), 0, Math.PI * 2); g.fill();
+      white(stroke(0.28));
+      const arcR = lx(30);
+      const halfA = Math.acos(Math.min(1, Math.max(-1, (boxD - spot) / Math.max(1, arcR))));
+      g.beginPath(); g.arc(inset + spot, midY, arcR, -halfA, halfA); g.stroke();
+      g.beginPath(); g.arc(w - inset - spot, midY, arcR, Math.PI - halfA, Math.PI + halfA); g.stroke();
+      const cr = lx(3);
+      g.beginPath(); g.arc(inset, inset, cr, 0, Math.PI / 2); g.stroke();
+      g.beginPath(); g.arc(w - inset, inset, cr, Math.PI / 2, Math.PI); g.stroke();
+      g.beginPath(); g.arc(inset, h - inset, cr, -Math.PI / 2, 0); g.stroke();
+      g.beginPath(); g.arc(w - inset, h - inset, cr, Math.PI, Math.PI * 1.5); g.stroke();
+    }
+
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    t.needsUpdate = true;
+    return t;
+  }
+  function floorTexture() {
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 1024;
+    const g = c.getContext('2d');
+    const rg = g.createRadialGradient(400, 360, 30, 512, 520, 720);
+    rg.addColorStop(0, '#5c6168');
+    rg.addColorStop(0.38, '#3f444b');
+    rg.addColorStop(0.72, '#2c3036');
+    rg.addColorStop(1, '#1a1d22');
+    g.fillStyle = rg;
+    g.fillRect(0, 0, 1024, 1024);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+  }
+  function netTexture(hex, step) {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    const g = c.getContext('2d');
+    g.clearRect(0, 0, 256, 256);
+    g.strokeStyle = hex || 'rgba(220,224,228,0.55)';
+    g.lineWidth = 0.85;
+    const s = step || 18;
+    for (let x = -256; x < 512; x += s) {
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x + 256, 256); g.stroke();
+      g.beginPath(); g.moveTo(x, 256); g.lineTo(x + 256, 0); g.stroke();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.anisotropy = 4;
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  function addFieldProps(layout, fL, fW, sportKey) {
+    const g = new THREE.Group();
+    const white = new THREE.MeshStandardMaterial({ color: 0xf3f5f7, roughness: 0.32, metalness: 0.18 });
+    const yellow = new THREE.MeshStandardMaterial({ color: 0xf0c400, roughness: 0.38, metalness: 0.22 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x1c1f24, roughness: 0.5, metalness: 0.25 });
+    const red = new THREE.MeshStandardMaterial({ color: 0xc81e1e, roughness: 0.42, metalness: 0.12 });
+    const padY = new THREE.MeshStandardMaterial({ color: 0xe0b000, roughness: 0.55, metalness: 0.08 });
+    const cyl = (mat, r, len, axis) => {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), mat);
+      if (axis === 'x') m.rotation.z = Math.PI / 2;
+      if (axis === 'z') m.rotation.x = Math.PI / 2;
+      return m;
+    };
+    const box = (mat, dx, dy, dz) => new THREE.Mesh(new THREE.BoxGeometry(dx, dy, dz), mat);
+    const netMat = (tex, rx, ry, basic) => {
+      tex.repeat.set(rx, ry);
+      if (basic) {
+        return new THREE.MeshBasicMaterial({
+          map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, opacity: 0.72
+        });
+      }
+      return new THREE.MeshStandardMaterial({
+        map: tex, transparent: true, alphaTest: 0.12, side: THREE.DoubleSide,
+        roughness: 0.92, metalness: 0.0, depthWrite: true
+      });
+    };
+    function soccerGoal(x, yaw) {
+      const grp = new THREE.Group();
+      const gw = Math.min(24, fW * 0.18), gh = 8, gd = 3.4, pr = 0.22;
+      const lp = cyl(white, pr, gh, 'y'); lp.position.set(0, gh / 2, -gw / 2); grp.add(lp);
+      const rp = cyl(white, pr, gh, 'y'); rp.position.set(0, gh / 2,  gw / 2); grp.add(rp);
+      const bar = cyl(white, pr, gw + pr * 2, 'z'); bar.position.set(0, gh, 0); grp.add(bar);
+      const backL = cyl(white, pr * 0.55, gd, 'x'); backL.position.set(-gd / 2, pr, -gw / 2); grp.add(backL);
+      const backR = cyl(white, pr * 0.55, gd, 'x'); backR.position.set(-gd / 2, pr,  gw / 2); grp.add(backR);
+      const rear = cyl(white, pr * 0.55, gw, 'z'); rear.position.set(-gd, pr, 0); grp.add(rear);
+      const nt = netTexture('rgba(200,206,212,0.55)', 22);
+      const nm = netMat(nt, gw / 4.2, gh / 3.4, true);
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(gw * 0.97, gh * 0.94), nm);
+      back.position.set(-gd + 0.03, gh / 2, 0); grp.add(back);
+      const sideG = new THREE.PlaneGeometry(gd, gh * 0.94);
+      const sl = new THREE.Mesh(sideG, nm);
+      sl.rotation.y = Math.PI / 2; sl.position.set(-gd / 2, gh / 2, -gw / 2 + 0.03); grp.add(sl);
+      const sr = new THREE.Mesh(sideG, nm);
+      sr.rotation.y = Math.PI / 2; sr.position.set(-gd / 2, gh / 2,  gw / 2 - 0.03); grp.add(sr);
+      grp.position.set(x, 0.12, 0);
+      grp.rotation.y = yaw;
+      g.add(grp);
+    }
+    function footballPosts(x, side) {
+      const grp = new THREE.Group();
+      const span = Math.min(18.5, fW * 0.14);
+      const barY = 10, up = 16, pr = 0.26;
+      const R = 3.6;
+      const poleH = barY - R;
+      const pole = cyl(yellow, pr * 1.12, poleH, 'y');
+      pole.position.set(R, poleH / 2, 0); grp.add(pole);
+      const goose = new THREE.Mesh(
+        new THREE.TorusGeometry(R, pr * 1.08, 8, 16, Math.PI / 2),
+        yellow
+      );
+      goose.position.set(0, barY - R, 0);
+      grp.add(goose);
+      const bar = cyl(yellow, pr, span, 'z'); bar.position.set(0, barY, 0); grp.add(bar);
+      const u1 = cyl(yellow, pr * 0.85, up, 'y'); u1.position.set(0, barY + up / 2, -span / 2); grp.add(u1);
+      const u2 = cyl(yellow, pr * 0.85, up, 'y'); u2.position.set(0, barY + up / 2,  span / 2); grp.add(u2);
+      grp.position.set(x, 0, 0);
+      if (side < 0) grp.scale.x = -1;
+      g.add(grp);
+    }
+    function volleyballNet() {
+      const icW = fL * 0.75, icH = fW * 0.60;
+      const top = 7.95, netH = 3.2, bot = top - netH, pr = 0.16;
+      const poleH = top + 1.1;
+      [-icH / 2, icH / 2].forEach(z => {
+        const pole = cyl(dark, pr, poleH, 'y'); pole.position.set(0, poleH / 2, z); g.add(pole);
+        const sleeve = cyl(padY, pr * 1.55, 3.4, 'y'); sleeve.position.set(0, 1.7, z); g.add(sleeve);
+        const ant = cyl(red, 0.05, 2.6, 'y'); ant.position.set(0, top + 1.3, z); g.add(ant);
+      });
+      const tape = box(white, 0.12, 0.18, icH + 0.2);
+      tape.position.set(0, top, 0); g.add(tape);
+      const botTape = box(white, 0.08, 0.08, icH);
+      botTape.position.set(0, bot, 0); g.add(botTape);
+      const nt = netTexture('rgba(20,22,26,0.72)', 11);
+      const nm = netMat(nt, icH / 3.2, netH / 2.4);
+      const net = new THREE.Mesh(new THREE.PlaneGeometry(icH, netH), nm);
+      net.rotation.y = Math.PI / 2;
+      net.position.set(0, bot + netH / 2, 0);
+      g.add(net);
+    }
+    function hoop(x, facing) {
+      const grp = new THREE.Group();
+      const rimY = 10, boardW = 6, boardH = 3.5;
+      const stanch = box(dark, 0.55, 9.2, 0.55);
+      stanch.position.set(-2.4 * facing, 4.6, 0); grp.add(stanch);
+      const arm = box(dark, 2.6, 0.32, 0.32);
+      arm.position.set(-1.1 * facing, rimY - 0.15, 0); grp.add(arm);
+      const board = box(white, 0.12, boardH, boardW);
+      board.position.set(0, rimY + 0.7, 0); grp.add(board);
+      const inner = box(new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 }), 0.04, 1.05, 1.7);
+      inner.position.set(0.08 * facing, rimY + 0.55, 0); grp.add(inner);
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.05, 6, 16), red);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.set(0.85 * facing, rimY, 0); grp.add(rim);
+      const nt = netTexture('rgba(255,255,255,0.78)', 16);
+      const nm = netMat(nt, 2.2, 1.6);
+      const net = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.42, 1.6, 10, 1, true), nm);
+      net.position.set(0.85 * facing, rimY - 0.85, 0); grp.add(net);
+      grp.position.set(x, 0, 0);
+      g.add(grp);
+    }
+    function hockeyNet(x, yaw) {
+      const grp = new THREE.Group();
+      const gw = Math.min(6, fW * 0.09), gh = 4, gd = 3.2, pr = 0.12;
+      const lp = cyl(red, pr, gh, 'y'); lp.position.set(0, gh / 2, -gw / 2); grp.add(lp);
+      const rp = cyl(red, pr, gh, 'y'); rp.position.set(0, gh / 2,  gw / 2); grp.add(rp);
+      const bar = cyl(red, pr, gw, 'z'); bar.position.set(0, gh, 0); grp.add(bar);
+      const nt = netTexture('rgba(230,230,230,0.7)', 10);
+      const nm = netMat(nt, 2.4, 1.8);
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(gw, gh), nm);
+      back.position.set(-gd, gh / 2, 0); grp.add(back);
+      const sl = new THREE.Mesh(new THREE.PlaneGeometry(gd, gh), nm);
+      sl.rotation.y = Math.PI / 2; sl.position.set(-gd / 2, gh / 2, -gw / 2); grp.add(sl);
+      const sr = sl.clone(); sr.position.z = gw / 2; grp.add(sr);
+      grp.position.set(x, 0, 0);
+      grp.rotation.y = yaw;
+      g.add(grp);
+    }
+    function rugbyPosts(x) {
+      const grp = new THREE.Group();
+      const span = Math.min(18.4, fW * 0.12), barY = 10, up = 18, pr = 0.26;
+      const u1 = cyl(white, pr, barY + up, 'y'); u1.position.set(0, (barY + up) / 2, -span / 2); grp.add(u1);
+      const u2 = cyl(white, pr, barY + up, 'y'); u2.position.set(0, (barY + up) / 2,  span / 2); grp.add(u2);
+      const bar = cyl(white, pr, span, 'z'); bar.position.set(0, barY, 0); grp.add(bar);
+      grp.position.set(x, 0, 0);
+      g.add(grp);
+    }
+    function cornerFlags() {
+      const flagMat = new THREE.MeshStandardMaterial({ color: 0xd4a017, roughness: 0.55, metalness: 0.05, side: THREE.DoubleSide });
+      [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([sx, sz]) => {
+        const p = cyl(white, 0.07, 5, 'y');
+        p.position.set(sx * (fL / 2 - 0.7), 2.5, sz * (fW / 2 - 0.7));
+        g.add(p);
+        const fl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.9), flagMat);
+        fl.position.set(sx * (fL / 2 - 0.7) + sx * 0.7, 4.55, sz * (fW / 2 - 0.7));
+        g.add(fl);
+      });
+    }
+
+    const gearOn = typeof showFieldGear === 'undefined' || showFieldGear;
+    if (sportKey === 'soccer') {
+      if (gearOn) {
+        const inset = 0.48;
+        soccerGoal(-fL / 2 + inset, 0);
+        soccerGoal( fL / 2 - inset, Math.PI);
+        cornerFlags();
+      }
+    } else if (sportKey === 'football') {
+      if (gearOn) {
+        footballPosts(-fL / 2, -1);
+        footballPosts( fL / 2,  1);
+      }
+    } else if (sportKey === 'volleyball') {
+      volleyballNet();
+    } else if (sportKey === 'basketball') {
+      if (gearOn) {
+        hoop(-fL / 2 + 1.3, 1);
+        hoop( fL / 2 - 1.3, -1);
+      }
+    } else if (sportKey === 'hockey') {
+      if (gearOn) {
+        hockeyNet(-fL / 2 + 2.4, 0);
+        hockeyNet( fL / 2 - 2.4, Math.PI);
+      }
+    } else if (sportKey === 'rugby') {
+      if (gearOn) {
+        rugbyPosts(-fL / 2 + 0.2);
+        rugbyPosts( fL / 2 - 0.2);
+      }
+    }
+    layout.add(g);
+  }
+  function visScale(realLen, realDep, realHt, fL, fW, mode) {
+    const overhead = diagramView === 'topdown';
+    const ratio = realLen / Math.max(realHt, 0.01);
+    const boost = 1 + 0.12 * Math.max(0, Math.min(1, (ratio - 1) / 0.8));
+    const htIso = realHt * boost;
+    const sitDep = realDep * 2.6;
+    if (mode === 'modular') {
+      return { len: realLen, dep: realDep * 2.4, ht: realHt, sitDep: realDep * 2.4 };
+    }
+    if (overhead) {
+      // Fatter strip for plan view, but sitDep keeps the run where iso put it.
+      const short = Math.min(fL, fW);
+      const dep = Math.max(realLen * 0.32, short * 0.032, 1.8);
+      return { len: realLen, dep, ht: htIso, sitDep };
+    }
+    return { len: realLen, dep: sitDep, ht: htIso, sitDep };
+  }
+  let topPadTex = null;
+  function topPadTexture() {
+    if (topPadTex) return topPadTex;
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 64;
+    const g = c.getContext('2d');
+    const lg = g.createLinearGradient(0, 0, 0, 64);
+    lg.addColorStop(0.00, '#3c4048');
+    lg.addColorStop(0.14, '#1a1d22');
+    lg.addColorStop(0.50, '#101214');
+    lg.addColorStop(1.00, '#07080a');
+    g.fillStyle = lg;
+    g.fillRect(0, 0, 128, 64);
+    g.fillStyle = 'rgba(255,255,255,0.10)';
+    g.fillRect(0, 0, 128, 2.5);
+    g.fillStyle = 'rgba(255,255,255,0.04)';
+    g.fillRect(0, 2.5, 128, 5);
+    g.fillStyle = 'rgba(0,0,0,0.55)';
+    g.fillRect(0, 61, 128, 3);
+    topPadTex = new THREE.CanvasTexture(c);
+    topPadTex.colorSpace = THREE.SRGBColorSpace;
+    topPadTex.anisotropy = 4;
+    return topPadTex;
+  }
+  function addTopPad(body, len, dep, ht, ledMat) {
+    // Plan view keeps the zone-color lid so the map still reads; iso gets real black pads.
+    if (diagramView === 'topdown' && ledMat) {
+      const top = new THREE.Mesh(new THREE.PlaneGeometry(len, dep * 0.88), ledMat);
+      top.rotation.x = -Math.PI / 2;
+      top.position.set(0, ht / 2 + 0.01, 0);
+      body.add(top);
+      return;
+    }
+    const mat = new THREE.MeshStandardMaterial({
+      map: topPadTexture(),
+      roughness: 0.58,
+      metalness: 0.12,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
+    });
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(len * 0.998, dep * 0.98), mat);
+    top.rotation.x = -Math.PI / 2;
+    top.position.set(0, ht / 2 + 0.012, 0);
+    body.add(top);
+  }
+  function litCol(hex) {
+    const c = hexCol(hex);
+    c.r = Math.min(1, c.r * 1.38);
+    c.g = Math.min(1, c.g * 1.38);
+    c.b = Math.min(1, c.b * 1.38);
+    return c;
+  }
+  function ensure() {
+    if (!ok()) return false;
+    if (renderer) {
+      renderer.setSize(W, H);
+      return true;
+    }
+    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.setClearColor(0x5c5f64, 1);
+    camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 8000);
+    pixelMask();
+    return true;
+  }
+  function addCab(layout, x, y, z, len, dep, ht, yaw, color, pxW, pxH, metal, matCache) {
+    const bw = len * 0.98;
+    const bh = ht;
+    const bd = dep;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), metal);
+    body.position.set(x, y + bh / 2, z);
+    body.rotation.y = yaw;
+    layout.add(body);
+
+    const key = color + '|' + (pxW || 32) + '|' + (pxH || 18);
+    let ledMat = matCache[key];
+    if (!ledMat) {
+      const tex = pixelMask().clone();
+      tex.repeat.set(1, 1);
+      tex.needsUpdate = true;
+      ledMat = new THREE.MeshBasicMaterial({ map: tex, color: litCol(color), toneMapped: false, side: THREE.DoubleSide });
+      matCache[key] = ledMat;
+    }
+    const glowKey = 'g|' + color;
+    let glowMat = matCache[glowKey];
+    if (!glowMat) {
+      glowMat = new THREE.MeshBasicMaterial({
+        color: litCol(color), transparent: true, opacity: 0.32,
+        toneMapped: false, depthWrite: false, blending: THREE.AdditiveBlending
+      });
+      matCache[glowKey] = glowMat;
+    }
+    const ledW = bw * 0.96, ledH = bh * 0.94;
+    const ledGeom = new THREE.PlaneGeometry(ledW, ledH);
+    const glowGeom = new THREE.PlaneGeometry(ledW * 1.08, ledH * 1.14);
+    const led = new THREE.Mesh(ledGeom, ledMat);
+    led.position.set(0, 0, bd / 2 + 0.03);
+    body.add(led);
+    const glow = new THREE.Mesh(glowGeom, glowMat);
+    glow.position.set(0, 0, bd / 2 + 0.05);
+    body.add(glow);
+    addTopPad(body, ledW, bd, bh, ledMat);
+  }
+  const zoneBlitCache = {};
+  function zoneBlitCanvas(z, still) {
+    const pz = expectedZonePx(z);
+    const key = (z.faceStillDataUrl || '') + '|' + pz.w + 'x' + pz.h;
+    if (zoneBlitCache[key]) return zoneBlitCache[key];
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, pz.w);
+    c.height = Math.max(1, pz.h);
+    const g = c.getContext('2d');
+    g.fillStyle = '#000';
+    g.fillRect(0, 0, c.width, c.height);
+    const sw = still.naturalWidth, sh = still.naturalHeight;
+    if (sw > 0 && sh > 0) {
+      const scale = Math.min(c.width / sw, c.height / sh);
+      const dw = sw * scale, dh = sh * scale;
+      g.drawImage(still, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
+    }
+    zoneBlitCache[key] = c;
+    return c;
+  }
+  function paintLedMask(g, dx, dy, dw, dh, seams) {
+    const pitch = seams ? 3.1 : 2.5;
+    g.fillStyle = seams ? 'rgba(0,0,0,0.26)' : 'rgba(0,0,0,0.14)';
+    for (let x = dx; x < dx + dw; x += pitch) g.fillRect(x, dy, 0.5, dh);
+    for (let y = dy; y < dy + dh; y += pitch) g.fillRect(dx, y, dw, 0.4);
+  }
+  function paintColorCab(g, x0, colW, texH, hex) {
+    const col = litCol(hex || '#c8a830');
+    const r = Math.round(Math.min(1, col.r * 1.08) * 255);
+    const gv = Math.round(Math.min(1, col.g * 1.08) * 255);
+    const b = Math.round(Math.min(1, col.b * 1.08) * 255);
+    const dx = x0 + 0.5, dy = 1, dw = colW - 1, dh = texH - 2;
+    g.fillStyle = `rgb(${r},${gv},${b})`;
+    g.fillRect(dx, dy, dw, dh);
+    paintLedMask(g, dx, dy, dw, dh, false);
+    g.fillStyle = 'rgba(255,255,255,0.08)';
+    g.fillRect(dx, dy, dw, dh * 0.14);
+    g.fillStyle = 'rgba(0,0,0,0.5)';
+    g.fillRect(x0, 0, 0.85, texH);
+  }
+  function paintStillCab(g, blit, sx, sy, sw, sh, x0, colW, texH, look) {
+    const dx = x0 + 0.5, dy = 1, dw = colW - 1, dh = texH - 2;
+    const srcW = Math.max(1, sw), srcH = Math.max(1, sh);
+    g.drawImage(blit, sx, sy, srcW, srcH, dx, dy, dw, dh);
+    if (look === 'smooth') {
+      g.fillStyle = 'rgba(255,255,255,0.06)';
+      g.fillRect(dx, dy, dw, dh * 0.16);
+      g.fillStyle = '#050607';
+      g.fillRect(x0, 0, 1, texH);
+      return;
+    }
+    g.save();
+    g.globalAlpha = 0.14;
+    g.globalCompositeOperation = 'lighter';
+    g.drawImage(blit, sx, sy, srcW, srcH, dx, dy, dw, dh);
+    g.restore();
+    paintLedMask(g, dx, dy, dw, dh, look === 'seams');
+    g.fillStyle = 'rgba(255,255,255,0.05)';
+    g.fillRect(dx, dy, dw, dh * 0.12);
+    g.fillStyle = look === 'seams' ? '#000' : 'rgba(0,0,0,0.55)';
+    g.fillRect(x0, 0, look === 'seams' ? 1.45 : 0.85, texH);
+  }
+  function runFaceTexture(colors, cabs, stackHalf, reverse, colorOnly) {
+    const n = Math.max(1, (cabs && cabs.length) || colors.length);
+    const colW = 40, texH = 64;
+    const c = document.createElement('canvas');
+    c.width = n * colW; c.height = texH;
+    const g = c.getContext('2d');
+    g.fillStyle = '#050607';
+    g.fillRect(0, 0, c.width, texH);
+    for (let i = 0; i < n; i++) {
+      const src = reverse ? (n - 1 - i) : i;
+      const cabNum = cabs ? cabs[src] : null;
+      const z = cabNum != null ? zoneForCab(cabNum) : null;
+      const still = (!colorOnly && z) ? zoneStillImage(z) : null;
+      const x0 = i * colW;
+      if (still && z) {
+        const blit = zoneBlitCanvas(z, still);
+        const cabS = cabPixelSize(cabNum);
+        let sx = zoneCabPixelOffset(z, cabNum);
+        let sy = 0, sh = cabS.h;
+        if (z.doubleStacked && stackHalf === 'upper') { sy = 0; sh = cabS.h; }
+        else if (z.doubleStacked && stackHalf === 'lower') { sy = cabS.h; sh = cabS.h; }
+        else if (z.doubleStacked) { sy = 0; sh = expectedZonePx(z).h; }
+        if (z.faceFlipH) sx = blit.width - sx - cabS.w;
+        if (z.faceFlipV) sy = blit.height - sy - sh;
+        sx = Math.max(0, Math.min(sx, Math.max(0, blit.width - cabS.w)));
+        sy = Math.max(0, Math.min(sy, Math.max(0, blit.height - sh)));
+        paintStillCab(g, blit, sx, sy, cabS.w, sh, x0, colW, texH, z.faceLook || 'led');
+      } else {
+        paintColorCab(g, x0, colW, texH, colors[src] || '#c8a830');
+      }
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    t.magFilter = THREE.LinearFilter;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    return t;
+  }
+  function addRun(layout, cx, y, cz, totalLen, dep, ht, yaw, colors, metal, cabs, stackHalf, side, vDir) {
+    if (totalLen <= 0 || !colors.length) return;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(totalLen * 0.997, ht, dep), metal);
+    body.position.set(cx, y + ht / 2, cz);
+    body.rotation.y = yaw;
+    layout.add(body);
+    // Canvas left = field-viewer's left. V runs that start at the north
+    // (dir +Z) need the opposite strip order from the usual south-origin ones.
+    const reverse = side === 'south' || (side === 'east' && vDir !== 1) || (side === 'west' && vDir === 1);
+    const artTex = runFaceTexture(colors, cabs, stackHalf, reverse);
+    const colTex = runFaceTexture(colors, cabs, stackHalf, reverse, true);
+    const ledW = totalLen * 0.994;
+    const ledH = ht * 0.94;
+    const ledGeom = new THREE.PlaneGeometry(ledW, ledH);
+    const z0 = (cabs && cabs.length) ? zoneForCab(cabs[0]) : null;
+    const artAway = !!(z0 && z0.faceSide === 'away');
+    const fieldSign = (side === 'east' || side === 'west') ? 1 : -1;
+    const mkLed = (map) => new THREE.MeshBasicMaterial({
+      map, toneMapped: false, side: THREE.FrontSide,
+      polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
+    });
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: litCol(colors[Math.floor(colors.length / 2)]),
+      transparent: true, opacity: 0.22, toneMapped: false,
+      depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide
+    });
+    const faces = [
+      { z:  fieldSign * (dep / 2 + 0.008), rot: fieldSign > 0 ? 0 : Math.PI, map: artAway ? colTex : artTex },
+      { z: -fieldSign * (dep / 2 + 0.008), rot: fieldSign > 0 ? Math.PI : 0, map: artAway ? artTex : colTex }
+    ];
+    faces.forEach(f => {
+      const led = new THREE.Mesh(ledGeom, mkLed(f.map));
+      led.position.set(0, 0, f.z);
+      led.rotation.y = f.rot;
+      body.add(led);
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(ledW, ledH * 1.04), glowMat);
+      glow.position.set(0, 0, f.z + (f.rot ? -0.006 : 0.006));
+      glow.rotation.y = f.rot;
+      body.add(glow);
+    });
+    if (diagramView === 'topdown') {
+      const lidTex = runFaceTexture(colors, cabs, stackHalf, false, true);
+      const lidMat = new THREE.MeshBasicMaterial({ map: lidTex, toneMapped: false, side: THREE.DoubleSide });
+      addTopPad(body, ledW, dep, ht, lidMat);
+    } else {
+      addTopPad(body, ledW, dep, ht, null);
+    }
+  }
+  function addStackedPair(layout, cx, y, cz, totalLen, dep, unitHt, yaw, colors, metal, cabs, side, vDir) {
+    const seam = Math.max(unitHt * 0.02, 0.04);
+    addRun(layout, cx, y, cz, totalLen, dep, unitHt, yaw, colors, metal, cabs, 'lower', side, vDir);
+    const bar = new THREE.Mesh(
+      new THREE.BoxGeometry(totalLen * 0.997, seam, dep * 1.08),
+      metal
+    );
+    bar.position.set(cx, y + unitHt + seam / 2, cz);
+    bar.rotation.y = yaw;
+    layout.add(bar);
+    addRun(layout, cx, y + unitHt + seam, cz, totalLen, dep, unitHt, yaw, colors, metal, cabs, 'upper', side, vDir);
+  }
+  function spansFrom(n, cabNumFn, def) {
+    const out = [];
+    let i = 0;
+    while (i < n) {
+      const stacked = cabIsStacked(cabNumFn(i));
+      let j = i + 1;
+      while (j < n && cabIsStacked(cabNumFn(j)) === stacked) j++;
+      const colors = [], cabs = [];
+      for (let k = i; k < j; k++) {
+        const cab = cabNumFn(k);
+        cabs.push(cab);
+        colors.push(cabColorFromZones(cab) || def);
+      }
+      out.push({ i, n: j - i, stacked, colors, cabs });
+      i = j;
+    }
+    return out;
+  }
+  function build() {
+    for (const k in zoneBlitCache) delete zoneBlitCache[k];
+    if (scene) {
+      scene.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          const ms = Array.isArray(o.material) ? o.material : [o.material];
+          ms.forEach(m => {
+            if (m.map && m.map !== maskTex && m.map !== topPadTex) m.map.dispose();
+            m.dispose();
+          });
+        }
+      });
+    }
+    cabMarks = [];
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x5c5f64);
+    const fL = Math.max(10, vn('fieldLength') || 100);
+    const fW = Math.max(10, vn('fieldWidth') || 60);
+    const layout = new THREE.Group();
+    scene.add(layout);
+
+    const metal = new THREE.MeshStandardMaterial({
+      color: 0x0c0e12, metalness: 0.78, roughness: 0.32
+    });
+    const matCache = {};
+    let minX = -fL / 2, maxX = fL / 2, minZ = -fW / 2, maxZ = fW / 2;
+    let visHt = 3, visLen = 3;
+    const acc = (x, z, len, dep, yaw) => {
+      const hl = len / 2, hd = dep / 2;
+      const c = Math.cos(yaw || 0), s = Math.sin(yaw || 0);
+      [[-hl, -hd], [hl, -hd], [hl, hd], [-hl, hd]].forEach(([lx, lz]) => {
+        const wx = x + lx * c - lz * s;
+        const wz = z + lx * s + lz * c;
+        minX = Math.min(minX, wx); maxX = Math.max(maxX, wx);
+        minZ = Math.min(minZ, wz); maxZ = Math.max(maxZ, wz);
+      });
+    };
+    // Iso looks down the near endline, so those faces read short. Spec-sheet
+    // cheat: keep the run in place, draw the near endline a little taller.
+    const faceHt = (base, side) => {
+      if (diagramView === 'topdown') return base;
+      // Near endline in this iso (east / VNL "Right") reads as a lid.
+      if (side === 'east') return base * 1.22;
+      return base;
+    };
+
+    if (layoutMode !== 'modular') {
+      const fieldRough = currentSport === 'basketball' ? 0.42
+        : currentSport === 'hockey' ? 0.18
+        : currentSport === 'volleyball' ? 0.78
+        : 0.84;
+      const field = new THREE.Mesh(
+        new THREE.PlaneGeometry(fL, fW),
+        new THREE.MeshStandardMaterial({
+          map: fieldTexture(fL, fW, currentSport),
+          roughness: fieldRough,
+          metalness: currentSport === 'hockey' ? 0.06 : 0.0
+        })
+      );
+      field.rotation.x = -Math.PI / 2;
+      field.position.y = 0.12;
+      layout.add(field);
+      addFieldProps(layout, fL, fW, currentSport);
+    }
+
+    if (layoutMode === 'complex') {
+      complexSections.forEach((sec, si) => {
+        const scn = computeCxSectionScene(sec, si);
+        if (!scn) return;
+        const realDep = scn.secCab.depthMm / 304.8;
+        const realHt  = scn.secCab.heightMm / 304.8;
+        const vis = visScale(scn.secCf, realDep, realHt, fL, fW, 'complex');
+        visHt = Math.max(visHt, vis.ht);
+        const sit = vis.sitDep, draw = vis.dep;
+        const def = (sec.side === 'south' || sec.side === 'north') ? TOUCH : END;
+        const cabAt = (i) => cxPhysToCab(sec, si, i);
+        spansFrom(scn.n, cabAt, def).forEach(sp => {
+          const total = sp.n * scn.secCf;
+          let cx, cz, yaw;
+          if (scn.orientation === 'H') {
+            cx = scn.startXft + (sp.i + sp.n / 2) * scn.secCf - fL / 2;
+            if (scn.side === 'south') { cz = scn.edgeYft - fW / 2 + sit / 2; yaw = 0; }
+            else { cz = scn.edgeYft - fW / 2 - sit / 2; yaw = Math.PI; }
+          } else {
+            const midY = scn.startYft - (sp.i + sp.n / 2) * scn.secCf;
+            cz = midY - fW / 2;
+            if (scn.side === 'east') { cx = scn.edgeXft - fL / 2 + sit / 2; yaw = -Math.PI / 2; }
+            else { cx = scn.edgeXft - fL / 2 - sit / 2; yaw = Math.PI / 2; }
+          }
+          const hDraw = faceHt(vis.ht, scn.side);
+          const vDir = scn.orientation === 'V' ? -1 : 0;
+          if (sp.stacked && diagramView !== 'topdown') addStackedPair(layout, cx, 0, cz, total, draw, hDraw, yaw, sp.colors, metal, sp.cabs, scn.side, vDir);
+          else addRun(layout, cx, 0, cz, total, draw, hDraw, yaw, sp.colors, metal, sp.cabs, null, scn.side, vDir);
+          acc(cx, cz, total, draw, yaw);
+          for (let k = 0; k < sp.n; k++) {
+            const i = sp.i + k;
+            let xc, zc;
+            if (scn.orientation === 'H') {
+              xc = cx + ((k + 0.5) / sp.n - 0.5) * total;
+              zc = cz;
+            } else {
+              xc = cx;
+              zc = cz + (sp.n / 2 - (k + 0.5)) * scn.secCf;
+            }
+            if (!Number.isFinite(xc)) xc = cx;
+            if (!Number.isFinite(zc)) zc = cz;
+            cabMarks.push({ cab: cabAt(i), x: xc, y: hDraw * (sp.stacked ? 1.0 : 0.55), z: zc, strip: scn.side });
+          }
+        });
+      });
+    } else if (layoutMode === 'u') {
+      const d = computeDistribution();
+      if (d) {
+        const cab = getCab();
+        const cf = d.cf;
+        const vis = visScale(cf, cabDepthFt(), cab.heightMm / 304.8, fL, fW, 'u');
+        visHt = vis.ht;
+        const sit = vis.sitDep, draw = vis.dep, ht = vis.ht;
+        const OFF = currentSport === 'volleyball' ? 5 : 10;
+        const { dist, actualTurnDist } = d;
+        const westC = dist.west || 0, southC = dist.south || 0, northC = dist.north || 0;
+        const southOn = dist.south > 0;
+        const westOff = 0;
+        const southOff = westC;
+        const northOff = southOn ? (westC + southC + (dist.east || 0)) : westC;
+        const eastOff  = southOn ? (westC + southC) : (westC + northC);
+        const placeH = (n, z, yaw, pathOff, def, strip) => {
+          if (n <= 0) return;
+          const x0 = -n * cf / 2;
+          spansFrom(n, (i) => pathOff + i + 1, def).forEach(sp => {
+            const total = sp.n * cf;
+            const cx = x0 + (sp.i + sp.n / 2) * cf;
+            if (sp.stacked && diagramView !== 'topdown') addStackedPair(layout, cx, 0, z, total, draw, ht, yaw, sp.colors, metal, sp.cabs, strip);
+            else addRun(layout, cx, 0, z, total, draw, ht, yaw, sp.colors, metal, sp.cabs, null, strip);
+            acc(cx, z, total, draw, yaw);
+            for (let k = 0; k < sp.n; k++) {
+              cabMarks.push({
+                cab: pathOff + sp.i + k + 1,
+                x: x0 + (sp.i + k + 0.5) * cf,
+                y: ht * (sp.stacked ? 1.0 : 0.55),
+                z, strip
+              });
+            }
+          });
+        };
+        const placeV = (n, x, z0, dir, yaw, pathOff, def, strip) => {
+          if (n <= 0) return;
+          spansFrom(n, (i) => pathOff + i + 1, def).forEach(sp => {
+            const total = sp.n * cf;
+            const cz = z0 + dir * (sp.i + sp.n / 2) * cf;
+            const hDraw = faceHt(ht, strip);
+            if (sp.stacked && diagramView !== 'topdown') addStackedPair(layout, x, 0, cz, total, draw, hDraw, yaw, sp.colors, metal, sp.cabs, strip, dir);
+            else addRun(layout, x, 0, cz, total, draw, hDraw, yaw, sp.colors, metal, sp.cabs, null, strip, dir);
+            acc(x, cz, total, draw, yaw);
+            for (let k = 0; k < sp.n; k++) {
+              cabMarks.push({
+                cab: pathOff + sp.i + k + 1,
+                x,
+                y: hDraw * (sp.stacked ? 1.0 : 0.55),
+                z: z0 + dir * (sp.i + k + 0.5) * cf,
+                strip
+              });
+            }
+          });
+        };
+        if (dist.south > 0) placeH(dist.south,  fW / 2 + OFF + sit / 2, 0, southOff, TOUCH, 'south');
+        if (dist.north > 0) placeH(dist.north, -fW / 2 - OFF - sit / 2, Math.PI, northOff, TOUCH, 'north');
+        const zStart = southOn ? (fW / 2 + OFF - 0.15) : (-fW / 2 - OFF + 0.15);
+        const dir = southOn ? -1 : 1;
+        if (dist.east > 0) placeV(dist.east,  fL / 2 + actualTurnDist + sit / 2, zStart, dir, -Math.PI / 2, eastOff, END, 'east');
+        if (dist.west > 0) placeV(dist.west, -fL / 2 - actualTurnDist - sit / 2, zStart, dir,  Math.PI / 2, westOff, END, 'west');
+      }
+    } else if (layoutMode === 'modular') {
+      const cab = getModularCab();
+      const cw = Math.max(1, modularConfig.cabsWide || 1);
+      const ch = Math.max(1, modularConfig.cabsTall || 1);
+      const vis = visScale(cab.lengthMm / 304.8, cab.depthMm / 304.8, cab.heightMm / 304.8, 40, 20, 'modular');
+      visHt = vis.ht;
+      visLen = vis.len;
+      const wallW = cw * vis.len, wallH = ch * vis.ht;
+      minX = -wallW / 2; maxX = wallW / 2;
+      minZ = -Math.max(vis.dep * 1.2, visHt * 0.25);
+      maxZ =  Math.max(vis.dep * 2.2, visHt * 0.45);
+      for (let row = 0; row < ch; row++) for (let col = 0; col < cw; col++) {
+        const x = -wallW / 2 + (col + 0.5) * vis.len;
+        const y = row * vis.ht;
+        addCab(layout, x, y, 0, vis.len, vis.dep, vis.ht, 0, '#3fb6e8', cab.pxW, cab.pxH, metal, matCache);
+      }
+    }
+
+    const isMod = layoutMode === 'modular';
+    const margin = isMod ? Math.max(visLen * 0.35, visHt * 0.2, 0.6)
+                         : Math.max(visHt * 0.70, Math.min(fL, fW) * 0.04, 6);
+    const pW = (maxX - minX) + margin * 2;
+    const pD = (maxZ - minZ) + margin * 2;
+    const px = (minX + maxX) / 2, pz = (minZ + maxZ) / 2;
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(pW, pD),
+      new THREE.MeshBasicMaterial({ map: floorTexture(), toneMapped: false })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(px, -0.02, pz);
+    layout.add(floor);
+
+    scene.add(new THREE.AmbientLight(0x8a939d, 0.55));
+    scene.add(new THREE.HemisphereLight(0xd0d6de, 0x2a2824, 0.48));
+    const key = new THREE.DirectionalLight(0xfff6ea, 1.25);
+    key.position.set(90, 140, 80);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x8aa0b8, 0.38);
+    fill.position.set(-90, 50, -40);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xe8eef4, 0.22);
+    rim.position.set(-30, 70, 110);
+    scene.add(rim);
+
+    const box = new THREE.Box3().setFromObject(layout);
+    const size = box.getSize(new THREE.Vector3());
+    const cen = box.getCenter(new THREE.Vector3());
+    cen.y += size.y * 0.06;
+    const iso = diagramView !== 'topdown';
+    const asp = W / H;
+    const dist = Math.max(size.x, size.y, size.z) * (layoutMode === 'modular' ? 1.15 : 1.35);
+    if (iso) {
+      if (layoutMode === 'modular') {
+        camera.position.set(cen.x + dist * 0.7, cen.y + dist * 0.55, cen.z + dist);
+      } else {
+        const az = (isoAzimuth * Math.PI) / 180;
+        const el = (isoElevation * Math.PI) / 180;
+        const radius = dist * Math.sqrt(2 + 1.02 * 1.02);
+        const lookX = cen.x + (isoPanX || 0);
+        const lookZ = cen.z + (isoPanZ || 0);
+        camera.position.set(
+          lookX + radius * Math.cos(el) * Math.sin(az),
+          cen.y + radius * Math.sin(el),
+          lookZ + radius * Math.cos(el) * Math.cos(az)
+        );
+        camera.lookAt(lookX, cen.y, lookZ);
+      }
+    } else {
+      camera.position.set(cen.x + (isoPanX || 0), cen.y + dist * 2.4, cen.z + (isoPanZ || 0) + 0.04);
+      camera.lookAt(cen.x + (isoPanX || 0), cen.y, cen.z + (isoPanZ || 0));
+    }
+    if (iso && layoutMode === 'modular') camera.lookAt(cen);
+    const projW = iso ? (size.x + size.z) * 0.88 + size.y * 0.18 : size.x;
+    const projH = iso ? (size.x + size.z) * 0.36 + size.y * 0.62 : size.z;
+    const pad = 1.12 * (isoZoom || 1);
+    let halfH = (projH * pad) / 2;
+    let halfW = halfH * asp;
+    if (halfW * 2 < projW * pad) {
+      halfW = (projW * pad) / 2;
+      halfH = halfW / asp;
+    }
+    camera.left = -halfW; camera.right = halfW;
+    camera.top = halfH; camera.bottom = -halfH;
+    camera.near = 0.1; camera.far = dist * 20;
+    camera.updateProjectionMatrix();
+  }
+  function toScr(x, y, z) {
+    if (!camera) return { x: W / 2, y: H / 2 };
+    camera.updateMatrixWorld(true);
+    const v = new THREE.Vector3(x, y, z).project(camera);
+    const sx = (v.x * 0.5 + 0.5) * W;
+    const sy = (-v.y * 0.5 + 0.5) * H;
+    return {
+      x: Number.isFinite(sx) ? sx : W / 2,
+      y: Number.isFinite(sy) ? sy : H / 2
+    };
+  }
+  function glLabel(key, x, y, rot, fontSize, text) {
+    const px = Number.isFinite(x) ? x : W / 2;
+    const py = Number.isFinite(y) ? y : H / 2;
+    const pr = Number.isFinite(rot) ? rot : 0;
+    const o = isoLabelOverrides[key] || { dx: 0, dy: 0, rot: 0 };
+    const tx = px + (Number.isFinite(o.dx) ? o.dx : 0);
+    const ty = py + (Number.isFinite(o.dy) ? o.dy : 0);
+    const tr = pr + (Number.isFinite(o.rot) ? o.rot : 0);
+    const labelW = Math.max(90, String(text).length * fontSize * 0.7);
+    const hitH = Math.max(56, fontSize + 24);
+    const sw = Math.max(2.4, fontSize * 0.28);
+    return `<g class="iso-label" data-label-key="${escapeHtml(key)}" data-default-x="${px.toFixed(2)}" data-default-y="${py.toFixed(2)}" data-default-rot="${pr.toFixed(2)}" transform="translate(${tx.toFixed(2)},${ty.toFixed(2)}) rotate(${tr.toFixed(2)})" style="cursor:grab" pointer-events="all">
+      <title>Drag to move · Scroll to rotate · Double-click to reset</title>
+      <rect x="${(-labelW / 2).toFixed(1)}" y="${(-hitH / 2).toFixed(1)}" width="${labelW.toFixed(1)}" height="${hitH.toFixed(1)}" fill="#fff" fill-opacity="0.01" pointer-events="all"/>
+      <text x="0" y="0" text-anchor="middle" font-size="${fontSize}" font-weight="700" font-family="Barlow Condensed,sans-serif" fill="#111" stroke="#fff" stroke-width="${sw.toFixed(1)}" paint-order="stroke" stroke-linejoin="round" style="user-select:none;pointer-events:none">${escapeHtml(text)}</text>
+    </g>`;
+  }
+  function zoneSpanFt(lo, hi) {
+    let ft = 0;
+    for (let c = lo; c <= hi; c++) {
+      if (layoutMode === 'complex') {
+        for (let si = 0; si < complexSections.length; si++) {
+          const sStart = getSectionStartCab(si);
+          const sEnd = sStart + (parseInt(complexSections[si].count) || 0) - 1;
+          if (c >= sStart && c <= sEnd) {
+            ft += getCxSectionCab(complexSections[si]).lengthMm / 304.8;
+            break;
+          }
+        }
+      } else {
+        ft += cabLenFt();
+      }
+    }
+    return ft;
+  }
+  function buildGlLabels() {
+    if (layoutMode === 'modular') return '';
+    const showLabels = document.getElementById('showDiagramLabels')?.checked !== false;
+    const showCabs = document.getElementById('showCabNumbers')?.checked !== false;
+    const showLen = document.getElementById('showZoneLength')?.checked;
+    const lsz = parseFloat(document.getElementById('diagramLabelSize')?.value) || 9;
+    const origin = toScr(0, 0, 0);
+    const byCab = new Map();
+    cabMarks.forEach(m => byCab.set(m.cab, m));
+    const place = (key, m, text, size) => {
+      const a = toScr(m.x, m.y, m.z);
+      const push = Math.max(22, size * 2.4);
+      const pad = 48;
+      let lx = a.x, ly = a.y, rot = 0;
+      if (m.strip === 'south') { ly += push; }
+      else if (m.strip === 'north') { ly -= push; }
+      else if (m.strip === 'east') { lx += push; rot = 90; }
+      else if (m.strip === 'west') { lx -= push; rot = -90; }
+      lx = Math.min(W - pad, Math.max(pad, lx));
+      ly = Math.min(H - pad, Math.max(pad, ly));
+      return glLabel(key, lx, ly, rot, size, text);
+    };
+    let svg = '';
+    if (showLabels) {
+      if (zones.length) {
+        zones.forEach((z, zi) => {
+          const lo = Math.min(z.first, z.last), hi = Math.max(z.first, z.last);
+          const present = [];
+          for (let c = lo; c <= hi; c++) if (byCab.has(c)) present.push(c);
+          if (!present.length) return;
+          const m = byCab.get(present[Math.floor(present.length / 2)]);
+          const span = zoneSpanFt(present[0], present[present.length - 1]);
+          const text = showLen ? `${z.name} · ${span.toFixed(1)} ft` : z.name;
+          svg += place(`iso_z${zi}`, m, text, lsz + 1);
+        });
+      } else if (layoutMode === 'complex') {
+        complexSections.forEach((sec, si) => {
+          const n = parseInt(sec.count) || 0;
+          if (!n) return;
+          const start = getSectionStartCab(si);
+          const m = byCab.get(start + Math.floor((n - 1) / 2));
+          if (!m) return;
+          const span = n * (getCxSectionCab(sec).lengthMm / 304.8);
+          const text = showLen ? `${sec.name} · ${span.toFixed(1)} ft` : sec.name;
+          svg += place(`iso_s${si}`, m, text, lsz + 1);
+        });
+      }
+    }
+    if (showCabs && cabMarks.length) {
+      const nums = new Set();
+      if (layoutMode === 'complex') {
+        complexSections.forEach((sec, si) => {
+          const n = parseInt(sec.count) || 0;
+          if (!n) return;
+          const start = getSectionStartCab(si);
+          nums.add(start);
+          nums.add(start + n - 1);
+        });
+      } else {
+        const sorted = cabMarks.map(m => m.cab).sort((a, b) => a - b);
+        if (sorted.length) { nums.add(sorted[0]); nums.add(sorted[sorted.length - 1]); }
+      }
+      nums.forEach(n => {
+        const m = byCab.get(n);
+        if (!m) return;
+        const a = toScr(m.x, m.y * 0.35, m.z);
+        svg += glLabel(`gl_c${n}`, a.x, a.y, 0, Math.max(7, lsz - 1), String(n));
+      });
+    }
+    const br = (typeof compassBearing === 'number' ? compassBearing : 0);
+    svg += `<g transform="translate(${W - 52},${H - 44}) rotate(${br})">
+      <circle cx="0" cy="0" r="14" fill="white" stroke="#ccc" stroke-width="1"/>
+      <polygon points="0,-9 4,0 0,2.5 -4,0" fill="#333"/>
+      <polygon points="0,9 4,0 0,-2.5 -4,0" fill="#bbb"/>
+      <text x="0" y="-12" text-anchor="middle" font-size="8" fill="#333" font-weight="800" font-family="Barlow Condensed,sans-serif">N</text>
+    </g>`;
+    return svg;
+  }
+  function fallbackSvg() {
+    if (layoutMode === 'modular') return buildModularLEDDiagram(620, 360);
+    return diagramView === 'isometric' ? buildIsometricDiagram() : buildFieldDiagram();
+  }
+  function paint(host) {
+    if (!host) return false;
+    if (!ensure()) {
+      host.innerHTML = fallbackSvg();
+      return false;
+    }
+    try {
+      sizeToHost(host);
+      if (renderer) renderer.setSize(W, H, false);
+      build();
+      renderer.render(scene, camera);
+      renderer.render(scene, camera);
+      const img = document.createElement('img');
+      img.alt = 'LED layout';
+      img.src = renderer.domElement.toDataURL('image/png');
+      host.innerHTML = '';
+      host.appendChild(img);
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.setAttribute('class', 'gl-spec-labels');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.innerHTML = buildGlLabels();
+      host.appendChild(svg);
+      return true;
+    } catch (err) {
+      console.warn('glSpec', err);
+      host.innerHTML = fallbackSvg();
+      return false;
+    }
+  }
+  return {
+    paint,
+    getMarks: () => cabMarks.slice(),
+    invalidateLogo() {
+      logoImg = null; logoKey = ''; logoPainted = null; logoPaintedKey = '';
+    }
+  };
+})();
+
 function update() {
+  if (typeof syncIsoPanLimits === 'function') syncIsoPanLimits();
   if (layoutMode === 'u') {
     updateDistributionDisplay();
   } else if (layoutMode === 'complex') {
@@ -3421,7 +5388,33 @@ function update() {
   }
   updateZoneSummary();
   document.getElementById('page1').innerHTML = buildPage1();
-  attachIsoLabelHandlers();  // works for both top-down and iso draggable labels
+  const host = document.getElementById('gl-spec-host');
+  if (host) glSpec.paint(host);
+  attachIsoLabelHandlers();
+  fitLegendStills();
+  requestAnimationFrame(() => {
+    const h = document.getElementById('gl-spec-host');
+    if (h && typeof glSpec !== 'undefined') {
+      glSpec.paint(h);
+      attachIsoLabelHandlers();
+    }
+  });
+}
+
+function fitLegendStills() {
+  if (!legendStills) return;
+  const sheet = document.querySelector('#page1 .p1-sheet');
+  const below = sheet && sheet.querySelector('.p1-below');
+  const stills = below && below.querySelectorAll('.zone-legend-still');
+  if (!sheet || !below || !stills.length) return;
+  stills.forEach(img => { img.style.width = '100%'; });
+  const headerH = sheet.querySelector('.p1-header')?.offsetHeight || 0;
+  const copyH = sheet.querySelector('.page-copyright')?.offsetHeight || 0;
+  const minHero = Math.max(320, sheet.clientHeight * 0.5);
+  const maxBelow = sheet.clientHeight - headerH - copyH - minHero;
+  if (below.scrollHeight <= maxBelow) return;
+  const widthPct = Math.max(40, (maxBelow / below.scrollHeight) * 100);
+  stills.forEach(img => { img.style.width = widthPct + '%'; });
 }
 
 function updateModularSidebarSummary() {
@@ -3435,9 +5428,113 @@ function updateModularSidebarSummary() {
   const ftH = (h * cab.heightMm) / 304.8;
   const aspect = pxH > 0 ? (pxW / pxH).toFixed(2) : '—';
   el.innerHTML = `
-    <div><strong style="color:var(--text)">${w*h} cabs</strong> (${w}×${h})</div>
-    <div><strong style="color:var(--text)">${pxW} × ${pxH}</strong> px</div>
-    <div>${ftW.toFixed(1)}' × ${ftH.toFixed(1)}' · ${aspect}:1</div>`;
+    <div><strong style="color:var(--text)">${w*h} cabs</strong> (${w}x${h})</div>
+    <div><strong style="color:var(--text)">${pxW} x ${pxH}</strong> px</div>
+    <div>${ftW.toFixed(1)}' x ${ftH.toFixed(1)}' · ${aspect}:1</div>`;
+}
+
+function printSpecSheet() {
+  const host = document.getElementById('gl-spec-host');
+  const img = host && host.querySelector('img');
+  const svg = host && host.querySelector('svg.gl-spec-labels');
+  if (!img || !svg) {
+    window.print();
+    return;
+  }
+  const go = () => {
+    const W = img.naturalWidth || 1600;
+    const H = img.naturalHeight || 900;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, W, H);
+    const vb = svg.viewBox && svg.viewBox.baseVal;
+    const vw = (vb && vb.width) || W;
+    const vh = (vb && vb.height) || H;
+    ctx.save();
+    ctx.scale(W / vw, H / vh);
+    svg.querySelectorAll('.iso-label').forEach(g => {
+      const t = g.getAttribute('transform') || '';
+      const tm = /translate\(\s*([-0-9.]+)[,\s]+([-0-9.]+)\s*\)/.exec(t);
+      const rm = /rotate\(\s*([-0-9.]+)\s*\)/.exec(t);
+      const x = tm ? parseFloat(tm[1]) : 0;
+      const y = tm ? parseFloat(tm[2]) : 0;
+      const rot = rm ? parseFloat(rm[1]) : 0;
+      const text = g.querySelector('text');
+      if (!text) return;
+      const fs = parseFloat(text.getAttribute('font-size')) || 9;
+      const sw = parseFloat(text.getAttribute('stroke-width')) || Math.max(2.4, fs * 0.28);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.font = `700 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.lineJoin = 'round';
+      ctx.miterLimit = 2;
+      ctx.lineWidth = sw;
+      ctx.strokeStyle = '#ffffff';
+      ctx.fillStyle = '#111111';
+      const str = text.textContent || '';
+      ctx.strokeText(str, 0, 0);
+      ctx.fillText(str, 0, 0);
+      ctx.restore();
+    });
+    const br = (typeof compassBearing === 'number' ? compassBearing : 0) * Math.PI / 180;
+    ctx.save();
+    ctx.translate(vw - 52, vh - 44);
+    ctx.rotate(br);
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ccc';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, -9); ctx.lineTo(4, 0); ctx.lineTo(0, 2.5); ctx.lineTo(-4, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#333';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, 9); ctx.lineTo(4, 0); ctx.lineTo(0, -2.5); ctx.lineTo(-4, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#bbb';
+    ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.font = '800 8px "Barlow Condensed", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('N', 0, -12);
+    ctx.restore();
+    ctx.restore();
+
+    const flat = canvas.toDataURL('image/png');
+    img.setAttribute('data-preprint-src', img.src);
+    svg.setAttribute('data-preprint-hide', '1');
+    svg.style.display = 'none';
+    const restore = () => {
+      const orig = img.getAttribute('data-preprint-src');
+      if (orig) img.src = orig;
+      img.removeAttribute('data-preprint-src');
+      svg.style.display = '';
+      svg.removeAttribute('data-preprint-hide');
+      window.removeEventListener('afterprint', restore);
+    };
+    window.addEventListener('afterprint', restore);
+    let printed = false;
+    const fire = () => {
+      if (printed) return;
+      printed = true;
+      setTimeout(() => window.print(), 40);
+    };
+    img.onload = () => { img.onload = null; fire(); };
+    img.src = flat;
+    if (img.complete) fire();
+  };
+  if (img.complete && img.naturalWidth) go();
+  else img.addEventListener('load', go, { once: true });
 }
 
 // Wire pointer interactions on iso labels — drag to move, wheel to rotate,
@@ -3449,7 +5546,7 @@ function attachIsoLabelHandlers() {
     g._isoHandlersAttached = true;
 
     let dragging = false;
-    let startCX = 0, startCY = 0, startDx = 0, startDy = 0, sx = 1, sy = 1;
+    let startCX = 0, startCY = 0, startDx = 0, startDy = 0;
 
     const ensureOverride = (key) => {
       if (!isoLabelOverrides[key]) isoLabelOverrides[key] = { dx: 0, dy: 0, rot: 0 };
@@ -3459,22 +5556,30 @@ function attachIsoLabelHandlers() {
       const defX = parseFloat(g.dataset.defaultX);
       const defY = parseFloat(g.dataset.defaultY);
       const defRot = parseFloat(g.dataset.defaultRot);
-      const o = isoLabelOverrides[key];
-      g.setAttribute('transform', `translate(${(defX + o.dx).toFixed(2)},${(defY + o.dy).toFixed(2)}) rotate(${(defRot + o.rot).toFixed(2)})`);
+      const o = isoLabelOverrides[key] || { dx: 0, dy: 0, rot: 0 };
+      const x = (Number.isFinite(defX) ? defX : 0) + (Number.isFinite(o.dx) ? o.dx : 0);
+      const y = (Number.isFinite(defY) ? defY : 0) + (Number.isFinite(o.dy) ? o.dy : 0);
+      const r = (Number.isFinite(defRot) ? defRot : 0) + (Number.isFinite(o.rot) ? o.rot : 0);
+      g.setAttribute('transform', `translate(${x.toFixed(2)},${y.toFixed(2)}) rotate(${r.toFixed(2)})`);
+    };
+
+    const clientToSvg = (svg, cx, cy) => {
+      const pt = svg.createSVGPoint();
+      pt.x = cx; pt.y = cy;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return { x: cx, y: cy };
+      return pt.matrixTransform(ctm.inverse());
     };
 
     g.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;  // only left-button drags
+      if (e.button !== 0) return;
       e.preventDefault();
       e.stopPropagation();
       const svg = g.ownerSVGElement;
-      const r = svg.getBoundingClientRect();
-      // Convert client-pixel deltas → SVG-user-unit deltas (handles CSS scaling).
-      sx = svg.width.baseVal.value / Math.max(r.width, 1);
-      sy = svg.height.baseVal.value / Math.max(r.height, 1);
+      const p = clientToSvg(svg, e.clientX, e.clientY);
       const o = ensureOverride(g.dataset.labelKey);
       startDx = o.dx; startDy = o.dy;
-      startCX = e.clientX; startCY = e.clientY;
+      startCX = p.x; startCY = p.y;
       dragging = true;
       g.style.cursor = 'grabbing';
       g.setPointerCapture(e.pointerId);
@@ -3482,10 +5587,12 @@ function attachIsoLabelHandlers() {
 
     g.addEventListener('pointermove', (e) => {
       if (!dragging) return;
+      const svg = g.ownerSVGElement;
+      const p = clientToSvg(svg, e.clientX, e.clientY);
       const key = g.dataset.labelKey;
       const o = isoLabelOverrides[key];
-      o.dx = startDx + (e.clientX - startCX) * sx;
-      o.dy = startDy + (e.clientY - startCY) * sy;
+      o.dx = startDx + (p.x - startCX);
+      o.dy = startDy + (p.y - startCY);
       applyTransform(key);
     });
 
@@ -3503,8 +5610,7 @@ function attachIsoLabelHandlers() {
       e.stopPropagation();
       const key = g.dataset.labelKey;
       const o = ensureOverride(key);
-      // 5° per wheel notch; deltaY > 0 = scroll down = rotate clockwise (+5)
-      o.rot += e.deltaY > 0 ? 5 : -5;
+      o.rot += e.deltaY > 0 ? 1 : -1;
       applyTransform(key);
     }, { passive: false });
 
@@ -3525,6 +5631,7 @@ document.addEventListener('DOMContentLoaded', () => {
   onCabinetChange();
   buildSideToggles();
   renderCodecSidebarSummary();
+  syncIsoCamControls();
   update();
 });
 
@@ -3768,6 +5875,61 @@ let complexUnit   = 'ft';  // 'ft' | 'yd' | 'm'
 let compassBearing = 0;    // degrees, 0 = N up
 let diagramView   = 'topdown';  // 'topdown' | 'isometric'
 let isoCabStroke  = false;       // iso-view cabinet outlines on/off (default off → solid blocks)
+let showFieldGear = true;        // 3D goals / posts / hoops — off if they hit cabinets
+let legendStills  = false;       // zone legend shows still strip instead of color bar
+let isoAzimuth    = 45;          // deg around the field; 0 = from south, 90 = from east
+let isoElevation  = 36;          // deg above horizon; 36 matches the original SE iso
+let isoZoom       = 1;           // 1 = default framing; <1 tighter, >1 more floor
+let isoPanX       = 0;           // ft along field length (west / east)
+let isoPanZ       = 0;           // ft along field width (north / south)
+
+function syncIsoPanLimits() {
+  const px = document.getElementById('isoPanX');
+  const pz = document.getElementById('isoPanZ');
+  const fL = Math.max(10, vn('fieldLength') || 100);
+  const fW = Math.max(10, vn('fieldWidth') || 60);
+  // Iso 3D look-at travel: past either endline / touchline and the LED
+  // boards (~10 ft off) so a punched-in Extents shot can sit on a run.
+  const limX = Math.max(300, Math.round((fL * 0.5 + 160) / 10) * 10);
+  const limZ = Math.max(300, Math.round((fW * 0.5 + 160) / 10) * 10);
+  if (px) { px.min = String(-limX); px.max = String(limX); }
+  if (pz) { pz.min = String(-limZ); pz.max = String(limZ); }
+}
+
+function syncIsoCamControls() {
+  const box = document.getElementById('isoCamControls');
+  if (box) box.style.display = diagramView === 'isometric' ? '' : 'none';
+  syncIsoPanLimits();
+  const az = document.getElementById('isoAzimuth');
+  const el = document.getElementById('isoElevation');
+  const zm = document.getElementById('isoZoom');
+  const px = document.getElementById('isoPanX');
+  const pz = document.getElementById('isoPanZ');
+  if (az) az.value = isoAzimuth;
+  if (el) el.value = isoElevation;
+  if (zm) zm.value = Math.round(isoZoom * 100);
+  if (px) px.value = isoPanX;
+  if (pz) pz.value = isoPanZ;
+  const azL = document.getElementById('isoAzimuthVal');
+  const elL = document.getElementById('isoElevationVal');
+  const zmL = document.getElementById('isoZoomVal');
+  const pxL = document.getElementById('isoPanXVal');
+  const pzL = document.getElementById('isoPanZVal');
+  if (azL) azL.textContent = Math.round(isoAzimuth) + '°';
+  if (elL) elL.textContent = Math.round(isoElevation) + '°';
+  if (zmL) zmL.textContent = Math.round(isoZoom * 100) + '%';
+  if (pxL) pxL.textContent = (isoPanX || 0).toFixed(1);
+  if (pzL) pzL.textContent = (isoPanZ || 0).toFixed(1);
+}
+function resetIsoCamera() {
+  isoAzimuth = 45;
+  isoElevation = 36;
+  isoZoom = 1;
+  isoPanX = 0;
+  isoPanZ = 0;
+  syncIsoCamControls();
+  update();
+}
 // Iso-view per-strip/section label overrides — { 'south': {dx, dy, rot}, ... }
 // Populated when user drags / scrolls labels in iso view; persisted with project.
 let isoLabelOverrides = {};
@@ -3778,7 +5940,7 @@ let modularConfig = {
   cabsTall: 3,
   mounting: 'ground',   // 'ground' | 'chains' — affects wall diagram rendering only
   sdi: {
-    resolution: '1920×1080',
+    resolution: '1920x1080',
     fps:        '60',
     format:     '3G-SDI',
     sampling:   '4:2:2',
@@ -4015,7 +6177,7 @@ function renderCxSections() {
         </div>
         <div class="cxs-number">${i+1}</div>
         <input class="cxs-name-input" value="${escapeHtml(sec.name)}" onchange="updateCxSection(${i},'name',this.value)">
-        <button class="cxs-delete-btn" onclick="removeCxSection(${i})" title="Remove">✕</button>
+        <button class="cxs-delete-btn" onclick="removeCxSection(${i})" title="Remove">X</button>
       </div>
       <div class="two-col" style="margin-bottom:6px">
         <div class="form-group" style="margin:0">
@@ -4049,12 +6211,12 @@ function renderCxSections() {
         <select onchange="updateCxSection(${i},'cabOverride',this.value||null)">
           <option value="">— Use Global (${getCab().name}) —</option>
           ${Object.entries(CABINETS).map(([k,c]) =>
-            `<option value="${k}"${sec.cabOverride===k?' selected':''}>${c.name} · ${c.pxW}×${c.pxH}px</option>`
+            `<option value="${k}"${sec.cabOverride===k?' selected':''}>${c.name} · ${c.pxW}x${c.pxH}px</option>`
           ).join('')}
         </select>
       </div>
       <div class="cxs-info-row">
-        Cabs #${startCab}–#${endCab} · ${px.w}×${px.h}px · ${getCxDirLabel(sec)}
+        Cabs #${startCab}-#${endCab} · ${px.w}x${px.h}px · ${getCxDirLabel(sec)}
       </div>
     </div>`;
   }).join('');
@@ -4213,12 +6375,12 @@ function buildComplexFieldDiagram(svgW, svgH) {
 
   // Data attributes expose the scene→SVG transform for the modal preview's
   // drag-handler code (attachCxSectionHandlers). Harmless on the published spec sheet.
+  const look = specLookDefs(fieldX, fieldY, fieldW, fieldH);
   let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:'Barlow Condensed',sans-serif" data-cx-sc="${sc}" data-cx-fieldx="${fieldX}" data-cx-fieldy="${fieldY}" data-cx-fieldw="${fieldW}" data-cx-fieldh="${fieldH}">`;
+  svg += look.defs;
 
   // Field base — volleyball uses green free zone as outer color; football draws its own grass
-  const fieldBaseColor = currentSport === 'volleyball' ? '#4a9e4a' : sport.fieldColor;
-  if (currentSport !== 'football')
-    svg += `<rect x="${fieldX.toFixed(1)}" y="${fieldY.toFixed(1)}" width="${fieldW.toFixed(1)}" height="${fieldH.toFixed(1)}" fill="${fieldBaseColor}" rx="1"/>`;
+  svg += specFieldPlate(currentSport, fieldX.toFixed(1), fieldY.toFixed(1), fieldW.toFixed(1), fieldH.toFixed(1), look);
 
   // Sport markings
   if (currentSport==='soccer'||currentSport==='rugby') {
@@ -4280,7 +6442,7 @@ function buildComplexFieldDiagram(svgW, svgH) {
       if (pos.orientation === 'H') {
         const x = pos.startX + physIdx * secCabLen_svg;
         const y = pos.cy - secStrip / 2;
-        secSvg += `<rect x="${(x+0.3).toFixed(1)}" y="${y.toFixed(1)}" width="${(secCabLen_svg-0.6).toFixed(1)}" height="${secStrip.toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        secSvg += specLedCab(x+0.3, y, secCabLen_svg-0.6, secStrip, color, look);
         if (showCabNums && (cabNum === startCab || cabNum === startCab + n - 1)) {
           const cx2 = x + secCabLen_svg / 2;
           const isEnd = (cabNum===1||cabNum===totalCabs);
@@ -4289,7 +6451,7 @@ function buildComplexFieldDiagram(svgW, svgH) {
       } else {
         const x = pos.cx - secStrip / 2;
         const y = pos.startY - (physIdx + 1) * secCabLen_svg;
-        secSvg += `<rect x="${x.toFixed(1)}" y="${(y+0.3).toFixed(1)}" width="${secStrip.toFixed(1)}" height="${(secCabLen_svg-0.6).toFixed(1)}" fill="${color}" rx="0.3" opacity="0.95"/>`;
+        secSvg += specLedCab(x, y+0.3, secStrip, secCabLen_svg-0.6, color, look);
         if (showCabNums && (cabNum === startCab || cabNum === startCab + n - 1)) {
           const cy2 = y + secCabLen_svg / 2;
           const isEnd = (cabNum===1||cabNum===totalCabs);
@@ -4693,7 +6855,7 @@ function updateComplexSidebarSummary() {
   complexSections.forEach((sec, i) => {
     const px = getCxSectionPx(sec);
     const sideLabel = sec.side==='south'?'S':sec.side==='north'?'N':sec.side==='east'?'E':'W';
-    html += `<div><span style="color:#fff;font-weight:700">Sec ${i+1} (${sideLabel}):</span> ${sec.count} cabs · ${px.w}×${px.h}px</div>`;
+    html += `<div><span style="color:#fff;font-weight:700">Sec ${i+1} (${sideLabel}):</span> ${sec.count} cabs · ${px.w}x${px.h}px</div>`;
   });
   html += `<div style="margin-top:4px;color:#fff;font-weight:700">Total: ${total} cabinets</div>`;
   el.innerHTML = html;
@@ -4717,8 +6879,8 @@ function buildComplexZoneBreakdown() {
       const px = zonePixelsComplex(lo, hi, z.doubleStacked);
       totalCabs += z.doubleStacked ? count * 2 : count;
       totalFt   += count * cf;
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${escapeHtml(z.color)}"></div><span>${escapeHtml(z.name)} // ${count} CABINETS${z.doubleStacked ? ' (2 tall)' : ''} // ${px.w} × ${px.h}px</span></div>`;
-      fileList    += `<li>• ${escapeHtml(z.name)}: ${px.w} × ${px.h} px</li>`;
+      legendItems += zoneLegendRowHtml(z, count, px);
+      fileList    += `<li>${escapeHtml(z.name)}: ${px.w} x ${px.h} px</li>`;
     }
   } else {
     // Fall back to section-by-section
@@ -4730,8 +6892,8 @@ function buildComplexZoneBreakdown() {
       totalCabs += n;
       totalFt   += n * cf;
       const color = SIDE_COLORS[sec.side] || '#c8a830';
-      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${color}"></div><span>${escapeHtml(sec.name)} // ${n} CABINETS // ${px.w} × ${px.h}px</span></div>`;
-      fileList    += `<li>• ${escapeHtml(sec.name)}: ${px.w} × ${px.h} px</li>`;
+      legendItems += `<div class="zone-legend-row"><div class="zone-legend-swatch" style="background:${color}"></div><span>${escapeHtml(sec.name)} // ${n} CABINETS // ${px.w} x ${px.h}px</span></div>`;
+      fileList    += `<li>${escapeHtml(sec.name)}: ${px.w} x ${px.h} px</li>`;
     });
   }
   const zoneCount = legendItems.split('zone-legend-row').length - 1;
@@ -4863,6 +7025,11 @@ function addZone() {
     first: 1,
     last:  total,
     doubleStacked: false,
+    faceStillDataUrl: null,
+    faceLook: 'led',
+    faceSide: 'field',
+    faceFlipH: false,
+    faceFlipV: false,
   });
   renderZoneEntries();
   renderZoneDiagram();
@@ -4882,12 +7049,58 @@ function updateZoneField(idx, field, val) {
     if (!isNaN(n)) zones[idx][field] = Math.max(1, Math.min(n, pathTotal()));
   } else if (field === 'doubleStacked') {
     zones[idx].doubleStacked = val;
+    renderZoneEntries();
   } else {
     zones[idx][field] = val;
   }
+  if (field === 'faceLook') { update(); return; }
   renderZoneDiagram();
   updateZoneWarning();
   updateZoneSummary();
+}
+
+function handleZoneStill(idx, input) {
+  const file = input.files && input.files[0];
+  if (!file || !zones[idx]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const url = e.target.result;
+    if (typeof url !== 'string' || !/^data:image\/(png|jpe?g|webp);base64,/i.test(url)) {
+      alert('Use a PNG, JPEG, or WebP still.');
+      return;
+    }
+    zones[idx].faceStillDataUrl = url;
+    zones[idx].faceLook = zones[idx].faceLook || 'led';
+    const img = new Image();
+    img.onload = () => {
+      zones[idx].faceStillW = img.naturalWidth;
+      zones[idx].faceStillH = img.naturalHeight;
+      zoneStillImgs[url] = img;
+      renderZoneEntries();
+      update();
+    };
+    img.src = url;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearZoneStill(idx) {
+  if (!zones[idx]) return;
+  const url = zones[idx].faceStillDataUrl;
+  if (url) delete zoneStillImgs[url];
+  zones[idx].faceStillDataUrl = null;
+  delete zones[idx].faceStillW;
+  delete zones[idx].faceStillH;
+  renderZoneEntries();
+  update();
+}
+
+function toggleZoneFace(idx, field) {
+  if (!zones[idx]) return;
+  if (field === 'faceSide') zones[idx].faceSide = zones[idx].faceSide === 'away' ? 'field' : 'away';
+  else zones[idx][field] = !zones[idx][field];
+  renderZoneEntries();
+  update();
 }
 
 // ── PICK MODE STATE ───────────────────────────────────────────────────────
@@ -4948,7 +7161,7 @@ function toggleReverseNumbering() {
   reverseNumbering = !reverseNumbering;
   const btn = document.getElementById('reverseToggleBtn');
   if (btn) {
-    btn.textContent = reverseNumbering ? '→ RIGHT IS #1' : '← LEFT IS #1';
+    btn.textContent = reverseNumbering ? '→ RIGHT IS #1' : 'LEFT IS #1';
     btn.style.borderColor = reverseNumbering ? 'var(--accent)' : 'var(--border)';
     btn.style.color = reverseNumbering ? 'var(--accent)' : 'var(--text)';
   }
@@ -4963,14 +7176,18 @@ function renderZoneEntries() {
   const total = pathTotal();
   const container = document.getElementById('zone-entries');
   container.innerHTML = zones.map((z, i) => {
-    const px = zonePixels(z.first, z.last, z.doubleStacked);
+    const px = expectedZonePx(z);
     const isPickingStart = pickMode && pickMode.zoneIdx===i && pickMode.field==='first';
     const isPickingEnd   = pickMode && pickMode.zoneIdx===i && pickMode.field==='last';
+    let stillNote = '';
+    if (z.faceStillDataUrl && z.faceStillW && z.faceStillH && (z.faceStillW !== px.w || z.faceStillH !== px.h)) {
+      stillNote = `<div class="zone-still-msg">Got ${z.faceStillW}×${z.faceStillH} — letterboxed into ${px.w}×${px.h}</div>`;
+    }
     const startSet = z.first != null;
     const endSet   = z.last  != null;
     return `
     <div class="zone-entry${(isPickingStart||isPickingEnd)?' active-zone':''}" id="ze_${i}">
-      <button class="zone-delete-btn" onclick="removeZone(${i})" title="Remove zone">✕</button>
+      <button class="zone-delete-btn" onclick="removeZone(${i})" title="Remove zone">X</button>
       <div class="zone-entry-header">
         <input type="color" class="zone-color-picker" value="${escapeHtml(z.color)}" oninput="updateZoneField(${i},'color',this.value)" title="Zone color">
         <input type="text" class="zone-name-input" value="${escapeHtml(z.name)}" oninput="updateZoneField(${i},'name',this.value)" placeholder="Zone name">
@@ -4998,11 +7215,31 @@ function renderZoneEntries() {
         <button class="pick-btn" onclick="swapZoneEnds(${i})" title="Swap start/end" style="font-size:16px;padding:4px 8px;margin-top:18px">⇄</button>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-        <div class="zone-dims-display">${px.w} × ${z.doubleStacked ? px.h*2 : px.h} px · ${Math.max(0,z.last-z.first+1)} cabs${z.doubleStacked ? ' · ×2 stacked' : ''}</div>
+        <div class="zone-dims-display">${px.w} x ${px.h} px · ${Math.max(0,Math.abs((z.last||0)-(z.first||0))+1)} cabs${z.doubleStacked ? ' · x2 stacked' : ''}</div>
         <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.5px;white-space:nowrap">
           <input type="checkbox" ${z.doubleStacked?'checked':''} onchange="updateZoneField(${i},'doubleStacked',this.checked)" style="accent-color:var(--accent);width:13px;height:13px;cursor:pointer">
           DOUBLE STACKED
         </label>
+      </div>
+      <div class="zone-still-row">
+        <div class="form-label">Face still (optional) · ${px.w}×${px.h} px</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <label class="pick-btn" style="position:relative;overflow:hidden;margin:0">
+            Upload
+            <input type="file" accept="image/png,image/jpeg,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="handleZoneStill(${i},this)">
+          </label>
+          ${z.faceStillDataUrl ? `<button type="button" class="pick-btn" onclick="clearZoneStill(${i})">Clear</button>` : ''}
+          <select onchange="updateZoneField(${i},'faceLook',this.value)" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700">
+            <option value="led"${!z.faceLook || z.faceLook==='led' ? ' selected' : ''}>LED pixels</option>
+            <option value="seams"${z.faceLook==='seams' ? ' selected' : ''}>LED + panel lines</option>
+            <option value="smooth"${z.faceLook==='smooth' ? ' selected' : ''}>Smooth</option>
+          </select>
+          <button type="button" class="pick-btn${z.faceFlipH?' on':''}" onclick="toggleZoneFace(${i},'faceFlipH')" title="Mirror still left/right">Flip H</button>
+          <button type="button" class="pick-btn${z.faceFlipV?' on':''}" onclick="toggleZoneFace(${i},'faceFlipV')" title="Mirror still up/down">Flip V</button>
+          <button type="button" class="pick-btn${z.faceSide==='away'?' on':''}" onclick="toggleZoneFace(${i},'faceSide')" title="Put the still on the away face; field face keeps zone color">LED away</button>
+        </div>
+        ${z.faceStillDataUrl ? `<img class="zone-still-preview" src="${z.faceStillDataUrl}" alt="">` : ''}
+        ${stillNote}
       </div>
     </div>`;
   }).join('');
@@ -5034,8 +7271,9 @@ function updateZoneSummary() {
   if (!el) return;
   if (zones.length === 0) { el.textContent = 'No zones defined'; return; }
   el.innerHTML = zones.map(z => {
-    const px = zonePixels(z.first, z.last, z.doubleStacked);
-    return `<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${escapeHtml(z.color)};margin-right:4px;vertical-align:middle"></span>${escapeHtml(z.name)}: ${px.w}×${px.h}px${z.doubleStacked?' ×2':''}</div>`;
+    const px = expectedZonePx(z);
+    const still = z.faceStillDataUrl ? ' · still' : '';
+    return `<div><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${escapeHtml(z.color)};margin-right:4px;vertical-align:middle"></span>${escapeHtml(z.name)}: ${px.w}x${px.h}px${z.doubleStacked?' x2':''}${still}</div>`;
   }).join('');
 }
 
@@ -5260,7 +7498,7 @@ function renderMappingModal() {
   const cab   = getCab();
   const sport = getSport();
   const meta  = document.getElementById('mapping-header-meta');
-  if (meta) meta.textContent = cab.name + ' · ' + cab.pxW + '×' + cab.pxH + 'px per cabinet';
+  if (meta) meta.textContent = cab.name + ' · ' + cab.pxW + 'x' + cab.pxH + 'px per cabinet';
 
   // ── Zone legend ──
   const legendEl = document.getElementById('mapping-zone-legend');
@@ -5272,7 +7510,7 @@ function renderMappingModal() {
         return `<div class="mapping-zone-chip">
           <div class="mapping-zone-dot" style="background:${escapeHtml(z.color)}"></div>
           <span>${escapeHtml(z.name)}</span>
-          <span style="color:var(--muted);font-weight:400">cabs ${lo}–${hi} (${count})</span>
+          <span style="color:var(--muted);font-weight:400">cabs ${lo}-${hi} (${count})</span>
         </div>`;
       }).join('');
     } else {
@@ -5309,8 +7547,8 @@ function renderMappingStats() {
       return `<div class="mapping-stat-card">
         <div class="mapping-stat-side">${sec.name || ('Section ' + (i+1))}</div>
         <div class="mapping-stat-cabs">${n}<span style="font-size:14px;font-weight:600;margin-left:4px">cabs</span></div>
-        <div class="mapping-stat-detail">${pxW} × ${pxH} px</div>
-        <div class="mapping-stat-range">Cabs #${start} – #${end}</div>
+        <div class="mapping-stat-detail">${pxW} x ${pxH} px</div>
+        <div class="mapping-stat-range">Cabs #${start} - #${end}</div>
       </div>`;
     }).join('');
     return;
@@ -5352,8 +7590,8 @@ function renderMappingStats() {
     return `<div class="mapping-stat-card">
       <div class="mapping-stat-side">${sideLabels[s]}</div>
       <div class="mapping-stat-cabs">${n}<span style="font-size:14px;font-weight:600;margin-left:4px">cabs</span></div>
-      <div class="mapping-stat-detail">${pxW} × ${cab.pxH} px · ${ft} ft</div>
-      <div class="mapping-stat-range">Cabs #${r.start} – #${r.end}</div>
+      <div class="mapping-stat-detail">${pxW} x ${cab.pxH} px · ${ft} ft</div>
+      <div class="mapping-stat-range">Cabs #${r.start} - #${r.end}</div>
     </div>`;
   }).join('');
 }
@@ -5915,7 +8153,7 @@ try { _srRenderBindState(); } catch (_) {}
   toolbar.id = 'embed-toolbar';
   toolbar.innerHTML = `
     <span class="hint">Drag labels · scroll-wheel rotates · double-click resets</span>
-    <button class="embed-cancel" id="embed-cancel-btn">✕ Cancel</button>
+    <button class="embed-cancel" id="embed-cancel-btn">X Cancel</button>
     <button class="embed-save" id="embed-save-btn">💾 Save</button>
   `;
   document.body.appendChild(toolbar);
