@@ -8090,7 +8090,17 @@ function bindToShowrunnerShow() {
     const svg = renderTopdownSvg();
     const pageHtml = captureE360PageHtml();
     let png = '';
-    try { png = await _bindSvgToPng(svg); }
+    // The rasterize path can HANG, not just fail (fonts.ready or the SVG
+    // Image load stalling — seen live 9/11: the popup timed out with "No
+    // spec arrived" because this await never settled). The bundle must ship
+    // regardless: 8s, then send without the PNG — Showrunner renders the
+    // SVG fallback it has always accepted.
+    try {
+      png = await Promise.race([
+        _bindSvgToPng(svg),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('PNG rasterize timed out (8s)')), 8000))
+      ]);
+    }
     catch (e) { console.warn('PNG rasterize failed (Showrunner falls back to SVG):', e); }
     popup.postMessage({
       type: 'bind-spec-data',
