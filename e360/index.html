@@ -3657,60 +3657,62 @@ function buildPage1Modular() {
   const diagram = buildModularLEDDiagram(620, 360);
   const sdiLines = buildSdiSpecLines();
 
-  return `<div class="p1-sheet">
+  return `<div style="display:flex;flex-direction:column;height:100%">
     <div class="p1-header">
       <div class="p1-title-block">
-        <div class="p1-client-name">${escapeHtml(clientName)}</div>
-        <div class="p1-led-kicker">LED Specifications</div>
+        <div><span class="p1-client-name">${escapeHtml(clientName)}</span><span class="p1-title-pipe">|</span><span class="p1-led-text">LED SPECIFICATIONS</span></div>
         <div class="p1-venue">${escapeHtml(venueName)}</div>
       </div>
       <div class="p1-logos">${logoHtml}<div class="p1-logo-divider"></div>${e360Html}</div>
     </div>
-    <div class="p1-main">
-      <div class="p1-specs">
+    <div style="display:grid;grid-template-columns:270px 1fr;flex:1;overflow:hidden">
+      <div style="padding:10px 16px;border-right:1px solid #ddd;font-size:12px">
         <div class="spec-section-title">General Guidelines</div>
         <div class="spec-item">Files must conform to the specifications provided. Failure to match these specs may result in a file that does not display as intended.</div>
-        <div class="spec-section-title">Wall Specifications</div>
-        <div class="spec-item"><strong>Cabinet:</strong> ${escapeHtml(cab.name)}</div>
-        <div class="spec-item"><strong>Layout:</strong> ${w} x ${h} cabs (${w*h} total)</div>
-        <div class="spec-item"><strong>Pixel Canvas:</strong> ${pxW} x ${pxH} px</div>
-        <div class="spec-item"><strong>Physical:</strong> ${ftStr(ftW)} x ${ftStr(ftH)}</div>
-        <div class="spec-item"><strong>Aspect:</strong> ${aspect} : 1</div>
-        <div class="spec-item">Color: RGB \u00b7 Audio: None</div>
+        <div class="spec-section-title">Specifications</div>
+        <div class="spec-item">Resolution: 72 pixels per inch (ppi)</div>
+        <div class="spec-item">Color: RGB</div><div class="spec-item">Audio: None</div>
         <div class="spec-item">Static File: JPEG/PNG</div>
         ${codecSpecLines()}
-        <div class="spec-section-title">File Submission</div>
-        <ul class="file-list" style="list-style:none;padding:0">
-          <li>Full Canvas: ${pxW} x ${pxH} px</li>
-        </ul>
+        <div class="spec-section-title">File Submissions Needed</div>
+        <ul class="file-list" style="list-style:none;padding:0">${fileList}</ul>
         ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
-        <div class="p1-specs-bottom">
-          <div class="spec-section-title">Contact</div>
-          <div class="contact-block">
-            <div class="contact-role">Creative Director</div>
-            <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
-            <div class="contact-detail">${escapeHtml(cmPhone)}</div>
-            <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
-          </div>
-          <div class="contact-block">
-            <div class="contact-role">Technical Director</div>
-            <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
-            <div class="contact-detail">${escapeHtml(tdPhone)}</div>
-            <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
-          </div>
-          ${submitUrl && submitUrl !== '\u2014' ? `<div class="spec-section-title">Submit files</div><a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>` : ''}
-        </div>
       </div>
-      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;gap:10px">
-        <div class="field-diagram-wrap" style="width:100%">
+      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%">
+        <div class="field-diagram-wrap">
           ${diagram}
         </div>
         <div style="width:100%">
           <div style="background:#1a1a1a;color:#fff;padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;width:100%;text-align:center">
-            ${escapeHtml(cab.name)} \u00b7 ${w}\u00d7${h} CABS \u00b7 ${pxW}\u00d7${pxH} PX \u00b7 ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}
+            PERIMETER SYSTEM // ${totalCabs} CABINETS TOTAL // ${totalFt.toFixed(0)} ft.
           </div>
-          ${sdiLines}
+          <div class="zone-legend" style="width:100%;${zoneCount <= 3 ? 'grid-template-columns:1fr;justify-items:center;' : ''}">${legendItems}</div>
         </div>
+      </div>
+    </div>
+    <div class="p1-footer">
+      <div class="p1-footer-col">
+        <div class="footer-section-title">Contact Info</div>
+        <div class="contact-block">
+          <div class="contact-role">Creative Director</div>
+          <div class="contact-name">${escapeHtml(cmName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(cmPhone)}</div>
+          <div class="contact-detail">${escapeHtml(cmEmail.toUpperCase())}</div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-role">Technical Director</div>
+          <div class="contact-name">${escapeHtml(tdName.toUpperCase())}</div>
+          <div class="contact-detail">${escapeHtml(tdPhone)}</div>
+          <div class="contact-detail">${escapeHtml(tdEmail.toUpperCase())}</div>
+        </div>
+      </div>
+      <div class="p1-footer-col">
+        <div class="footer-section-title">File Submission</div>
+        <div style="font-size:12px;color:#333;margin-bottom:8px">SUBMITTING FILES TO e360 SPORT</div>
+        <a href="${encodeURI(submitUrl)}" class="submission-link">${escapeHtml(submitUrl)}</a>
+        <div class="submission-step" style="margin-top:8px">STEP 1: OPEN LINK</div>
+        <div class="submission-step">STEP 2: DRAG/DROP FILES</div>
+        <div class="submission-step">STEP 3: ENTER YOUR NAME AND EMAIL</div>
       </div>
     </div>
     <div class="page-copyright">
