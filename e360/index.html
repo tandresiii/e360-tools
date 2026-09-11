@@ -5957,6 +5957,10 @@ let modularConfig = {
   }
 };
 function getModularCab() { return CABINETS[modularConfig.cabType] || getCab(); }
+// Restored 9/11: this one-liner lived exactly where the complex-sections
+// rework happened and was swept away in the 3D merge — four call sites
+// (including the new 3D path) and no definition = modular completely dead.
+function getModularCab() { return CABINETS[modularConfig.cabType] || getCab(); }
 let complexSections = [];
 // Section shape: { name, side, count, offset, direction }
 //   side:      'south'|'north'|'east'|'west'
