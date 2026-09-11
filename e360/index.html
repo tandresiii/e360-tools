@@ -3766,6 +3766,13 @@ function collectProjectData() {
     const el = document.getElementById(id);
     if (el) fields[id] = el.value;
   });
+  // 9/11: in complex mode the totalCabinets INPUT belongs to the hidden
+  // simple-mode panel — a stale leftover there shipped "70" inside a file
+  // whose drawn layout said 72 on every visible surface, and the PM app's
+  // crosscheck caught the two-faced file. The serialized total is ALWAYS
+  // what the active layout computes; a hidden input never speaks for the
+  // file.
+  if (layoutMode === 'complex') fields.totalCabinets = String(cxPathTotal());
 
   // Side toggles
   const sideStates = {};
