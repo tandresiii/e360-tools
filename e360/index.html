@@ -8053,10 +8053,19 @@ function bindToShowrunnerShow() {
   // Open synchronously inside the click — popup blockers allow
   // gesture-opened popups only.
   const popupUrl = SHOWRUNNER_URL.replace(/\/$/, '') + '/?bind-spec=1&specType=e360';
-  const popup = window.open(popupUrl, 'bind-show-popup', 'width=900,height=720');
+  // A UNIQUE window name per bind. Reusing one name navigates the PREVIOUS
+  // popup, whose dying page announces bind-cancelled — which this listener
+  // then mistook for the new session aborting (seen live 9/11: "Bind
+  // cancelled" alert the instant the popup opened).
+  const popup = window.open(popupUrl, 'bind-show-' + Date.now(), 'width=900,height=720');
   if (!popup) { alert('Popup blocked. Please allow popups for this site and try again.'); return; }
 
+  // One live bind listener per page. Retries used to pile up listeners that
+  // answered each other's sessions.
+  if (window.__srBindCleanup) { try { window.__srBindCleanup(); } catch (_) {} }
+
   let sent = false;
+  let ready = false;
   function onMessage(e) {
     // The dashboard's own handler checks NO origin (defect T1). Ours checks
     // both directions — here, and again inside the Showrunner popup.
@@ -8065,6 +8074,7 @@ function bindToShowrunnerShow() {
     if (!msg || !msg.type) return;
     if (msg.type === 'bind-popup-ready' && !sent) {
       sent = true;
+      ready = true;
       sendSpec().catch((err) => {
         try { popup.postMessage({ type: 'bind-source-error', error: String(err.message || err) }, SHOWRUNNER_ORIGIN); } catch (_) {}
         cleanup();
@@ -8078,11 +8088,15 @@ function bindToShowrunnerShow() {
       // §9.3.3 step 9 — the popup closed without binding (operator gave up, we
       // never answered, or it refused our origin). Stop listening and say so:
       // staying silent is indistinguishable from a bind that worked.
+      // BUT: a cancelled that arrives before THIS session's ready is a
+      // different window's death rattle (an old popup unloading), not ours.
+      if (!ready) return;
       cleanup();
       alert('Bind cancelled — nothing was filed to Showrunner.');
     }
   }
-  function cleanup() { window.removeEventListener('message', onMessage); }
+  function cleanup() { window.removeEventListener('message', onMessage); if (window.__srBindCleanup === cleanup) window.__srBindCleanup = null; }
+  window.__srBindCleanup = cleanup;
   window.addEventListener('message', onMessage);
 
   async function sendSpec() {
