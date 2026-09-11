@@ -3669,24 +3669,30 @@ function buildPage1Modular() {
       <div style="padding:10px 16px;border-right:1px solid #ddd;font-size:12px">
         <div class="spec-section-title">General Guidelines</div>
         <div class="spec-item">Files must conform to the specifications provided. Failure to match these specs may result in a file that does not display as intended.</div>
-        <div class="spec-section-title">Specifications</div>
-        <div class="spec-item">Resolution: 72 pixels per inch (ppi)</div>
-        <div class="spec-item">Color: RGB</div><div class="spec-item">Audio: None</div>
+        <div class="spec-section-title">Wall Specifications</div>
+        <div class="spec-item"><strong>Cabinet:</strong> ${escapeHtml(cab.name)}</div>
+        <div class="spec-item"><strong>Layout:</strong> ${w} \u00d7 ${h} cabs (${w*h} total)</div>
+        <div class="spec-item"><strong>Pixel Canvas:</strong> ${pxW} \u00d7 ${pxH} px</div>
+        <div class="spec-item"><strong>Physical:</strong> ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}</div>
+        <div class="spec-item"><strong>Aspect:</strong> ${aspect} : 1</div>
+        <div class="spec-item">Color: RGB \u00b7 Audio: None</div>
         <div class="spec-item">Static File: JPEG/PNG</div>
         ${codecSpecLines()}
-        <div class="spec-section-title">File Submissions Needed</div>
-        <ul class="file-list" style="list-style:none;padding:0">${fileList}</ul>
+        <div class="spec-section-title">File Submission</div>
+        <ul class="file-list" style="list-style:none;padding:0">
+          <li>\u2022 Full Canvas: ${pxW} \u00d7 ${pxH} px</li>
+        </ul>
         ${deadline!=='\u2014'?`<div class="spec-section-title">Content Deadline</div><div class="spec-item">${escapeHtml(deadline)}</div>`:''}
       </div>
-      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%">
-        <div class="field-diagram-wrap">
+      <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;gap:10px">
+        <div class="field-diagram-wrap" style="background:#070709;border-radius:4px">
           ${diagram}
         </div>
         <div style="width:100%">
           <div style="background:#1a1a1a;color:#fff;padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;width:100%;text-align:center">
-            PERIMETER SYSTEM // ${totalCabs} CABINETS TOTAL // ${totalFt.toFixed(0)} ft.
+            ${escapeHtml(cab.name)} \u00b7 ${w}\u00d7${h} CABS \u00b7 ${pxW}\u00d7${pxH} PX \u00b7 ${ftStr(ftW)} \u00d7 ${ftStr(ftH)}
           </div>
-          <div class="zone-legend" style="width:100%;${zoneCount <= 3 ? 'grid-template-columns:1fr;justify-items:center;' : ''}">${legendItems}</div>
+          ${sdiLines}
         </div>
       </div>
     </div>
