@@ -3649,7 +3649,12 @@ function buildPage1Modular() {
     : `<div style="width:100px;height:70px;border:1px dashed #ddd;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa">LOGO</div>`;
   const e360Html = `<img src="${E360_LOGO}" style="height:52px;object-fit:contain;" alt="e360 Sport">`;
 
-  const diagram = specDiagramSlot();
+  // 9/11, Tom: "i just want modular back." The 3D slot is a host the gl
+  // engine only populates for perimeter modes — in modular it stayed an
+  // empty gray void and the sheet collapsed. Modular uses its proven SVG
+  // renderer (which knows the P1.98 cabinets); the perimeter sheet above
+  // keeps the 3D slot untouched.
+  const diagram = buildModularLEDDiagram(620, 360);
   const sdiLines = buildSdiSpecLines();
 
   return `<div class="p1-sheet">
