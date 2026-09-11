@@ -5385,6 +5385,7 @@ const glSpec = (() => {
 })();
 
 function update() {
+  try { _srRenderBindState(); } catch (_) {}
   if (typeof syncIsoPanLimits === 'function') syncIsoPanLimits();
   if (layoutMode === 'u') {
     updateDistributionDisplay();
@@ -7999,6 +8000,14 @@ const SHOWRUNNER_ORIGIN = new URL(SHOWRUNNER_URL).origin;
 // readable by /powerspec/. Namespace the key.
 const SR_BIND_KEY = 'showrunner:bind:e360';
 
+// 9/11, Tom: the badge survived refreshes AND loading a different spec —
+// a per-TOOL memory claiming things about whatever file happens to be open.
+// The bind state now carries a fingerprint of the spec it describes, and
+// the badge only renders when the spec ON SCREEN is that spec.
+function _srSpecFp() {
+  const v = (id) => { const el = document.getElementById(id); return el ? String(el.value || '') : ''; };
+  return v('clientName').trim().toLowerCase() + '|' + v('venueName').trim().toLowerCase();
+}
 function _srBound(v) {
   try {
     if (v === undefined) return JSON.parse(localStorage.getItem(SR_BIND_KEY) || 'null');
@@ -8023,7 +8032,7 @@ function _srStaleNodes(stale) {
 function _srRenderBindState() {
   let el = document.getElementById('srBindBadge');
   const b = _srBound();
-  if (!b) { if (el) el.remove(); return; }
+  if (!b || b.fp !== _srSpecFp()) { if (el) el.remove(); return; }
   if (!el) {
     el = document.createElement('div');
     el.id = 'srBindBadge';
@@ -8087,7 +8096,7 @@ function bindToShowrunnerShow() {
         cleanup();
       });
     } else if (msg.type === 'bind-complete') {
-      _srBound({ showId: msg.showId, showName: msg.showName, node: msg.node, rev: msg.rev,
+      _srBound({ showId: msg.showId, showName: msg.showName, node: msg.node, rev: msg.rev, fp: _srSpecFp(),
                  stale: _srStaleNodes(msg.stale), boundAt: new Date().toISOString() });
       _srRenderBindState();
       cleanup();
