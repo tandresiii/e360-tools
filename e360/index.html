@@ -4282,7 +4282,10 @@ const glSpec = (() => {
       g.beginPath(); g.moveTo(midX, inset); g.lineTo(midX, h - inset); g.stroke();
       g.beginPath(); g.arc(midX, midY, px(Math.min(6, fW * 0.12)), 0, Math.PI * 2); g.stroke();
       stampLogo(midX, midY, px(Math.min(5.2, fW * 0.10)));
-      const keyD = w * 0.19, keyW = h * 0.36;
+      // NCAA: 12-ft lane, 19-ft key, hoop 5.25 ft in, 3-point 22'1.75" with
+      // corner straights 3'4" off the sideline — the old ±111° arc cut through the key.
+      const hoopIn = 5.25, keyLen = 19, keyWid = 12, threeR = 22.15, cornerFt = 3.33;
+      const keyD = px(keyLen), keyW = px(keyWid);
       g.fillStyle = 'rgba(176, 42, 42, 0.30)';
       g.fillRect(inset, midY - keyW / 2, keyD, keyW);
       g.fillStyle = 'rgba(36, 64, 158, 0.30)';
@@ -4290,12 +4293,21 @@ const glSpec = (() => {
       white(stroke(0.26));
       g.strokeRect(inset, midY - keyW / 2, keyD, keyW);
       g.strokeRect(w - inset - keyD, midY - keyW / 2, keyD, keyW);
-      const ftR = keyW * 0.5;
+      const ftR = px(6);
       g.beginPath(); g.arc(inset + keyD, midY, ftR, -Math.PI / 2, Math.PI / 2); g.stroke();
       g.beginPath(); g.arc(w - inset - keyD, midY, ftR, Math.PI / 2, Math.PI * 1.5); g.stroke();
-      const tpr = Math.min(h * 0.47, w * 0.22);
-      g.beginPath(); g.arc(inset + px(5.25), midY, tpr, -Math.PI * 0.62, Math.PI * 0.62); g.stroke();
-      g.beginPath(); g.arc(w - inset - px(5.25), midY, tpr, Math.PI * 0.38, Math.PI * 1.62); g.stroke();
+      const r3 = px(threeR);
+      const joinZ = fW / 2 - cornerFt;
+      const joinX = Math.sqrt(Math.max(0, threeR * threeR - joinZ * joinZ));
+      const ang = Math.atan2(joinZ, joinX);
+      const hoop0 = inset + px(hoopIn), hoop1 = w - inset - px(hoopIn);
+      g.beginPath(); g.arc(hoop0, midY, r3, -ang, ang); g.stroke();
+      g.beginPath(); g.arc(hoop1, midY, r3, Math.PI - ang, Math.PI + ang); g.stroke();
+      const yA = midY - px(joinZ), yB = midY + px(joinZ);
+      g.beginPath(); g.moveTo(inset, yA); g.lineTo(hoop0 + px(joinX), yA); g.stroke();
+      g.beginPath(); g.moveTo(inset, yB); g.lineTo(hoop0 + px(joinX), yB); g.stroke();
+      g.beginPath(); g.moveTo(w - inset, yA); g.lineTo(hoop1 - px(joinX), yA); g.stroke();
+      g.beginPath(); g.moveTo(w - inset, yB); g.lineTo(hoop1 - px(joinX), yB); g.stroke();
       g.lineWidth = stroke(0.14);
       for (let i = 1; i <= 4; i++) {
         const yy = midY - keyW / 2 + keyW * (i / 5);
@@ -4645,44 +4657,40 @@ const glSpec = (() => {
       const grp = new THREE.Group();
       const rimY = 10;
       const boardY = rimY + 0.72;
-      const boomY = 12.58;
-      const mastX = -5.45;
-      const elbowR = 1.95;
-      // Wedge ballast — side profile extruded, sloped toward the court.
+      const boomY = 12.5;
+      const mastX = -6.6;
+      // Board is 4 ft inside the baseline (group origin). Keep the whole
+      // ballast behind local x = -4 so it sits out of bounds.
       const wedge = (() => {
         const s = new THREE.Shape();
         s.moveTo(0, 0);
-        s.lineTo(5.8, 0);
-        s.lineTo(3.55, 2.55);
-        s.lineTo(0.18, 2.78);
-        s.lineTo(0, 2.35);
+        s.lineTo(4.55, 0);
+        s.lineTo(2.85, 2.45);
+        s.lineTo(0.15, 2.7);
+        s.lineTo(0, 2.3);
         s.closePath();
         const geo = new THREE.ExtrudeGeometry(s, {
-          depth: 3.7, bevelEnabled: true, bevelThickness: 0.09, bevelSize: 0.09, bevelSegments: 1
+          depth: 3.4, bevelEnabled: true, bevelThickness: 0.08, bevelSize: 0.08, bevelSegments: 1
         });
-        geo.translate(0, 0, -1.85);
+        geo.translate(0, 0, -1.7);
         return new THREE.Mesh(geo, navyPad);
       })();
-      wedge.position.set(-8.55, 0, 0); grp.add(wedge);
-      const padCol = box(navyPad, 1.55, 5.6, 1.55);
-      padCol.position.set(-5.7, 5.15, 0);
-      padCol.rotation.z = -0.16; grp.add(padCol);
-      const padShoulder = box(navyPad, 1.35, 1.7, 1.45);
-      padShoulder.position.set(-5.15, 8.05, 0);
-      padShoulder.rotation.z = -0.28; grp.add(padShoulder);
-      const spine = box(steel, 0.18, 6.4, 0.55);
-      spine.position.set(-6.35, 5.5, 0); grp.add(spine);
-      const mastH = boomY - elbowR - 2.4;
-      const mast = box(steel, 0.58, mastH, 0.58);
-      mast.position.set(mastX, 2.4 + mastH / 2, 0); grp.add(mast);
-      const goose = new THREE.Mesh(new THREE.TorusGeometry(elbowR, 0.29, 10, 18, Math.PI / 2), steel);
-      goose.rotation.z = -Math.PI / 2;
-      goose.position.set(mastX, boomY, 0); grp.add(goose);
-      const boomLen = (mastX + elbowR) * -1 - 0.12;
-      const boom = box(steel, boomLen, 0.42, 0.52);
-      boom.position.set(mastX + elbowR + boomLen / 2, boomY, 0); grp.add(boom);
-      const neck = box(steel, 0.38, 1.2, 0.38);
-      neck.position.set(-0.2, boomY - 0.55, 0); grp.add(neck);
+      wedge.position.set(-8.75, 0, 0); grp.add(wedge);
+      const padCol = box(navyPad, 1.45, 5.4, 1.45);
+      padCol.position.set(-6.55, 5.0, 0); grp.add(padCol);
+      const padShoulder = box(navyPad, 1.2, 1.55, 1.35);
+      padShoulder.position.set(-6.4, 7.85, 0); grp.add(padShoulder);
+      const spine = box(steel, 0.16, 5.8, 0.5);
+      spine.position.set(-7.2, 5.1, 0); grp.add(spine);
+      const mast = box(steel, 0.5, boomY - 0.2, 0.5);
+      mast.position.set(mastX, (boomY - 0.2) / 2, 0); grp.add(mast);
+      const elbow = cyl(steel, 0.28, 0.72, 'z');
+      elbow.position.set(mastX + 0.12, boomY, 0); grp.add(elbow);
+      const boomLen = -mastX - 0.22;
+      const boom = box(steel, boomLen, 0.4, 0.48);
+      boom.position.set(mastX + boomLen / 2, boomY, 0); grp.add(boom);
+      const neck = box(steel, 0.36, 1.15, 0.36);
+      neck.position.set(-0.18, boomY - 0.52, 0); grp.add(neck);
       const frame = box(white, 0.14, 3.64, 6.14);
       frame.position.set(-0.05, boardY, 0); grp.add(frame);
       const face = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.5), bbMat);
