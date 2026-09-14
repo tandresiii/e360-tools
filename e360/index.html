@@ -4579,25 +4579,153 @@ const glSpec = (() => {
       net.position.set(0, bot + netH / 2, 0);
       g.add(net);
     }
+    function backboardTex() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 300;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#e6e9ee';
+      ctx.fillRect(0, 0, 512, 300);
+      const gl = ctx.createLinearGradient(40, 10, 480, 290);
+      gl.addColorStop(0, '#c8d7e4');
+      gl.addColorStop(0.45, '#e7eef4');
+      gl.addColorStop(1, '#b7c8d6');
+      ctx.fillStyle = gl;
+      ctx.fillRect(16, 14, 480, 272);
+      ctx.strokeStyle = '#f5f7fa';
+      ctx.lineWidth = 9;
+      const iw = 172, ih = 116;
+      const ix = (512 - iw) / 2;
+      const iy = 300 - 14 - 52 - ih;
+      ctx.strokeRect(ix, iy, iw, ih);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 8;
+      return t;
+    }
+    function shotClockTex() {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 128;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#07080b';
+      ctx.fillRect(0, 0, 256, 128);
+      ctx.fillStyle = '#12151c';
+      ctx.fillRect(10, 10, 236, 108);
+      const on = '#3ad4ff';
+      const digit = (ox) => {
+        ctx.save();
+        ctx.translate(ox, 22);
+        ctx.fillStyle = on;
+        ctx.shadowColor = on;
+        ctx.shadowBlur = 10;
+        const t = 10, w = 70, h = 84;
+        ctx.fillRect(t + 2, 0, w - 2 * t - 4, t);
+        ctx.fillRect(w - t, t + 2, t, h / 2 - t - 4);
+        ctx.fillRect(w - t, h / 2 + 2, t, h / 2 - t - 4);
+        ctx.fillRect(t + 2, h - t, w - 2 * t - 4, t);
+        ctx.fillRect(0, h / 2 + 2, t, h / 2 - t - 4);
+        ctx.fillRect(0, t + 2, t, h / 2 - t - 4);
+        ctx.restore();
+      };
+      digit(42);
+      digit(144);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      return t;
+    }
+    const bbMap = backboardTex();
+    const scMap = shotClockTex();
+    const navyPad = new THREE.MeshStandardMaterial({ color: 0x1a3c72, roughness: 0.64, metalness: 0.04 });
+    const steel = new THREE.MeshStandardMaterial({ color: 0xd4d8de, roughness: 0.28, metalness: 0.42 });
+    const orange = new THREE.MeshStandardMaterial({ color: 0xe85a14, roughness: 0.36, metalness: 0.18 });
+    const clockBlk = new THREE.MeshStandardMaterial({ color: 0x0c0e12, roughness: 0.45, metalness: 0.12 });
+    const bbMat = new THREE.MeshStandardMaterial({ map: bbMap, roughness: 0.22, metalness: 0.16 });
+    const scMat = new THREE.MeshBasicMaterial({ map: scMap, toneMapped: false });
     function hoop(x, facing) {
       const grp = new THREE.Group();
-      const rimY = 10, boardW = 6, boardH = 3.5;
-      const stanch = box(dark, 0.55, 9.2, 0.55);
-      stanch.position.set(-2.4 * facing, 4.6, 0); grp.add(stanch);
-      const arm = box(dark, 2.6, 0.32, 0.32);
-      arm.position.set(-1.1 * facing, rimY - 0.15, 0); grp.add(arm);
-      const board = box(white, 0.12, boardH, boardW);
-      board.position.set(0, rimY + 0.7, 0); grp.add(board);
-      const inner = box(new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 }), 0.04, 1.05, 1.7);
-      inner.position.set(0.08 * facing, rimY + 0.55, 0); grp.add(inner);
-      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.05, 6, 16), red);
+      const rimY = 10;
+      const boardY = rimY + 0.72;
+      const boomY = 12.58;
+      const mastX = -5.45;
+      const elbowR = 1.95;
+      // Wedge ballast — side profile extruded, sloped toward the court.
+      const wedge = (() => {
+        const s = new THREE.Shape();
+        s.moveTo(0, 0);
+        s.lineTo(5.8, 0);
+        s.lineTo(3.55, 2.55);
+        s.lineTo(0.18, 2.78);
+        s.lineTo(0, 2.35);
+        s.closePath();
+        const geo = new THREE.ExtrudeGeometry(s, {
+          depth: 3.7, bevelEnabled: true, bevelThickness: 0.09, bevelSize: 0.09, bevelSegments: 1
+        });
+        geo.translate(0, 0, -1.85);
+        return new THREE.Mesh(geo, navyPad);
+      })();
+      wedge.position.set(-8.55, 0, 0); grp.add(wedge);
+      const padCol = box(navyPad, 1.55, 5.6, 1.55);
+      padCol.position.set(-5.7, 5.15, 0);
+      padCol.rotation.z = -0.16; grp.add(padCol);
+      const padShoulder = box(navyPad, 1.35, 1.7, 1.45);
+      padShoulder.position.set(-5.15, 8.05, 0);
+      padShoulder.rotation.z = -0.28; grp.add(padShoulder);
+      const spine = box(steel, 0.18, 6.4, 0.55);
+      spine.position.set(-6.35, 5.5, 0); grp.add(spine);
+      const mastH = boomY - elbowR - 2.4;
+      const mast = box(steel, 0.58, mastH, 0.58);
+      mast.position.set(mastX, 2.4 + mastH / 2, 0); grp.add(mast);
+      const goose = new THREE.Mesh(new THREE.TorusGeometry(elbowR, 0.29, 10, 18, Math.PI / 2), steel);
+      goose.rotation.z = -Math.PI / 2;
+      goose.position.set(mastX, boomY, 0); grp.add(goose);
+      const boomLen = (mastX + elbowR) * -1 - 0.12;
+      const boom = box(steel, boomLen, 0.42, 0.52);
+      boom.position.set(mastX + elbowR + boomLen / 2, boomY, 0); grp.add(boom);
+      const neck = box(steel, 0.38, 1.2, 0.38);
+      neck.position.set(-0.2, boomY - 0.55, 0); grp.add(neck);
+      const frame = box(white, 0.14, 3.64, 6.14);
+      frame.position.set(-0.05, boardY, 0); grp.add(frame);
+      const face = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.5), bbMat);
+      face.rotation.y = Math.PI / 2;
+      face.position.set(0.05, boardY, 0); grp.add(face);
+      const botPad = box(navyPad, 0.24, 0.34, 6.22);
+      botPad.position.set(0.02, boardY - 1.91, 0); grp.add(botPad);
+      [-2.85, 2.85].forEach(z => {
+        const cap = box(navyPad, 0.28, 0.7, 0.55);
+        cap.position.set(0.04, boardY - 1.55, z); grp.add(cap);
+      });
+      const mount = box(orange, 0.3, 0.5, 0.72);
+      mount.position.set(0.2, rimY, 0); grp.add(mount);
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.055, 8, 24), orange);
       rim.rotation.x = Math.PI / 2;
-      rim.position.set(0.85 * facing, rimY, 0); grp.add(rim);
-      const nt = netTexture('rgba(255,255,255,0.78)', 16);
-      const nm = netMat(nt, 2.2, 1.6);
-      const net = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.42, 1.6, 10, 1, true), nm);
-      net.position.set(0.85 * facing, rimY - 0.85, 0); grp.add(net);
+      rim.position.set(1.22, rimY, 0); grp.add(rim);
+      const brace = box(orange, 1.05, 0.07, 0.07);
+      brace.position.set(0.58, rimY, 0); grp.add(brace);
+      const nt = netTexture('rgba(245,247,250,0.88)', 14);
+      const nm = netMat(nt, 2.4, 1.8);
+      const net = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.36, 1.7, 14, 1, true), nm);
+      net.position.set(1.22, rimY - 0.92, 0); grp.add(net);
+      const clockAt = (z) => {
+        const body = box(clockBlk, 0.78, 0.72, 0.16);
+        body.position.set(-1.55, boomY + 0.58, z); grp.add(body);
+        const faceSc = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 0.66), scMat);
+        faceSc.position.set(-1.55, boomY + 0.58, z + (z > 0 ? 0.09 : -0.09));
+        if (z < 0) faceSc.rotation.y = Math.PI;
+        grp.add(faceSc);
+      };
+      clockAt(0.58);
+      clockAt(-0.58);
+      const underClk = box(clockBlk, 0.16, 0.42, 0.95);
+      underClk.position.set(-0.85, boomY - 0.28, 0); grp.add(underClk);
+      const underFace = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.38), scMat);
+      underFace.rotation.y = Math.PI / 2;
+      underFace.position.set(-0.76, boomY - 0.28, 0); grp.add(underFace);
+      const camPost = box(steel, 0.09, 1.55, 0.09);
+      camPost.position.set(-0.55, boomY + 0.85, 0); grp.add(camPost);
+      const cam = box(clockBlk, 0.55, 0.28, 0.32);
+      cam.position.set(-0.35, boomY + 1.55, 0); grp.add(cam);
       grp.position.set(x, 0, 0);
+      if (facing < 0) grp.scale.x = -1;
       g.add(grp);
     }
     function hockeyNet(x, yaw) {
@@ -4655,8 +4783,8 @@ const glSpec = (() => {
       volleyballNet();
     } else if (sportKey === 'basketball') {
       if (gearOn) {
-        hoop(-fL / 2 + 1.3, 1);
-        hoop( fL / 2 - 1.3, -1);
+        hoop(-fL / 2 + 4.0, 1);
+        hoop( fL / 2 - 4.0, -1);
       }
     } else if (sportKey === 'hockey') {
       if (gearOn) {
@@ -8046,35 +8174,13 @@ function _srStaleNodes(stale) {
 // A convenience hint, not state of record — the tool is a static page and the
 // DB is the truth. A miss just means "not bound".
 function _srRenderBindState() {
-  let el = document.getElementById('srBindBadge');
-  const b = _srBound();
-  if (!b || b.fp !== _srSpecFp()) { if (el) el.remove(); return; }
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'srBindBadge';
-    el.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:99999;max-width:320px;' +
-      'background:#11161d;border:1px solid #35E0A1;border-radius:6px;padding:9px 12px;' +
-      "color:#c8d3de;font:12px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;" +
-      'box-shadow:0 4px 18px rgba(0,0,0,.45)';
-    const noPrint = document.createElement('style');
-    noPrint.textContent = '@media print{#srBindBadge{display:none!important}}';
-    document.head.appendChild(noPrint);
-    document.body.appendChild(el);
-  }
-  const staleNodes = _srStaleNodes(b.stale);
-  const staleList  = staleNodes.length < 2 ? staleNodes.join('')
-    : staleNodes.slice(0, -1).join(', ') + ' and ' + staleNodes[staleNodes.length - 1];
-  el.innerHTML =
-    '<div style="color:#35E0A1;font-weight:600;margin-bottom:2px">\u2713 Bound to PM show</div>' +
-    '<div style="color:#e6edf3">' + _srEsc(b.showName || ('#' + b.showId)) + '</div>' +
-    '<div style="opacity:.75">' + _srEsc(b.node || '') + ' \u00b7 v' + (b.rev || '?') +
-      ' \u00b7 ' + _srEsc(String(b.boundAt || '').slice(0, 10)) + '</div>' +
-    (staleNodes.length
-      ? '<div style="color:#F4B740;margin-top:3px">\u26a0 ' + _srEsc(staleList) +
-        ' ' + (staleNodes.length > 1 ? 'are' : 'is') + ' now stale</div>' : '') +
-    '<div style="margin-top:6px"><a href="' + SHOWRUNNER_URL.replace(/\/$/, '') +
-      '/#/shows/' + encodeURIComponent(b.showId) + '" target="_blank" rel="noopener" ' +
-      'style="color:#59A9F0;text-decoration:none">\ud83d\udd17 Open in Showrunner</a></div>';
+  // 9/14, Tom: the badge is GONE — a fixed bottom-right card that sat on top
+  // of the complex layout's save button ("get rid of the damn bound to pm
+  // show thing"). Bind state is still recorded; the bind popup is the
+  // confirmation and Showrunner is the truth. This stub also removes any
+  // badge already on the page.
+  const el = document.getElementById('srBindBadge');
+  if (el) el.remove();
 }
 function _srEsc(s) {
   return String(s == null ? '' : s).replace(/[&<>"]/g,
