@@ -1117,6 +1117,7 @@ body.mapping-print-mode .mapping-diagram-wrap { border-color: #ccc !important; }
         <button onclick="saveProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--accent);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">SAVE PROJECT</button>
         <button onclick="loadProject()" style="flex:1;padding:7px 0;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px">LOAD PROJECT</button>
       </div>
+      <button id="srLibraryLoadBtn" onclick="loadFromShowrunnerLibrary()" title="Open any spec already bound to a Showrunner show" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:8px">LOAD FROM SHOWRUNNER</button>
       <button onclick="bindToDashboardEvent()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #00c6ff;color:#00c6ff;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:8px">BIND TO DASHBOARD EVENT</button>
       <button onclick="bindToShowrunnerShow()" style="width:100%;padding:7px 0;background:#1a1a1a;border:1px solid #35E0A1;color:#35E0A1;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;border-radius:3px;margin-bottom:16px">BIND TO PM SHOW</button>
 
@@ -8286,6 +8287,71 @@ function bindToShowrunnerShow() {
 
 // Show the bound-state badge on load if this browser remembers one.
 try { _srRenderBindState(); } catch (_) {}
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD FROM SHOWRUNNER — the spec library (Tom, 2026-09-29)
+// "every spec sheet at our fingertips for editing or starting a new one."
+// Every Bind to PM Show already banks the .e360 on the show's NAS folder;
+// this opens Showrunner's library picker (?spec-library=1) in a popup, the
+// operator picks a bound sheet, and the popup posts its .e360 TEXT back.
+// That text goes through EXACTLY the LOAD PROJECT path — JSON.parse, then
+// applyProjectData(), same alert on failure — so a library sheet is just a
+// loaded sheet: edit and re-bind, or retitle and bind elsewhere as new.
+//
+// ADDITIVE, and deliberately separate from the bind listener above:
+//   · its own message types (spec-library-*), which the bind listener's
+//     type switch ignores — and it ignores every bind-* type in turn;
+//   · its own unique popup name per open (the bind's 9/11 retry-ghost lesson);
+//   · its own one-live-listener slot (window.__srLibCleanup, never touching
+//     window.__srBindCleanup);
+//   · it only listens to THE popup it opened (e.source === popup) on the
+//     Showrunner origin, and ignores a cancel that arrives before ready.
+// Message contract (popup -> this page; the picker accepts nothing inbound):
+//   {type:'spec-library-ready'}
+//   {type:'spec-library-pick', text, name, fileId, showId, showName, rev}
+//   {type:'spec-library-cancelled'}   closed without picking — silent here
+// ═══════════════════════════════════════════════════════════════
+function loadFromShowrunnerLibrary() {
+  // Open synchronously inside the click — popup blockers allow
+  // gesture-opened popups only.
+  const popupUrl = SHOWRUNNER_URL.replace(/\/$/, '') + '/?spec-library=1&specType=e360';
+  const popup = window.open(popupUrl, 'spec-library-' + Date.now(), 'width=900,height=720');
+  if (!popup) { alert('Popup blocked. Please allow popups for this site and try again.'); return; }
+
+  // One live library listener per page — a second click retires the first.
+  if (window.__srLibCleanup) { try { window.__srLibCleanup(); } catch (_) {} }
+
+  let ready = false;
+  let done = false;
+  function onMessage(e) {
+    if (e.origin !== SHOWRUNNER_ORIGIN) return;
+    if (e.source !== popup) return;
+    const msg = e.data;
+    if (!msg || typeof msg.type !== 'string' || msg.type.indexOf('spec-library-') !== 0) return;
+    if (msg.type === 'spec-library-ready') {
+      ready = true;
+    } else if (msg.type === 'spec-library-pick') {
+      if (done) return;
+      done = true;
+      cleanup();
+      // Identical to loadProject()'s reader.onload — same parser, same
+      // validation (applyProjectData throws 'Invalid file' on no version).
+      try {
+        applyProjectData(JSON.parse(String(msg.text == null ? '' : msg.text)));
+      } catch (err) {
+        alert('Could not load project file: ' + err.message);
+      }
+    } else if (msg.type === 'spec-library-cancelled') {
+      // A cancel before THIS session's ready is some other window's death
+      // rattle, never ours. Closing the picker loads nothing — no alert.
+      if (!ready) return;
+      cleanup();
+    }
+  }
+  function cleanup() { window.removeEventListener('message', onMessage); if (window.__srLibCleanup === cleanup) window.__srLibCleanup = null; }
+  window.__srLibCleanup = cleanup;
+  window.addEventListener('message', onMessage);
+}
 
 // ════════════════════════════════════════════════════════════════
 // DASHBOARD EMBED MODE (?embed=dashboard)
