@@ -138,14 +138,16 @@ function splitStackedZones(sections, zones) {
 
 // ── GEOMETRY ─────────────────────────────────────────────────────
 function buildGeometry(sections) {
-  let pos = 0, cabNum = 0, physCabs = 0;
+  let pos = 0, cabNum = 0, physCabs = 0, run = 0;
   const cabData = {}, secData = [], gapData = [];
   for (let si = 0; si < sections.length; si++) {
     const sec = sections[si];
     if (si > 0 && sec.gapBefore > 0) { gapData.push({ afterSection: si - 1, startPos: pos, len: sec.gapBefore }); pos += sec.gapBefore; }
     const cw = CAB_PRESETS[sec.cabType]?.widthFt || 5.25;
+    // A physical run (one continuous LED line) breaks at a gap or a change of side.
+    if (si > 0 && (sec.gapBefore > 0 || sec.side !== sections[si - 1].side)) run++;
     const startPos = pos, firstCab = cabNum + 1, stack = stackHeight(sec);
-    for (let i = 0; i < sec.count; i++) { cabNum++; cabData[cabNum] = { num: cabNum, centerPos: pos + cw / 2, sectionIdx: si, cabType: sec.cabType, stack }; pos += cw; }
+    for (let i = 0; i < sec.count; i++) { cabNum++; cabData[cabNum] = { num: cabNum, centerPos: pos + cw / 2, sectionIdx: si, cabType: sec.cabType, stack, run }; pos += cw; }
     physCabs += sec.count * stack;
     secData.push({ ...sec, idx: si, firstCab, lastCab: cabNum, startPos, endPos: pos, cabWidthFt: cw, lengthFt: sec.count * cw, stack });
   }
@@ -156,39 +158,53 @@ function buildGeometry(sections) {
 const physInRange = (cabData, a, b) => { let n = 0; for (let c = Math.min(a, b); c <= Math.max(a, b); c++) n += cabData[c] ? cabData[c].stack : 0; return n; };
 
 // ── CIRCUITS ─────────────────────────────────────────────────────
-function buildCircuitsForRange(first, last, cabData, cpc_override) {
-  const circuits = [];
-  let cn = last;
-  while (cn >= first) {
-    const cd = cabData[cn];
-    if (!cd) { cn--; continue; }
-    const cabType = cd.cabType || "p10";
-    // A SOC's Cab/Ckt (cpc_override) can tighten a panel's rating but never
-    // exceed it: one SOC can span two panel types (auto sets its cpc from the
-    // first type), and P3.91's 30 must not load a P10 run at 30 when P10 is
-    // rated 4 — a stacked P10 column made that overload real.
-    const rated = CAB_PRESETS[cabType]?.cpc || 4;
-    const cpc = cpc_override ? Math.min(cpc_override, rated) : rated;
-    // cpc is PHYSICAL cabinets per circuit. A stacked column (stack 2) loads
-    // 2 and is never split: if it would overflow the circuit, it opens the
-    // next one. (A column is always taken when the circuit is empty, so a
-    // cpc smaller than a column still makes progress.)
-    const cabs = [];
-    let peek = cn, load = 0;
-    while (peek >= first) {
-      const pcd = cabData[peek];
-      if (!pcd) break;
-      if ((pcd.cabType || "p10") !== cabType) break;
-      const w = pcd.stack || 1;
-      if (cabs.length && load + w > cpc) break;
-      cabs.push(peek);
-      load += w;
-      peek--;
-    }
-    circuits.push({ maxCab: Math.max(...cabs), minCab: Math.min(...cabs), count: load, cabType, cabs });
-    cn = peek;
+// Power path (Tom, 2026-10-05: "each horizontal row is generally together —
+// the circuit might start at the bottom right, go all the way across the
+// bottom, and then move up to the top right, and so forth"). ROW-MAJOR per
+// physical run: walk the run's BOTTOM row from its high-cab end down, then
+// its TOP row (only the double-stacked columns) from the high-cab end down
+// again — not serpentine. Runs are taken high-cab first, as circuits always
+// were. A cell is one physical cabinet: { col, row } (row 0 = bottom).
+// With no stacked column the path is just last..first — the old order.
+function powerPath(first, last, cabData) {
+  const path = [];
+  let c = last;
+  while (c >= first) {
+    if (!cabData[c]) { c--; continue; }
+    const run = cabData[c].run, hi = c;
+    while (c >= first && cabData[c] && cabData[c].run === run) path.push({ col: c--, row: 0 });
+    for (let k = hi; k > c; k--) if (cabData[k].stack > 1) path.push({ col: k, row: 1 });
   }
-  return circuits;
+  return path;
+}
+// How a cabinet is named in lists: plain number, or B/T on a stacked column.
+const cellLabel = (cabData, cell) => cabData[cell.col]?.stack > 1 ? `${cell.col}${cell.row ? "T" : "B"}` : cell.col;
+
+function buildCircuitsForRange(first, last, cabData, cpc_override) {
+  // Circuits fill along the power path up to the rating, closing wherever
+  // the count runs out (mid-row included — a stacked column's two cabinets
+  // are usually on different circuits) or where the panel type changes.
+  // A SOC's Cab/Ckt (cpc_override) can tighten a panel's rating but never
+  // exceed it: one SOC can span two panel types (auto sets its cpc from the
+  // first type), and P3.91's 30 must not load a P10 run at 30 when P10 is
+  // rated 4.
+  const circuits = [];
+  let cur = null;
+  for (const cell of powerPath(first, last, cabData)) {
+    const cabType = cabData[cell.col].cabType || "p10";
+    if (!cur || cur.cabType !== cabType || cur.cells.length >= cur.cpc) {
+      const rated = CAB_PRESETS[cabType]?.cpc || 4;
+      cur = { cabType, cpc: cpc_override ? Math.min(cpc_override, rated) : rated, cells: [] };
+      circuits.push(cur);
+    }
+    cur.cells.push(cell);
+  }
+  return circuits.map(({ cabType, cells }) => {
+    const cabs = [...new Set(cells.map(x => x.col))].sort((a, b) => b - a);
+    const a = cells[0], z = cells[cells.length - 1];
+    return { maxCab: cabs[0], minCab: cabs[cabs.length - 1], count: cells.length, cabType, cabs, cells,
+      inCab: a.col, inRow: a.row, lastCab: z.col, inLabel: cellLabel(cabData, a), lastLabel: cellLabel(cabData, z) };
+  });
 }
 
 function calcCircuitSizes(totalCabs, targetCpc) {
@@ -206,6 +222,38 @@ function autoSocForDistro(firstCab, lastCab, secData, cabData, maxSoc, mode = "p
   const first = Math.min(firstCab, lastCab), last = Math.max(firstCab, lastCab);
   const circuits = buildCircuitsForRange(first, last, cabData, null);
   if (!circuits.length) return [];
+
+  // A SOC output owns a COLUMN range (its first/last cab). On a stacked run
+  // a row-major circuit can share a column with the next circuit, so
+  // grouping prebuilt circuits could hand one column to two SOCs. There,
+  // cut on columns instead: each SOC takes the widest column range whose
+  // own circuits fit the target. Unstacked ranges keep the original code.
+  let stacked = false;
+  for (let c = first; c <= last; c++) if (cabData[c]?.stack > 1) { stacked = true; break; }
+  if (stacked) {
+    const nCk = (a, b) => buildCircuitsForRange(a, b, cabData, null).length;
+    const soc = (a, b, typeAt) => ({ firstCab: a, lastCab: b, cpc: CAB_PRESETS[cabData[typeAt]?.cabType]?.cpc || 4 });
+    const out = [];
+    let lo = first, hi = last;
+    if (mode === "spread") {
+      const numSoc = Math.min(maxSoc, Math.max(1, spreadCount || maxSoc));
+      const target = Math.ceil(circuits.length / numSoc);
+      for (let i = 0; i < numSoc && lo <= hi; i++) {
+        let x = hi;
+        if (i === numSoc - 1) x = lo; else while (x - 1 >= lo && nCk(x - 1, hi) <= target) x--;
+        out.push(soc(x, hi, hi)); hi = x - 1;
+      }
+      return out;
+    }
+    let fromHigh = true;
+    while (lo <= hi) {
+      if (fromHigh) { let x = hi; while (x - 1 >= lo && nCk(x - 1, hi) <= CKT_PER_SOC) x--; out.push(soc(x, hi, hi)); hi = x - 1; }
+      else { let y = lo; while (y + 1 <= hi && nCk(lo, y + 1) <= CKT_PER_SOC) y++; out.push(soc(lo, y, lo)); lo = y + 1; }
+      fromHigh = !fromHigh;
+    }
+    out.sort((a, b) => b.lastCab - a.lastCab);
+    return out;
+  }
 
   if (mode === "spread") {
     const numSoc = Math.min(maxSoc, Math.max(1, spreadCount || maxSoc));
@@ -332,7 +380,7 @@ function calcLayout(sections, distros, wattsPerCab) {
       gSocId++;
       const targetCpc = us.cpc || null;
       const rawCkts = buildCircuitsForRange(sf, sl, cabData, targetCpc);
-      const sCkts = rawCkts.map(rc => ({ id: 0, cabs: rc.cabs, sectionIdx: cabData[rc.cabs[0]]?.sectionIdx || 0, watts: rc.count * wattsPerCab }));
+      const sCkts = rawCkts.map(rc => ({ id: 0, cabs: rc.cabs, cells: rc.cells, inCab: rc.inCab, inRow: rc.inRow, lastCab: rc.lastCab, inLabel: rc.inLabel, lastLabel: rc.lastLabel, sectionIdx: cabData[rc.cabs[0]]?.sectionIdx || 0, watts: rc.count * wattsPerCab }));
       const allCabs = sCkts.flatMap(c => c.cabs);
       const positions = allCabs.map(cn => cabData[cn]?.centerPos || 0);
       const tp = positions.length ? (Math.min(...positions) + Math.max(...positions)) / 2 : 0;
@@ -550,14 +598,14 @@ function Settings({ s, onUpdate, layout, onReset }) {
             <span style={hdr}>TRUE1 <span style={{ color: "#8b949e", fontWeight: 400, fontSize: 8 }}>(31ft sections)</span></span>
             {layout.socapex.map((sc, si) => {
               const col = SOC_COLORS[si % SOC_COLORS.length];
-              const runs = sc.circuits.map(ckt => { const sb = Math.max(...ckt.cabs); const lb = Math.min(...ckt.cabs); const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", cab: sb, lastCab: lb, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
+              const runs = sc.circuits.map(ckt => { const sb = ckt.inCab; const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", cab: ckt.inLabel, lastCab: ckt.lastLabel, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
               return (<div key={sc.id} style={{ marginTop: 3 }}><div style={{ fontSize: 9, color: col, fontWeight: 600 }}>{sc.label}: {runs.reduce((a, r) => a + r.cables, 0)} cables</div>
                 {runs.map(r => <div key={r.label} style={{ fontSize: 8, color: "#8b949e", marginLeft: 10, fontFamily: "monospace" }}>{r.label}: {r.cab}→{r.lastCab} {r.ft.toFixed(0)}ft → {r.cables}×31'</div>)}</div>);
             })}
             <div style={{ borderTop: "1px solid #21262d", paddingTop: 3, marginTop: 4, fontSize: 10 }}>
               <span style={{ color: "#8b949e" }}>Total: </span>
               <span style={{ color: "#e6edf3", fontWeight: 600, fontFamily: "monospace" }}>
-                {layout.socapex.reduce((a, sc) => a + sc.circuits.reduce((b, ckt) => { const ft = Math.abs(layout.cabData[Math.max(...ckt.cabs)].centerPos - sc.termPos); return b + (ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN)); }, 0), 0)}× 31ft
+                {layout.socapex.reduce((a, sc) => a + sc.circuits.reduce((b, ckt) => { const ft = Math.abs(layout.cabData[ckt.inCab].centerPos - sc.termPos); return b + (ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN)); }, 0), 0)}× 31ft
               </span>
             </div>
           </div>
@@ -566,6 +614,9 @@ function Settings({ s, onUpdate, layout, onReset }) {
     </div>
   );
 }
+
+// Vertical extent of one row of a cab rect (whole rect + overhang when unstacked).
+const rowSpan = (cd, row, y, h, over) => cd.stack > 1 ? (row ? [y, y + h / 2] : [y + h / 2, y + h]) : [y - over, y + h + over];
 
 // ── DIAGRAM ──────────────────────────────────────────────────────
 function Diagram({ layout }) {
@@ -589,7 +640,7 @@ function Diagram({ layout }) {
 
   const cabSocIdx = {};
   layout.socapex.forEach((sc, si) => sc.circuits.forEach(c => c.cabs.forEach(cn => { cabSocIdx[cn] = si; })));
-  const cktStartCabs = new Set(layout.circuits.map(c => Math.max(...c.cabs)));
+  const cktStartCabs = new Set(layout.circuits.map(c => c.inCab));
 
   // True1 branch Y range
   const TRUE1_START = CAB_Y + CAB_H + 2;
@@ -629,7 +680,7 @@ function Diagram({ layout }) {
             {cktStartCabs.has(cd.num) && w > 10 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 3} textAnchor="middle" fill="#fff" fontSize={Math.min(9, w * 0.55)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
         })}
         {/* Circuit dividers */}
-        {layout.circuits.map(ckt => { const mx = Math.max(...ckt.cabs); const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab) return null; return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={CAB_Y - 1} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={CAB_Y + CAB_H + 1} stroke="#0d1117" strokeWidth={1.5} />; })}
+        {layout.circuits.map(ckt => { const mx = ckt.inCab; const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab) return null; const [y1, y2] = rowSpan(cd, ckt.inRow, CAB_Y, CAB_H, 1); return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={y1} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={y2} stroke="#0d1117" strokeWidth={1.5} />; })}
 
         {/* True1 branches: thin stems from circuit start cabs down to term circles */}
         {layout.socapex.map((sc, si) => {
@@ -637,7 +688,7 @@ function Diagram({ layout }) {
           const tx = toX(sc.termPos);
           const numCkts = sc.circuits.length;
           return sc.circuits.map((ckt, ci) => {
-            const startCab = Math.max(...ckt.cabs);
+            const startCab = ckt.inCab;
             const cx = toX(layout.cabData[startCab].centerPos);
             const ft = Math.abs(layout.cabData[startCab].centerPos - sc.termPos);
             const cables = ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN);
@@ -761,7 +812,7 @@ function DistroDiagram({ distro, layout, compact }) {
   const cabSocIdx = {};
   dSocList.forEach((sc, si) => sc.circuits.forEach(c => c.cabs.forEach(cn => { cabSocIdx[cn] = layout.socapex.indexOf(sc); })));
   const dCircuits = dSocList.flatMap(sc => sc.circuits);
-  const cktStartCabs = new Set(dCircuits.map(c => Math.max(...c.cabs)));
+  const cktStartCabs = new Set(dCircuits.map(c => c.inCab));
 
   // Find nearest cab to distro
   let nearCab = first, nearDist = Infinity;
@@ -803,14 +854,14 @@ function DistroDiagram({ distro, layout, compact }) {
           {cd.stack > 1 && <line x1={x + 0.3} y1={CAB_Y + CAB_H / 2} x2={x + 0.3 + Math.max(1.5, w - 0.6)} y2={CAB_Y + CAB_H / 2} stroke="#0d1117" strokeWidth={0.8} />}
           {cktStartCabs.has(cd.num) && w > 6 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#fff" fontSize={Math.min(8 * fs, w * 0.45)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
       })}
-      {dCircuits.map(ckt => { const mx = Math.max(...ckt.cabs); const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab || mx === last) return null; return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={CAB_Y} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={CAB_Y + CAB_H} stroke="#0d1117" strokeWidth={1} />; })}
+      {dCircuits.map(ckt => { const mx = ckt.inCab; const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab || mx === last) return null; const [y1, y2] = rowSpan(cd, ckt.inRow, CAB_Y, CAB_H, 0); return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={y1} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={y2} stroke="#0d1117" strokeWidth={1} />; })}
 
       {/* True1 branches */}
       {dSocList.map((sc, si) => {
         const gsi = layout.socapex.indexOf(sc);
         const col = SOC_COLORS[gsi % SOC_COLORS.length]; const tx = toX(sc.termPos); const numCkts = sc.circuits.length;
         return sc.circuits.map((ckt, ci) => {
-          const sb = Math.max(...ckt.cabs); const cx = toX(layout.cabData[sb].centerPos);
+          const sb = ckt.inCab; const cx = toX(layout.cabData[sb].centerPos);
           const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); const cables = ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN);
           const branchY = TRUE1_START + 4 + (ci / Math.max(1, numCkts - 1)) * (TRUE1_END - TRUE1_START - 8);
           return <g key={`t-${ckt.id}`}>
@@ -859,7 +910,7 @@ function PrintSheet({ layout, settings, onBack }) {
 
   const socBom = layout.socapex.map((sc, si) => {
     const col = SOC_COLORS[si % SOC_COLORS.length];
-    const runs = sc.circuits.map(ckt => { const sb = Math.max(...ckt.cabs); const lb = Math.min(...ckt.cabs); const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", distroId: ckt.distroId, cab: sb, lastCab: lb, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
+    const runs = sc.circuits.map(ckt => { const sb = ckt.inCab; const ft = Math.abs(layout.cabData[sb].centerPos - sc.termPos); return { label: ckt.breakerLabel || "?", distroId: ckt.distroId, cab: ckt.inLabel, lastCab: ckt.lastLabel, ft, cables: ft < 1 ? 1 : Math.ceil(ft / TRUE1_LEN) }; });
     return { ...sc, col, runs, totalCables: runs.reduce((a, r) => a + r.cables, 0) };
   });
   const totalTrue1 = socBom.reduce((a, s) => a + s.totalCables, 0);
