@@ -52,7 +52,26 @@ const CAB_PRESETS = {
   p10: { label: "P10 (10mm)", cpc: 4, widthFt: 5.25 },
   p12: { label: "P12 (12mm)", cpc: 6, widthFt: 5.25 },
   p391: { label: "P3.91 (3.91mm)", cpc: 30, widthFt: 1.64 },
+  // Panels the spec sheet / NovaSpec can emit whose cabinets-per-circuit
+  // rating nobody has given us. Width is physical fact (sheet CABINETS
+  // lengthMm); cpc is NOT — it stays null and calcLayout refuses the system
+  // rather than borrowing another panel's number (it used to silently fall
+  // back to P10's 4/ckt and 5.25ft).
+  p6:    { label: "P6 (6mm)",       cpc: null, widthFt: 5.25 },
+  p198v: { label: "P1.98 V (1.98mm)", cpc: null, widthFt: 1.64 },
+  p198h: { label: "P1.98 H (1.98mm)", cpc: null, widthFt: 3.28 },
 };
+const cpcKnown = t => CAB_PRESETS[t]?.cpc > 0;
+
+// ── STACKING ─────────────────────────────────────────────────────
+// ONE decision, the spec sheet's model (e360/index.html: a doubleStacked
+// zone counts `count * 2` cabinets; NovaSpec's section.doubleStacked means
+// the same). A cab NUMBER here is a column position along the run; a
+// double-stacked column holds TWO physical cabinets, daisy-chained on the
+// same circuit (a column is never split across circuits). Everything that
+// counts cabinets — circuit loading, watts, totals — reads cabData[n].stack,
+// which is set from this function and nowhere else.
+const stackHeight = sec => (sec && sec.doubleStacked) ? 2 : 1;
 const DISTRO_MODELS = { 200: { maxSoc: 3 }, 400: { maxSoc: 6 } };
 const CKT_PER_SOC = 6;
 const TRUE1_LEN = 31;
@@ -79,28 +98,62 @@ function parseConfig(txt) {
           gap = Math.max(0, Math.round(((parseFloat(cs.offset) || 0) - endPrev) * 10) / 10);
         } else { gap = 2; }
       }
-      return { name: cs.name || `Section ${i + 1}`, side: cs.side || "main", cabType: ct, count: parseInt(cs.count) || 0, gapBefore: gap };
+      const sec = { name: cs.name || `Section ${i + 1}`, side: cs.side || "main", cabType: ct, count: parseInt(cs.count) || 0, gapBefore: gap };
+      if (cs.doubleStacked) sec.doubleStacked = true; // NovaSpec (.nsf) stacks per section
+      return sec;
     });
-    return { clientName, sections };
+    return { clientName, sections: splitStackedZones(sections, d.zones) };
   }
   const tc = parseInt(d.fields?.totalCabinets || "0") || 0;
-  return { clientName, sections: [{ name: "Touchline", side: "main", cabType: defType, count: tc || 70, gapBefore: 0 }] };
+  return { clientName, sections: splitStackedZones([{ name: "Touchline", side: "main", cabType: defType, count: tc || 70, gapBefore: 0 }], d.zones) };
+}
+
+// The spec sheet (.e360) stacks per ZONE (a cab-number range), not per
+// section. Carry that into PowerSpec's per-section flag by splitting a
+// section where a doubleStacked zone starts/ends (gap 0 between the pieces,
+// so the geometry is unchanged). Files with no doubleStacked zone come back
+// as the very same array — unstacked imports are untouched.
+function splitStackedZones(sections, zones) {
+  const st = (zones || []).filter(z => z && z.doubleStacked)
+    .map(z => ({ lo: Math.min(z.first, z.last), hi: Math.max(z.first, z.last), name: z.name || "" }));
+  if (!st.length) return sections;
+  const zoneAt = n => st.find(z => n >= z.lo && n <= z.hi) || null;
+  const out = [];
+  let start = 1;
+  for (const sec of sections) {
+    let runStart = 0;
+    for (let k = 1; k <= sec.count; k++) {
+      const zk = zoneAt(start + k - 1);
+      if (k < sec.count && zoneAt(start + k) === zk) continue;
+      const n = k - runStart, piece = { ...sec, count: n, gapBefore: runStart === 0 ? sec.gapBefore : 0 };
+      if (zk) { piece.doubleStacked = true; if (n < sec.count) piece.name = `${sec.name} · ${zk.name}`; }
+      out.push(piece);
+      runStart = k;
+    }
+    if (sec.count <= 0) out.push(sec);
+    start += sec.count;
+  }
+  return out;
 }
 
 // ── GEOMETRY ─────────────────────────────────────────────────────
 function buildGeometry(sections) {
-  let pos = 0, cabNum = 0;
+  let pos = 0, cabNum = 0, physCabs = 0;
   const cabData = {}, secData = [], gapData = [];
   for (let si = 0; si < sections.length; si++) {
     const sec = sections[si];
     if (si > 0 && sec.gapBefore > 0) { gapData.push({ afterSection: si - 1, startPos: pos, len: sec.gapBefore }); pos += sec.gapBefore; }
     const cw = CAB_PRESETS[sec.cabType]?.widthFt || 5.25;
-    const startPos = pos, firstCab = cabNum + 1;
-    for (let i = 0; i < sec.count; i++) { cabNum++; cabData[cabNum] = { num: cabNum, centerPos: pos + cw / 2, sectionIdx: si, cabType: sec.cabType }; pos += cw; }
-    secData.push({ ...sec, idx: si, firstCab, lastCab: cabNum, startPos, endPos: pos, cabWidthFt: cw, lengthFt: sec.count * cw });
+    const startPos = pos, firstCab = cabNum + 1, stack = stackHeight(sec);
+    for (let i = 0; i < sec.count; i++) { cabNum++; cabData[cabNum] = { num: cabNum, centerPos: pos + cw / 2, sectionIdx: si, cabType: sec.cabType, stack }; pos += cw; }
+    physCabs += sec.count * stack;
+    secData.push({ ...sec, idx: si, firstCab, lastCab: cabNum, startPos, endPos: pos, cabWidthFt: cw, lengthFt: sec.count * cw, stack });
   }
-  return { cabData, secData, gapData, totalPerimLen: pos, totalCabs: cabNum };
+  // totalCabs = column positions (cab numbers); totalPhysCabs = cabinets you power.
+  return { cabData, secData, gapData, totalPerimLen: pos, totalCabs: cabNum, totalPhysCabs: physCabs };
 }
+// Physical cabinets in a cab-number range (a stacked column counts its stack).
+const physInRange = (cabData, a, b) => { let n = 0; for (let c = Math.min(a, b); c <= Math.max(a, b); c++) n += cabData[c] ? cabData[c].stack : 0; return n; };
 
 // ── CIRCUITS ─────────────────────────────────────────────────────
 function buildCircuitsForRange(first, last, cabData, cpc_override) {
@@ -110,17 +163,29 @@ function buildCircuitsForRange(first, last, cabData, cpc_override) {
     const cd = cabData[cn];
     if (!cd) { cn--; continue; }
     const cabType = cd.cabType || "p10";
-    const cpc = cpc_override || CAB_PRESETS[cabType]?.cpc || 4;
+    // A SOC's Cab/Ckt (cpc_override) can tighten a panel's rating but never
+    // exceed it: one SOC can span two panel types (auto sets its cpc from the
+    // first type), and P3.91's 30 must not load a P10 run at 30 when P10 is
+    // rated 4 — a stacked P10 column made that overload real.
+    const rated = CAB_PRESETS[cabType]?.cpc || 4;
+    const cpc = cpc_override ? Math.min(cpc_override, rated) : rated;
+    // cpc is PHYSICAL cabinets per circuit. A stacked column (stack 2) loads
+    // 2 and is never split: if it would overflow the circuit, it opens the
+    // next one. (A column is always taken when the circuit is empty, so a
+    // cpc smaller than a column still makes progress.)
     const cabs = [];
-    let peek = cn;
-    while (peek >= first && cabs.length < cpc) {
+    let peek = cn, load = 0;
+    while (peek >= first) {
       const pcd = cabData[peek];
       if (!pcd) break;
       if ((pcd.cabType || "p10") !== cabType) break;
+      const w = pcd.stack || 1;
+      if (cabs.length && load + w > cpc) break;
       cabs.push(peek);
+      load += w;
       peek--;
     }
-    circuits.push({ maxCab: Math.max(...cabs), minCab: Math.min(...cabs), count: cabs.length, cabType, cabs });
+    circuits.push({ maxCab: Math.max(...cabs), minCab: Math.min(...cabs), count: load, cabType, cabs });
     cn = peek;
   }
   return circuits;
@@ -248,8 +313,11 @@ function autoDistros(sections) {
 // ── CALC LAYOUT ──────────────────────────────────────────────────
 function calcLayout(sections, distros, wattsPerCab) {
   if (!sections?.length || !distros?.length) return null;
+  // No cabinets-per-circuit rating for a panel in use → refuse, don't guess.
+  const unrated = [...new Set(sections.filter(s => s.count > 0 && !cpcKnown(s.cabType)).map(s => s.cabType))];
+  if (unrated.length) return { refused: true, unrated };
   const geo = buildGeometry(sections);
-  const { cabData, secData, gapData, totalPerimLen, totalCabs } = geo;
+  const { cabData, secData, gapData, totalPerimLen, totalCabs, totalPhysCabs } = geo;
   if (!totalCabs) return null;
   const allCircuits = [], allSocapex = [], layoutDistros = [];
   let gSocId = 0;
@@ -269,7 +337,7 @@ function calcLayout(sections, distros, wattsPerCab) {
       const positions = allCabs.map(cn => cabData[cn]?.centerPos || 0);
       const tp = positions.length ? (Math.min(...positions) + Math.max(...positions)) / 2 : 0;
       sCkts.forEach(c => { c.id = allCircuits.length + 1; allCircuits.push(c); });
-      dSoc.push({ id: gSocId, circuits: sCkts, minCab: Math.min(...allCabs), maxCab: Math.max(...allCabs), termPos: tp, cabCount: allCabs.length, cpc: us.cpc });
+      dSoc.push({ id: gSocId, circuits: sCkts, minCab: Math.min(...allCabs), maxCab: Math.max(...allCabs), termPos: tp, cabCount: rawCkts.reduce((a, rc) => a + rc.count, 0), cpc: us.cpc });
     }
     const dPos = [];
     for (let cn = first; cn <= last; cn++) if (cabData[cn]) dPos.push(cabData[cn].centerPos);
@@ -277,7 +345,7 @@ function calcLayout(sections, distros, wattsPerCab) {
     const autoMid = dPos.length ? (Math.min(...dPos) + Math.max(...dPos)) / 2 : 0;
     const dp = (ud.behindCab && cabData[ud.behindCab]) ? cabData[ud.behindCab].centerPos : autoMid;
     dSoc.forEach(s => { s.cableLen = Math.abs(s.termPos - dp); s.distroId = di + 1; });
-    layoutDistros.push({ id: di + 1, model: ud.model, socapex: dSoc, placement: dp, firstCab: first, lastCab: last, totalCabs: dPos.length, behindCab: ud.behindCab || null });
+    layoutDistros.push({ id: di + 1, model: ud.model, socapex: dSoc, placement: dp, firstCab: first, lastCab: last, totalCabs: physInRange(cabData, first, last), behindCab: ud.behindCab || null });
     allSocapex.push(...dSoc);
   }
   // Label socapex per distro: A-F, left to right in rear view (highest cab pos = leftmost = A)
@@ -300,7 +368,7 @@ function calcLayout(sections, distros, wattsPerCab) {
   const covered = new Set(allCircuits.flatMap(c => c.cabs));
   const unc = []; for (let i = 1; i <= totalCabs; i++) if (!covered.has(i)) unc.push(i);
   if (unc.length) warnings.push(`${unc.length} cab(s) unassigned (e.g. cab ${unc[0]})`);
-  return { secData, cabData, gapData, circuits: allCircuits, socapex: allSocapex, distros: layoutDistros, totalPerimLen, totalCabs, totalCkts: allCircuits.length, totalSoc: allSocapex.length, totalDistros: layoutDistros.length, totalPower: totalCabs * wattsPerCab, warnings };
+  return { secData, cabData, gapData, circuits: allCircuits, socapex: allSocapex, distros: layoutDistros, totalPerimLen, totalCabs, totalPhysCabs, totalCkts: allCircuits.length, totalSoc: allSocapex.length, totalDistros: layoutDistros.length, totalPower: totalPhysCabs * wattsPerCab, warnings };
 }
 
 // ── UPLOAD ────────────────────────────────────────────────────────
@@ -397,6 +465,7 @@ function Settings({ s, onUpdate, layout, onReset }) {
                 {Object.entries(CAB_PRESETS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
               </select></div>
               <div><label style={lbl}>Cabs</label><input style={inpSm} type="number" min={1} value={sec.count} onChange={e => uSec(i, "count", parseInt(e.target.value) || 1)} /></div>
+              <div><label style={lbl}>Tall</label><select style={{ ...inpSm, width: 40 }} value={stackHeight(sec)} onChange={e => uSec(i, "doubleStacked", e.target.value === "2")}><option value={1}>1</option><option value={2}>2</option></select></div>
               {i > 0 && <div><label style={lbl}>Gap</label><input style={inpSm} type="number" min={0} step={0.1} value={sec.gapBefore} onChange={e => uSec(i, "gapBefore", parseFloat(e.target.value) || 0)} /></div>}
             </div>
           </div>
@@ -443,7 +512,7 @@ function Settings({ s, onUpdate, layout, onReset }) {
                 const layoutSoc = layout?.socapex?.find(x => x.minCab === Math.min(sc.firstCab, sc.lastCab) && x.maxCab === Math.max(sc.firstCab, sc.lastCab));
                 const gIdx = layoutSoc ? layout.socapex.indexOf(layoutSoc) : si;
                 const col = SOC_COLORS[gIdx % SOC_COLORS.length];
-                const cabCount = Math.max(0, Math.max(sc.firstCab, sc.lastCab) - Math.min(sc.firstCab, sc.lastCab) + 1);
+                const cabCount = layout?.cabData ? physInRange(layout.cabData, sc.firstCab, sc.lastCab) : Math.max(0, Math.max(sc.firstCab, sc.lastCab) - Math.min(sc.firstCab, sc.lastCab) + 1);
                 const sizes = calcCircuitSizes(cabCount, sc.cpc || 4);
                 const cLen = layoutSoc?.cableLen;
                 const over = cLen != null && cLen > 250;
@@ -473,7 +542,7 @@ function Settings({ s, onUpdate, layout, onReset }) {
       {layout && (
         <div style={{ borderTop: "1px solid #21262d", paddingTop: 6 }}>
           <span style={hdr}>SUMMARY</span>
-          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(1)}ft`], ["Circuits", layout.totalCkts], ["Socapex", layout.totalSoc], ["Max Power", `${(layout.totalPower / 1000).toFixed(1)}kW`]].map(([k, v]) =>
+          {[["Cabinets", layout.totalPhysCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(1)}ft`], ["Circuits", layout.totalCkts], ["Socapex", layout.totalSoc], ["Max Power", `${(layout.totalPower / 1000).toFixed(1)}kW`]].map(([k, v]) =>
             <div key={k} className="flex justify-between" style={{ fontSize: 10, marginTop: 1 }}><span style={{ color: "#8b949e" }}>{k}</span><span style={{ color: "#e6edf3", fontFamily: "monospace" }}>{v}</span></div>
           )}
           {layout.warnings?.map((w, i) => <div key={i} style={{ color: "#c0392b", fontSize: 9, marginTop: 2 }}>⚠ {w}</div>)}
@@ -534,7 +603,7 @@ function Diagram({ layout }) {
 
         {/* Header */}
         <text x={PAD} y={18} fill="#e6edf3" fontSize={13} fontWeight={700} fontFamily="'Segoe UI',sans-serif">{layout.secData[0]?.name || "System"} — Power Cabling</text>
-        <text x={PAD} y={31} fill="#8b949e" fontSize={9} fontFamily="monospace">{layout.totalCabs} cabs | {layout.totalPerimLen.toFixed(0)}ft | {layout.totalDistros}d | {layout.totalSoc}soc | {layout.totalCkts}ckts | {(layout.totalPower/1000).toFixed(0)}kW</text>
+        <text x={PAD} y={31} fill="#8b949e" fontSize={9} fontFamily="monospace">{layout.totalPhysCabs} cabs | {layout.totalPerimLen.toFixed(0)}ft | {layout.totalDistros}d | {layout.totalSoc}soc | {layout.totalCkts}ckts | {(layout.totalPower/1000).toFixed(0)}kW</text>
         <text x={PAD + drawW} y={18} textAnchor="end" fill="#f59e0b" fontSize={10} fontWeight={700} fontFamily="monospace" letterSpacing="0.12em">REAR VIEW</text>
         <text x={PAD + drawW / 2} y={46} textAnchor="middle" fill="#30363d" fontSize={7} fontFamily="monospace" letterSpacing="0.1em">▲ AUDIENCE / FIELD ▲</text>
         <line x1={PAD + 8} y1={FLOW_Y} x2={PAD + drawW - 8} y2={FLOW_Y} stroke="#484f58" strokeWidth={0.8} markerEnd="url(#aR)" />
@@ -549,13 +618,14 @@ function Diagram({ layout }) {
             <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + (corner ? -1 : 3)} textAnchor="middle" fill={corner ? "#f59e0b" : "#484f58"} fontSize={7} fontFamily="monospace">{g.len.toFixed(1)}'</text>
             {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 10} textAnchor="middle" fill="#f59e0b" fontSize={8} fontFamily="monospace" fontWeight={700}>⌐ 90°</text>}</g>;
         })}
-        {layout.secData.map(sd => <text key={sd.idx} x={(toX(sd.startPos) + toX(sd.endPos)) / 2} y={CAB_Y - 2} textAnchor="middle" fill="#484f58" fontSize={6} fontFamily="monospace">{sd.name}</text>)}
+        {layout.secData.map(sd => <text key={sd.idx} x={(toX(sd.startPos) + toX(sd.endPos)) / 2} y={CAB_Y - 2} textAnchor="middle" fill="#484f58" fontSize={6} fontFamily="monospace">{sd.name}{sd.stack > 1 ? ` (${sd.stack} tall)` : ""}</text>)}
 
         {/* Cabs */}
         {Object.values(layout.cabData).map(cd => {
           const si = cabSocIdx[cd.num]; const col = SOC_COLORS[si !== undefined ? si % SOC_COLORS.length : 0];
           const sd = layout.secData[cd.sectionIdx]; const x = toX(cd.centerPos + sd.cabWidthFt / 2); const w = sd.cabWidthFt * SC;
           return <g key={cd.num}><rect x={x + 0.5} y={CAB_Y} width={Math.max(2, w - 1)} height={CAB_H} fill={si !== undefined ? col : "#30363d"} rx={1} opacity={si !== undefined ? 0.8 : 0.3} />
+            {cd.stack > 1 && <line x1={x + 0.5} y1={CAB_Y + CAB_H / 2} x2={x + 0.5 + Math.max(2, w - 1)} y2={CAB_Y + CAB_H / 2} stroke="#0d1117" strokeWidth={1} />}
             {cktStartCabs.has(cd.num) && w > 10 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 3} textAnchor="middle" fill="#fff" fontSize={Math.min(9, w * 0.55)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
         })}
         {/* Circuit dividers */}
@@ -723,13 +793,14 @@ function DistroDiagram({ distro, layout, compact }) {
         return <g key={`g-${i}`}><rect x={x1} y={CAB_Y + 1} width={x2 - x1} height={CAB_H - 2} fill="none" stroke={corner ? "#f59e0b" : "#30363d"} strokeWidth={0.6} strokeDasharray="2,2" rx={1} />
           {corner && <text x={(x1 + x2) / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#f59e0b" fontSize={6 * fs} fontFamily="monospace" fontWeight={700}>90°</text>}</g>;
       })}
-      {dSecs.map(sd => <text key={sd.idx} x={(toX(Math.max(sd.startPos, rangeStart)) + toX(Math.min(sd.endPos, rangeEnd))) / 2} y={CAB_Y - 1} textAnchor="middle" fill="#484f58" fontSize={5 * fs} fontFamily="monospace">{sd.name}</text>)}
+      {dSecs.map(sd => <text key={sd.idx} x={(toX(Math.max(sd.startPos, rangeStart)) + toX(Math.min(sd.endPos, rangeEnd))) / 2} y={CAB_Y - 1} textAnchor="middle" fill="#484f58" fontSize={5 * fs} fontFamily="monospace">{sd.name}{sd.stack > 1 ? ` (${sd.stack} tall)` : ""}</text>)}
 
       {/* Cabs */}
       {Object.values(relevantCabs).map(cd => {
         const si = cabSocIdx[cd.num]; const col = SOC_COLORS[si !== undefined ? si % SOC_COLORS.length : 0];
         const sd = layout.secData[cd.sectionIdx]; const x = toX(cd.centerPos + sd.cabWidthFt / 2); const w = sd.cabWidthFt * SC;
         return <g key={cd.num}><rect x={x + 0.3} y={CAB_Y} width={Math.max(1.5, w - 0.6)} height={CAB_H} fill={si !== undefined ? col : "#30363d"} rx={0.5} opacity={si !== undefined ? 0.8 : 0.3} />
+          {cd.stack > 1 && <line x1={x + 0.3} y1={CAB_Y + CAB_H / 2} x2={x + 0.3 + Math.max(1.5, w - 0.6)} y2={CAB_Y + CAB_H / 2} stroke="#0d1117" strokeWidth={0.8} />}
           {cktStartCabs.has(cd.num) && w > 6 && <text x={x + w / 2} y={CAB_Y + CAB_H / 2 + 2} textAnchor="middle" fill="#fff" fontSize={Math.min(8 * fs, w * 0.45)} fontFamily="monospace" fontWeight={600}>{cd.num}</text>}</g>;
       })}
       {dCircuits.map(ckt => { const mx = Math.max(...ckt.cabs); const cd = layout.cabData[mx]; const sd = layout.secData[cd.sectionIdx]; if (mx === sd.lastCab || mx === last) return null; return <line key={`cd-${ckt.id}`} x1={toX(cd.centerPos + sd.cabWidthFt / 2)} y1={CAB_Y} x2={toX(cd.centerPos + sd.cabWidthFt / 2)} y2={CAB_Y + CAB_H} stroke="#0d1117" strokeWidth={1} />; })}
@@ -839,7 +910,7 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
         </div>
 
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 10, fontSize: 11, padding: "6px 10px", background: "#f9f9f9", borderRadius: 4 }}>
-          {[["Cabinets", layout.totalCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(0)}ft`], ["Distros", layout.distros.map(d => `${d.model}A`).join(" + ")], ["Socapex", layout.totalSoc], ["Circuits", layout.totalCkts], ["True1", `${totalTrue1}× 31ft`], ["Max Power", `${(layout.totalPower / 1000).toFixed(0)}kW`]].map(([k, v]) =>
+          {[["Cabinets", layout.totalPhysCabs], ["Perimeter", `${layout.totalPerimLen.toFixed(0)}ft`], ["Distros", layout.distros.map(d => `${d.model}A`).join(" + ")], ["Socapex", layout.totalSoc], ["Circuits", layout.totalCkts], ["True1", `${totalTrue1}× 31ft`], ["Max Power", `${(layout.totalPower / 1000).toFixed(0)}kW`]].map(([k, v]) =>
             <div key={k}><span style={{ color: "#999" }}>{k}: </span><span style={{ fontWeight: 700 }}>{v}</span></div>)}
         </div>
 
@@ -944,12 +1015,28 @@ td{padding:3px 8px;font-size:10px;border-bottom:1px solid #e0e0e0;font-family:'S
   );
 }
 
+// ── REFUSAL: a panel with no cabinets-per-circuit rating ─────────
+function Unrated({ types }) {
+  const names = types.map(t => CAB_PRESETS[t]?.label || t);
+  return (
+    <div className="flex-1 flex items-center justify-center" style={{ padding: 24 }}>
+      <div style={{ maxWidth: 520, border: "1px solid #c0392b", borderRadius: 6, padding: 16, background: "#1a1111", color: "#e6edf3", fontSize: 12, lineHeight: 1.5 }}>
+        <div style={{ color: "#ff6b5b", fontWeight: 700, marginBottom: 6 }}>⚠ NO POWER RATING FOR {names.join(", ").toUpperCase()}</div>
+        <div>PowerSpec has no cabinets-per-circuit number for this panel, so it will not compute circuits, socapex or amps for it — any figure would be a guess.</div>
+        <div style={{ color: "#8b949e", marginTop: 6 }}>Change the section Type to a rated panel (P10, P12, P3.91), or get the panel's cabinets-per-circuit rating added to PowerSpec.</div>
+      </div>
+    </div>
+  );
+}
+
 // ── APP ──────────────────────────────────────────────────────────
 function App() {
   const [config, setConfig] = useState(null);
   const [settings, setSettings] = useState(null);
   const [printMode, setPrintMode] = useState(false);
-  const layout = useMemo(() => settings ? calcLayout(settings.sections, settings.distros, settings.wattsPerCab) : null, [settings]);
+  const calc = useMemo(() => settings ? calcLayout(settings.sections, settings.distros, settings.wattsPerCab) : null, [settings]);
+  const refusal = calc && calc.refused ? calc : null;
+  const layout = refusal ? null : calc;
 
   // Expose an imperative API for the staffing-dashboard integration paths
   // (headless render iframe + embed-mode + Bind to Dashboard popup). React
@@ -1000,7 +1087,7 @@ function App() {
       onLoadState={loadState}
       onManual={() => { setConfig({ m: 1 }); const secs = [{ name: "Touchline", side: "main", cabType: "p10", count: 70, gapBefore: 0 }]; setSettings({ clientName: "New Project", sections: secs, wattsPerCab: 1000, distros: autoDistros(secs) }); }}
     />
-  ) : printMode ? (
+  ) : printMode && !refusal ? (
     <PrintSheet layout={layout} settings={settings} onBack={() => setPrintMode(false)} />
   ) : (
     <div style={{ display: "flex", height: "100vh", background: "#0d1117", color: "#e6edf3", overflow: "hidden" }}>
@@ -1010,9 +1097,9 @@ function App() {
           <button onClick={saveConfig} style={{ background: "none", border: "1px solid #30363d", color: "#8b949e", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 600, cursor: "pointer" }}>💾 SAVE CONFIG</button>
           <button onClick={() => window.bindToDashboardEvent && window.bindToDashboardEvent()} style={{ background: "none", border: "1px solid #00c6ff", color: "#00c6ff", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO DASHBOARD</button>
           <button onClick={() => window.bindToShowrunnerShow && window.bindToShowrunnerShow()} style={{ background: "none", border: "1px solid #35E0A1", color: "#35E0A1", borderRadius: 4, padding: "5px 12px", fontSize: 10, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>📤 BIND TO PM SHOW</button>
-          <button onClick={() => setPrintMode(true)} style={{ background: "#f59e0b", color: "#0d1117", border: "none", borderRadius: 4, padding: "5px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>EXPORT SHEET</button>
+          {!refusal && <button onClick={() => setPrintMode(true)} style={{ background: "#f59e0b", color: "#0d1117", border: "none", borderRadius: 4, padding: "5px 16px", fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em" }}>EXPORT SHEET</button>}
         </div>
-        <Diagram layout={layout} />
+        {refusal ? <Unrated types={refusal.unrated} /> : <Diagram layout={layout} />}
       </div>
     </div>
   );
